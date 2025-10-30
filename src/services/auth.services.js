@@ -17,15 +17,18 @@ const login = async (rut, password) => {
 
     return response.data;
   } catch (error) {
-  if (error.response && error.response.data) {
+  let errorMessage = 'Error desconocido';
+  if (error.response && error.response.data && error.response.data.message) {
     // El error vino del backend (ej. 401, 404, 500)
-    console.error('Error de servidor:', error.response.data.message);
-    throw error.response.data;
-  } else {
-    // El error es de red (CORS, URL mal, backend caído)
-    console.error('Error de red o CORS:', error.message);
-    throw new Error(error.message || 'Error de red. Revisa la URL de la API o la configuración CORS.');
+    errorMessage = error.response.data.message;
+  } else if (error.message) {
+    // El error es de red (CORS, URL mal, backend caído, ERR_CONNECTION_REFUSED)
+    errorMessage = error.message;
   }
+  
+  console.error('Error en el servicio:', errorMessage);
+  // Siempre lanza el error para que el componente de la página lo atrape
+  throw new Error(errorMessage);
 }
 }
 
