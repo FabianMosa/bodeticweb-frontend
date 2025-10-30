@@ -85,14 +85,15 @@ useEffect(() => {
           promesas.push(dashboardService.getAlertas());
         }
 
-        // Ejecutamos las promesas
-        const results = await Promise.all(promesas);
-        const prestamosData = results[0];
-        const alertasData = results[1];
+        const [prestamosData, alertasData] = await Promise.all(promesas);
 
-        setPrestamos(prestamosData);
-        if (alertasData) {
-          setAlertas(alertasData);
+       // Solo actualiza el estado si los datos son válidos
+        if (Array.isArray(prestamosData)) {
+            setPrestamos(prestamosData);
+        }
+        
+        if (alertasData) { // Esta comprobación ya era correcta
+            setAlertas(alertasData);
         }
 
       } catch (error) {
