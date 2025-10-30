@@ -27,6 +27,7 @@ const login = async (rut, password) => {
     throw new Error(error.message || 'Error de red. Revisa la URL de la API o la configuración CORS.');
   }
 }
+}
 
 const logout = () => {
   // Simplemente removemos el token del Local Storage
