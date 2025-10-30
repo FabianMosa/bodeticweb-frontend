@@ -17,6 +17,7 @@ const getAlertas = async () => {
     throw new Error(error.message || 'Error de red. Revisa la URL de la API o la configuración CORS.');
   }
 }
+}
 
 export default {
   getAlertas,

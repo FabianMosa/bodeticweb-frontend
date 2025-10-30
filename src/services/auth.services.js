@@ -32,7 +32,7 @@ const login = async (rut, password) => {
 const logout = () => {
   // Simplemente removemos el token del Local Storage
   localStorage.removeItem('usuario');
-};
+}
 
 export default  {
   login,
