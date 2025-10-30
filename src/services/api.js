@@ -3,9 +3,12 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 // Creamos una instancia de Axios con la URL base de nuestra API
+console.log('API Base URL:', API_BASE_URL);
+
 const api = axios.create({
   baseURL: API_BASE_URL
 });
+
 // Añadimos un interceptor para incluir el token en cada petición
 // Si el token existe en el localStorage
 // Lo añadimos al header de autorización
