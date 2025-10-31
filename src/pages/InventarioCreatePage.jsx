@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
 import proveedorService from '../services/proveedor.service';
+import ScannerModal from '../components/ScannerModal.jsx';
 
+// 1. Importar componentes de React-Bootstrap
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
 // --- Estilos para el Formulario ---
 const formStyles = {
   display: 'flex',
@@ -10,12 +13,12 @@ const formStyles = {
   maxWidth: '600px',
   margin: '20px auto',
   padding: '20px',
-  border: '1px solid #ccc',
+  border: '1px solid #3a3cb4ff',
   borderRadius: '8px',
   boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
 };
 const fieldsetStyles = {
-  border: '1px solid #007bff',
+  border: '1px solid #aaa',
   borderRadius: '4px',
   marginBottom: '15px',
   padding: '10px 15px'
@@ -57,6 +60,9 @@ const InventarioCreatePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Estado para controlar la visibilidad del escáner
+  const [showScanner, setShowScanner] = useState(false);
 
   //ACTUALIZAR USE EFFECT (CARGAR AMBOS)
   useEffect(() => {
@@ -113,13 +119,30 @@ const InventarioCreatePage = () => {
     }
   };
 
+  // FUNCION PARA MANEJAR EL RESULTADO DEL ESCÁNER
+  const handleScanSuccess = (skuScaneado) => {
+    // Actualizamos el estado del formulario con el SKU
+    setFormData(prev => ({
+      ...prev,
+      sku: skuScaneado
+    }));
+    // Cerramos el modal del escáner
+    setShowScanner(false);
+  };
   if (loading) return <div>Cargando datos...</div>;
 
   return (
-   <div style={{ padding: '20px' }}>
-      <Link to="/inventario" style={{...buttonStyles, backgroundColor: '#7a9ee0ff', color: 'black', textDecoration: 'none'}}>{"Volver"} </Link>
-      <form onSubmit={handleSubmit} style={formStyles}>
-        <h2>Registrar Nuevo Insumo </h2>
+   <Container fluid style={{ padding: '20px' }} className='form-container bg-light min-vh py-4'>
+      <Row className="justify-content-center">
+        <Col  xs={12} md={10} lg={8}>
+          <Button variant="outline-secondary" size="sm" as={Link} to="/inventario" className="mb-3">
+            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+          </Button>
+          <form onSubmit={handleSubmit} style={formStyles}>
+
+        <h2 as="h2" className="text-center fw-bold form-header">
+              Registrar Nuevo Insumo
+        </h2>
 
         {/* Mostramos el error principal aquí */}
         {error && <p style={{ color: 'red', backgroundColor: '#ffe0e0', padding: '10px', borderRadius: '4px' }}>{error}</p>}
@@ -143,16 +166,34 @@ const InventarioCreatePage = () => {
           <label>Fecha Emisión (Documento):</label>
           <input type="date" name="fecha_emision" value={formData.fecha_emision} onChange={handleChange} style={inputStyles} required />
         </fieldset>
+        
         <fieldset style={{...fieldsetStyles, border: '1px solid #ccc'}}>
           <legend>2. Información del Insumo</legend>
         <label>Nombre:</label>
         <input type="text" name="nombre" onChange={handleChange} style={inputStyles} required />
         
-        <label>SKU (Código de Barras):</label>
-        <input type="text" name="sku" onChange={handleChange} style={inputStyles} required />
-        
-        <label>Proveedor:</label>
-             
+        <Form.Group className="mb-3" controlId="formSku">
+                        <Form.Label>SKU (Código Barras):</Form.Label>
+                        <InputGroup>
+                          <Form.Control 
+                            type="text" 
+                            name="sku"
+                            value={formData.sku} // Asegurarse que el valor esté bindeado
+                            onChange={handleChange} 
+                            required 
+                            className="form-control-focus"
+                          />
+                          {/* ESTE ES EL NUEVO BOTÓN */}
+                          <Button 
+                            variant="outline-secondary" 
+                            onClick={() => setShowScanner(true)}
+                            title="Escanear Código"
+                          >
+                            <i className="bi bi-upc-scan"></i>
+                          </Button>
+                        </InputGroup>
+        </Form.Group> 
+                  
         <label>Categoría:</label>
         <select name="id_categoria" onChange={handleChange} style={inputStyles} required value={formData.id_categoria}>
           {categorias.map(cat => (
@@ -178,7 +219,16 @@ const InventarioCreatePage = () => {
         </button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
-    </div>
+      {/* 5. RENDERIZAR EL MODAL DEL ESCÁNER (al final del return) */}
+      {showScanner && (
+        <ScannerModal 
+          onClose={() => setShowScanner(false)}
+          onScanSuccess={handleScanSuccess} 
+        />
+      )}
+    </Col>
+  </Row>
+    </Container>
   );
 };
 

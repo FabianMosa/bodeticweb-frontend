@@ -4,29 +4,8 @@ import authService from '../services/auth.services';
 import dashboardService from '../services/dashboard.service'; 
 import movimientoService from '../services/movimiento.service';
 import { Container, Row, Col, Navbar, Nav, Button, Card, ListGroup, Spinner, Alert } from 'react-bootstrap';
-import styles from '../styles/DashboardPage.module.css';
-// (Estilos temporales para el Dashboard)
-const dashboardStyles = {
-  padding: '20px'
-};
 
-const headerStyles = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  borderBottom: '1px solid #ccc',
-  paddingBottom: '10px'
-};
 
-const logoutButtonStyles = {
-  padding: '8px 12px',
-  fontSize: '14px',
-  backgroundColor: '#dc3545',
-  color: 'white',
-  border: 'none',
-  borderRadius: '4px',
-  cursor: 'pointer'
-};
 // --- ESTILOS DE LOS WIDGETS ---
 const widgetContainerStyles = {
   display: 'flex',

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import usuarioService from '../services/usuario.service';
 import rolService from '../services/rol.services';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
 
 // (Estilos del formulario)
 const formStyles = {
@@ -52,7 +53,7 @@ const UsuarioCreatePage = () => {
           setFormData(prev => ({ ...prev, id_rol: defaultRole.PK_id_rol }));
         }
       })
-      .catch(err => setError('Error al cargar roles'))
+      .catch(() => setError('Error al cargar roles'))
       .finally(() => setLoading(false));
   }, []); // El array vacío [] significa "ejecutar solo al montar"
 
@@ -94,8 +95,14 @@ const UsuarioCreatePage = () => {
   if (loading) return <div>Cargando roles...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Link to="/usuarios"style={{...buttonStyles, backgroundColor: '#7a9ee0ff', color: 'black', textDecoration: 'none'}}>{"Volver a menú de usuario"}</Link>
+    <Container className="form-container bg-light min-vh-100 py-4">
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8}> 
+        <Card className='shadow-sm border-0'>
+          <div style={{ padding: '20px' }}>
+      <Button variant="outline-primary" size="sm" as={Link} to="/usuarios" className="mb-3">
+              <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+      </Button>      
       <form onSubmit={handleSubmit} style={formStyles}>
         <h2>Crear Nuevo Usuario</h2>
         
@@ -146,12 +153,17 @@ const UsuarioCreatePage = () => {
           ))}
         </select>
 
-        <button type="submit" disabled={submitting} style={buttonStyles}>
+        <Button type="submit" disabled={submitting} style={buttonStyles}>
           {submitting ? 'Guardando...' : 'Crear Usuario'}
-        </button>
+        </Button>
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
       </form>
     </div>
+        </Card>
+        </Col>
+      </Row>
+    </Container>
+    
   );
 };
 

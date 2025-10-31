@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
 import usuarioService from '../services/usuario.service';
 import movimientoService from '../services/movimiento.service';
-
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
 // (Estilos del formulario)
 const formStyles = {
   display: 'flex',
@@ -81,8 +81,14 @@ const DevolucionPage = () => {
   if (loading && (insumos.length === 0 || tecnicos.length === 0)) return <div>Cargando datos...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Link to="/dashboard" style={{...buttonStyles, backgroundColor: '#7a9ee0ff', color: 'black', textDecoration: 'none'}}>{"Volver"}</Link>
+    <Container fluid className="form-container bg-light min-vh-100 py-4">
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8}>
+        <div style={{ padding: '20px' }}>
+      <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+          </Button> 
+      
       <form onSubmit={handleSubmit} style={formStyles}>
         <h2>Registrar Devolución</h2>
         
@@ -107,12 +113,16 @@ const DevolucionPage = () => {
         <label>Cantidad Devuelta:</label>
         <input type="number" value={cantidad} min="1" onChange={(e) => setCantidad(e.target.value)} style={inputStyles} required />
 
-        <button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#17a2b8'}}>
+        <Button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#17a2b8'}}>
           {loading ? 'Registrando...' : 'Confirmar Devolución'}
-        </button>
+        </Button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
-    </div>
+    </div></Col>
+      </Row>
+    </Container>
+
+    
   );
 };
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import usuarioService from '../services/usuario.service';
-
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
 // --- Estilos ---
 const tableStyles = {
   width: '100%',
@@ -36,7 +36,7 @@ const UsuarioListPage = () => {
   useEffect(() => {
     usuarioService.getAllUsuarios()
       .then(data => setUsuarios(data))
-      .catch(err => setError('Error al cargar usuarios'))
+      .catch(() => setError('Error al cargar usuarios'))
       .finally(() => setLoading(false));
   }, []);
   
@@ -44,11 +44,17 @@ const UsuarioListPage = () => {
   if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Link to="/dashboard"style={{...buttonStyles, backgroundColor: '#7a9ee0ff', color: 'black', textDecoration: 'none'}}>{"Volver"}</Link>
-      <h1 style={{ marginTop: '15px' }}>Gestión de Usuarios</h1>
-
-      <Link to="/usuarios/nuevo" style={{
+    <Container fluid className="form-container bg-light min-vh-100 py-4">
+        <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8}>
+          <Card>
+            <Card.Body>              
+              <div style={{ padding: '20px' }}>
+        <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+              <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+        </Button>  
+        <br /> 
+        <Link to="/usuarios/nuevo" style={{
           padding: '10px 15px',
           backgroundColor: '#007bff',
           color: 'white',
@@ -57,6 +63,7 @@ const UsuarioListPage = () => {
         }}>
         Crear Nuevo Usuario
       </Link>
+      <h2 style={{ marginTop: '15px',  }} className='fw-bold p-2' >Gestión de Usuarios</h2>
       
       <table style={tableStyles}>
         <thead>
@@ -87,6 +94,12 @@ const UsuarioListPage = () => {
         </tbody>
       </table>
     </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>    
+    </Container>
+    
   );
 };
 
