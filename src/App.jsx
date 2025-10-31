@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx';    
@@ -12,12 +12,16 @@ import UsuarioCreatePage from './pages/UsuarioCreatePage.jsx';
 import UsuarioEditPage from './pages/UsuarioEditPage.jsx';
 import HistorialPage from './pages/HistorialPage.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import NotificationModal from './components/NotificacionModal.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Fix for useLayoutEffect warning in SSR (if applicable)
+React.useLayoutEffect = React.useEffect;
+
+const App = () => {
 
   return (
     <div>
+      <NotificationModal />
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}/>          
@@ -32,9 +36,7 @@ function App() {
           <Route path="/historial" element={<HistorialPage />} />
         {/* (Opcional: Ruta para "No encontrado") */}
         <Route path="*" element={<h2>404 - Página No Encontrada</h2>} />
-
-      </Routes>
-      
+      </Routes>      
     </div>
   )
 }

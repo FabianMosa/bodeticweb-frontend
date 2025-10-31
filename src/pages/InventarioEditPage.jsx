@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
-
+import {useNotification} from '../context/NotificationContext'
+import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form } from 'react-bootstrap';
 // (Estilos del formulario)
 const formStyles = {
   display: 'flex',
@@ -23,8 +24,8 @@ const InventarioEditPage = () => {
 
   const [formData, setFormData] = useState(null); // Empezar en null
   const [categorias, setCategorias] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);  
+  const { showNotification } = useNotification();
 
   // 1. Cargar categorías Y los datos del insumo a editar
   useEffect(() => {
@@ -46,7 +47,7 @@ const InventarioEditPage = () => {
         setCategorias(categoriasData);
         
       } catch (err) {
-        setError('Error al cargar los datos');
+        showNotification(err.message ||'Error al cargar los datos', 'error');
       } finally {
         setLoading(false);
       }
@@ -65,7 +66,6 @@ const InventarioEditPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     // Preparamos los datos a enviar
     const dataToUpdate = {
@@ -79,10 +79,10 @@ const InventarioEditPage = () => {
 
     try {
       await insumoService.updateInsumo(id, dataToUpdate);
-      alert('Insumo actualizado con éxito');
+      showNotification('Insumo actualizado con éxito','success');
       navigate('/inventario'); // Redirige a la lista
     } catch (err) {
-      setError(err.message || 'Error al actualizar el insumo');
+      showNotification(err.message || 'Error al actualizar el insumo','error');
     } finally {
       setLoading(false);
     }
@@ -91,42 +91,49 @@ const InventarioEditPage = () => {
   if (loading || !formData) return <div>Cargando datos del insumo...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Link to="/inventario" style={{...buttonStyles, backgroundColor: '#7a9ee0ff', color: 'black', textDecoration: 'none'}}>{"Volver"}</Link>
-      <form onSubmit={handleSubmit} style={formStyles}>
-        <h2>Editar Insumo (RF-06)</h2>
-        
-        <label>Nombre:</label>
-        <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} style={inputStyles} required />
-        
-        <label>SKU (Código de Barras):</label>
-        <input type="text" name="sku" value={formData.sku} onChange={handleChange} style={inputStyles} required />
-        
-        <label>Categoría:</label>
-        <select name="FK_id_categoria" value={formData.FK_id_categoria} onChange={handleChange} style={inputStyles} required>
-          {categorias.map(cat => (
-            <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
-              {cat.nombre_categoria}
-            </option>
-          ))}
-        </select>
-        
-        {/* No editamos el Stock Actual aquí, solo el mínimo */}
-        <label>Stock Mínimo:</label>
-        <input type="number" name="stock_minimo" value={formData.stock_minimo} min="1" onChange={handleChange} style={inputStyles} required />
-        
-        <label>Fecha Vencimiento (Opcional):</label>
-        <input type="date" name="fecha_vencimiento" value={formData.fecha_vencimiento || ''} onChange={handleChange} style={inputStyles} />
-        
-        <label>Descripción (Opcional):</label>
-        <textarea name="descripcion" value={formData.descripcion || ''} onChange={handleChange} style={inputStyles}></textarea>
+    <Container fluid className="bg-light min-vh-100 py-4">
+      <Row className="mb-3 align-items-center">
+        <div>
+          <Button variant="outline-secondary" size="sm" as={Link} to="/dashboard">
+            <i className="bi bi-arrow-left me-1"></i> Volver
+          </Button>
+           <Card xs='auto'>
+            <form onSubmit={handleSubmit} style={formStyles}>
+              <h2>Editar Insumo (RF-06)</h2>
+              
+              <label>Nombre:</label>
+              <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} style={inputStyles} required />
+              
+              <label>SKU (Código de Barras):</label>
+              <input type="text" name="sku" value={formData.sku} onChange={handleChange} style={inputStyles} required />
+              
+              <label>Categoría:</label>
+              <select name="FK_id_categoria" value={formData.FK_id_categoria} onChange={handleChange} style={inputStyles} required>
+                {categorias.map(cat => (
+                  <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
+                    {cat.nombre_categoria}
+                  </option>
+                ))}
+              </select>
+              
+              {/* No editamos el Stock Actual aquí, solo el mínimo */}
+              <label>Stock Mínimo:</label>
+              <input type="number" name="stock_minimo" value={formData.stock_minimo} min="1" onChange={handleChange} style={inputStyles} required />
+              
+              <label>Fecha Vencimiento (Opcional):</label>
+              <input type="date" name="fecha_vencimiento" value={formData.fecha_vencimiento || ''} onChange={handleChange} style={inputStyles} />
+              
+              <label>Descripción (Opcional):</label>
+              <textarea name="descripcion" value={formData.descripcion || ''} onChange={handleChange} style={inputStyles}></textarea>
 
-        <button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#ffc107'}}>
-          {loading ? 'Actualizando...' : 'Actualizar Insumo'}
-        </button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
+              <button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#ffc107'}}>
+                {loading ? 'Actualizando...' : 'Actualizar Insumo'}
+              </button>
+            </form>
+         </Card>
     </div>
+    </Row>
+    </Container>
   );
 };
 

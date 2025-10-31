@@ -1,7 +1,8 @@
 // frontend/src/components/SalidaModal.jsx
 import React, { useState } from 'react';
 import movimientoService from '../services/movimiento.service';
-
+//import { useNotification } from '../context/NotificationContext'; // <-- 1. IMPORTAR
+import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form } from 'react-bootstrap';
 // --- Estilos para el Modal (Pop-up) ---
 const modalOverlayStyles = {
   position: 'fixed',

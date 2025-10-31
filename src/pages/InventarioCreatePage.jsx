@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
 import proveedorService from '../services/proveedor.service';
 import ScannerModal from '../components/ScannerModal.jsx';
+import { useNotification } from '../context/NotificationContext';
 
 // 1. Importar componentes de React-Bootstrap
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
@@ -57,9 +58,9 @@ const InventarioCreatePage = () => {
   });
   const [categorias, setCategorias] = useState([]);
   const [proveedores, setProveedores] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);  
   const navigate = useNavigate();
+  const{ showNotification } = useNotification();
 
   // Estado para controlar la visibilidad del escáner
   const [showScanner, setShowScanner] = useState(false);
@@ -87,7 +88,7 @@ const InventarioCreatePage = () => {
         }
 
       } catch (err) {
-        setError('Error al cargar datos (categorías o proveedores)');
+        showNotification(err.message || 'Error al cargar datos (categorías o proveedores)', 'error');
       } finally {
         setLoading(false);
       }
@@ -105,15 +106,14 @@ const InventarioCreatePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    setLoading(true);    
 
     try {
       await insumoService.createInsumo(formData);
-      alert('Insumo y documento de ingreso creados con éxito');
+      showNotification('Insumo y documento de ingreso creados con éxito', 'success');
       navigate('/inventario'); // Redirige a la lista
     } catch (err) {
-      setError(err.message || 'Error al crear el insumo');
+      showNotification(err.message || 'Error al crear el insumo', 'error');
     } finally {
       setLoading(false);
     }
@@ -143,10 +143,6 @@ const InventarioCreatePage = () => {
         <h2 as="h2" className="text-center fw-bold form-header">
               Registrar Nuevo Insumo
         </h2>
-
-        {/* Mostramos el error principal aquí */}
-        {error && <p style={{ color: 'red', backgroundColor: '#ffe0e0', padding: '10px', borderRadius: '4px' }}>{error}</p>}
-
         {/* SECCIÓN 1: DATOS DEL INGRESO */}
         <fieldset style={fieldsetStyles}>
           <legend>1. Información de Ingreso (Factura/Guía)</legend>
@@ -216,8 +212,7 @@ const InventarioCreatePage = () => {
         </fieldset>
         <button type="submit" disabled={loading} style={buttonStyles}>
           {loading ? 'Guardando...' : 'Crear Insumo'}
-        </button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        </button>        
       </form>
       {/* 5. RENDERIZAR EL MODAL DEL ESCÁNER (al final del return) */}
       {showScanner && (

@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import movimientoService from '../services/movimiento.service';
 import insumoService from '../services/insumo.service';
 import usuarioService from '../services/usuario.service';
+import { useNotification } from '../context/NotificationContext';
 
+// 2. Importar componentes de React-Bootstrap
+import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form } from 'react-bootstrap';
 // (Estilos)
 const filterStyles = { display: 'flex', flexWrap: 'wrap', gap: '15px', padding: '15px', backgroundColor: '#f4f4f4', borderRadius: '8px', marginBottom: '20px' };
 const tableStyles = { /* ... (copiar de InventarioPage) ... */ };
@@ -12,8 +15,7 @@ const tdStyles = { /* ... */ };
 
 const HistorialPage = () => {
   const [historial, setHistorial] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);  
 
   // Estados para los filtros
   const [filtros, setFiltros] = useState({
@@ -27,6 +29,7 @@ const HistorialPage = () => {
   // Estados para los desplegables de filtros
   const [insumosList, setInsumosList] = useState([]);
   const [tecnicosList, setTecnicosList] = useState([]);
+  const { showNotification } = useNotification();
 
   // Cargar los desplegables (Insumos y Técnicos)
   useEffect(() => {
@@ -39,7 +42,7 @@ const HistorialPage = () => {
         setInsumosList(insumosData);
         setTecnicosList(tecnicosData);
       } catch (err) {
-        setError('Error al cargar filtros');
+        showNotification(err.message ||'Error al cargar filtros');
       }
     };
     loadDropdowns();
@@ -52,16 +55,16 @@ const HistorialPage = () => {
     setLoading(true);
     movimientoService.getHistorial(filtros)
       .then(data => setHistorial(data))
-      .catch(err => setError('Error al cargar historial'))
+      .catch(err => showNotification(err.message ||'Error al cargar historial', 'error'))
       .finally(() => setLoading(false));
   };
   
   // Función para descargar (Excel)
   const handleExportar = (e) => {
     e.preventDefault();
-    alert('Generando reporte Excel... esto puede tardar unos segundos.');
+    showNotification('Generando reporte Excel... esto puede tardar unos segundos.' ,'success');
     movimientoService.getHistorialExcel(filtros)
-      .catch(err => setError('Error al generar el Excel'));
+      .catch(err => showNotification(err.message ||'Error al generar el Excel', 'error'));
   };
 
   const handleFilterChange = (e) => {
@@ -69,12 +72,21 @@ const HistorialPage = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Link to="/dashboard">{"< Volver al Dashboard"}</Link>
-      <h1 style={{ marginTop: '15px' }}>Historial de Movimientos</h1>
+    <Container fluid className="bg-light min-vh-100 py-4">         
+    <Row className="justify-content-center">
       
+      <Col xs={12} md={10} lg={8}>  
+         
+      <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+        <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+      </Button>
+      <div style={{ padding: '20px' }}>
+       <Card>  
+
+
+      <h1 style={{ marginTop: '15px', padding:'20px' }}>Historial de Movimientos</h1>      
       {/* --- FILTROS --- */}
-      <form style={filterStyles}>
+      <Form style={filterStyles}>
         <div>
           <label>Desde:</label><br/>
           <input type="date" name="fecha_inicio" value={filtros.fecha_inicio} onChange={handleFilterChange} />
@@ -107,14 +119,12 @@ const HistorialPage = () => {
             <option value="Devolución">Devolución</option>
           </select>
         </div>
-        <button onClick={fetchHistorial} style={{alignSelf: 'flex-end', padding: '8px 12px'}}>Buscar</button>
-        <button onClick={handleExportar} style={{alignSelf: 'flex-end', padding: '8px 12px', backgroundColor: '#28a745', color: 'white'}}>Exportar Excel</button>
-      </form>
-      
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+        <Button onClick={fetchHistorial} style={{alignSelf: 'flex-end', padding: '8px 12px'}}>Buscar</Button>
+        <Button onClick={handleExportar} style={{alignSelf: 'flex-end', padding: '8px 12px', backgroundColor: '#28a745', color: 'white'}}>Exportar Excel</Button>
+      </Form> 
       
       {/* --- TABLA DE RESULTADOS --- */}
-      <table style={tableStyles}>
+      <Table style={tableStyles}>
         <thead>
           <tr>
             <th style={thStyles}>Fecha</th>
@@ -145,8 +155,12 @@ const HistorialPage = () => {
             <tr><td colSpan="7">No se encontraron movimientos con esos filtros.</td></tr>
           )}
         </tbody>
-      </table>
-    </div>
+      </Table>
+      </Card>
+    </div>       
+    </Col>
+    </Row>
+    </Container>
   );
 };
 
