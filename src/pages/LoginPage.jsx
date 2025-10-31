@@ -3,65 +3,31 @@ import authService from './../services/auth.services';
 import{useNavigate} from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import styles from '../styles/LoginPage.module.css';
-
-/*/ Opcional: un poco de estilo para empezar
-const loginStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  width: '300px',
-  margin: '100px auto',
-  padding: '20px',
-  border: '1px solid #ccc',
-  borderRadius: '8px',
-  boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-  texAlign: 'center'
-};
-
-const inputStyles = {
-  marginBottom: '10px',
-  padding: '8px',
-  fontSize: '16px'
-};
-
-const buttonStyles = {
-  padding: '10px',
-  fontSize: '16px',
-  backgroundColor: '#007bff',
-  color: 'white',
-  border: 'none',
-  borderRadius: '4px',
-  cursor: 'pointer'
-};*/
-
+import { useNotification } from '../context/NotificationContext';
 
 const LoginPage = () => {
   // Estados para guardar lo que el usuario escribe
   const [rut, setRut] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState('');  
   const [loading, setLoading] = useState(false);
 
   // (Opcional: hook de navegación)
  const navigate = useNavigate();
+const { showNotification } = useNotification();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Evita que el formulario recargue la página
-    setError('');
+    e.preventDefault(); // Evita que el formulario recargue la página    
     setLoading(true);
-
     try {
       // Llamamos a nuestro servicio de autenticación
       const data = await authService.login(rut, password);
-      
-      //console.log('Login exitoso:', data);
-      //alert(`Bienvenido, ${data.usuario.nombre}!`);
-      
+
+      showNotification(`Bienvenido, ${data.usuario.nombre}`, 'success');
       navigate('/dashboard');
 
     } catch (err) {
       // Si el servicio lanza un error (ej. 401), lo mostramos
-      setError(err.message || 'Error al iniciar sesión');
+      showNotification(err.message || 'Error al iniciar sesión', 'error');
     } finally {
       setLoading(false);
     }
@@ -109,15 +75,7 @@ const LoginPage = () => {
                     required
                   />
                 </Form.Group>
-
-                {/* 4. Alerta de Error (Bootstrap) */}
-                {error && (
-                  <Alert variant="danger" className="text-center small mb-4">
-                    {error}
-                  </Alert>
-                )}
-
-                {/* 5. Botón de Acción (Bootstrap) */}
+                {/* Botón de Acción (Bootstrap) */}
                 <div className="d-grid">
                   <Button variant="primary" type="submit" disabled={loading} size="lg">
                     {loading ? (

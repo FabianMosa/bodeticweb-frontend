@@ -1,9 +1,11 @@
-// frontend/src/pages/InventarioPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
 import SalidaModal from '../components/SalidaModal'; 
 import ScannerModal from '../components/ScannerModal';
+import {useNotification} from '../context/NotificationContext';
+import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form } from 'react-bootstrap';
 
 // --- Estilos ---
 const tableStyles = {
@@ -34,7 +36,7 @@ const buttonStyles = {
 const InventarioPage = () => {
   const [insumos, setInsumos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error] = useState('');
   const [usuarioRol, setUsuarioRol] = useState(null);
 
   // --- ESTADO PARA EL FILTRO DE ACTIVOS ---
@@ -44,7 +46,9 @@ const InventarioPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [salidaModalOpen, setSalidaModalOpen] = useState(false);
   const [scannerModalOpen, setScannerModalOpen] = useState(false);
-  const [selectedInsumo, setSelectedInsumo] = useState(null); // Qué insumo estamos manejando
+  const [selectedInsumo, setSelectedInsumo] = useState(null);
+  
+  const { showNotification } = useNotification(); // Para mostrar notificaciones
 
   const handleOpenSalidaModal = (insumo) => {
     setSelectedInsumo(insumo);
@@ -66,7 +70,7 @@ const InventarioPage = () => {
         const data = await insumoService.getInsumos(filtroActivo);
         setInsumos(data); 
       } catch (err) {
-        setError(err.message || 'Error al cargar el inventario');
+        showNotification(err.message || 'Error al cargar el inventario');
       } finally {
         setLoading(false);
       }
@@ -79,7 +83,7 @@ const InventarioPage = () => {
     if (usuarioInfo) {
       setUsuarioRol(usuarioInfo.usuario.rol);
     }
-  }, [filtroActivo]); // Agregar filtroActivo como dependencia
+  }, [filtroActivo, showNotification]); // Agregar filtroActivo como dependencia
 
 // --- NUEVA FUNCIÓN PARA EL BOTÓN  ---
   const handleToggleActivo = async (insumo) => {
@@ -95,9 +99,9 @@ const InventarioPage = () => {
             i.PK_id_insumo === insumo.PK_id_insumo ? { ...i, activo: nuevoEstado } : i
           )
         );
-        alert(`Insumo ${nuevoEstado ? 'habilitado' : 'deshabilitado'}.`);
+        showNotification(`Insumo ${nuevoEstado ? 'habilitado' : 'deshabilitado'}.`);
       } catch (err) {
-        setError(err.message || 'Error al cambiar el estado');
+        showNotification(err.message || 'Error al cambiar el estado');
       }
     }
   };
@@ -123,10 +127,10 @@ const InventarioPage = () => {
         handleOpenSalidaModal(insumoEncontrado);
       } else {
         // Error: El SKU se leyó, pero no existe en la BBDD
-        setError(`SKU "${sku}" no encontrado en la base de datos.`);
+        showNotification(`SKU "${sku}" no encontrado en la base de datos.`);
       }
     } catch (err) {
-      setError(err.message || 'Error al buscar el SKU');
+      showNotification(err.message || 'Error al buscar el SKU');
     } finally {
       setLoading(false);
     }
@@ -158,12 +162,17 @@ const InventarioPage = () => {
   
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Link to="/dashboard"style={{...buttonStyles, backgroundColor: '#7a9ee0ff', color: 'black', textDecoration: 'none'}}>{"Volver"}</Link>
-      <h1 style={{ marginTop: '15px' }}>Gestión de Inventario</h1>
-      
+    <Container fluid className="form-container bg-light min-vh-100 py-4">
+          <Row className="justify-content-center">
+            <Col xs={12} md={10} lg={8}>
+            <div style={{ padding: '20px' }}>
+          <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+                <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+          </Button> 
+      </div>
+      <div>
       {usuarioRol === 1 && ( // Si el ROL es 1 (Admin)
-        <Link to="/inventario/nuevo" style={{
+        <Link className='btn' to="/inventario/nuevo" style={{
           padding: '10px 15px',
           backgroundColor: '#007bff',
           color: 'white',
@@ -173,14 +182,17 @@ const InventarioPage = () => {
           Registrar Nuevo Insumo
         </Link>        
       )}
-      <button 
+      </div>
+      <br />
+      <div>
+          <Button 
           onClick={handleOpenScanner}
           style={{ padding: '10px 15px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
         >
           📷 Escanear Salida (Móvil)
-        </button>
+        </Button>
       <div style={{ margin: '20px 0' }}>
-        <button 
+        <button className='' 
           onClick={() => setFiltroActivo(true)} 
           // ... (estilos del botón "Ver Activos") ...
         >
@@ -192,9 +204,8 @@ const InventarioPage = () => {
         >
           Ver Deshabilitados
         </button>
-      </div>
-      
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      </div>     
+  
       <table style={tableStyles}>
         <thead>
           <tr>
@@ -219,7 +230,7 @@ const InventarioPage = () => {
                 <td style={tdStyles}>
                   {usuarioRol === 1 && (
                     <>
-                      <Link to={`/inventario/editar/${insumo.PK_id_insumo}`} style={{...buttonStyles, backgroundColor: '#ffc107'}}>
+                      <Link className='btn' to={`/inventario/editar/${insumo.PK_id_insumo}`} style={{...buttonStyles, backgroundColor: '#ffc107'}}>
                         Editar
                       </Link>
                       {/* --- NUEVO BOTÓN  --- */}
@@ -267,6 +278,9 @@ const InventarioPage = () => {
         />
       )}
     </div>
+    </Col>
+    </Row>
+    </Container>
   );
 }; 
 
