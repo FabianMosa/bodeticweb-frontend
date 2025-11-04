@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
 import usuarioService from '../services/usuario.service';
 import movimientoService from '../services/movimiento.service';
+import{useNotification} from '../context/NotificationContext';
+
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
 // (Estilos del formulario)
 const formStyles = {
@@ -26,7 +28,7 @@ const DevolucionPage = () => {
   const [cantidad, setCantidad] = useState(1);
   
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { showNotification } = useNotification();
   const navigate = useNavigate();
 
   // Cargar los desplegables (Insumos y Técnicos)
@@ -47,7 +49,7 @@ const DevolucionPage = () => {
         if (tecnicosData.length > 0) setSelectedTecnico(tecnicosData[0].PK_id_usuario);
 
       } catch (err) {
-        setError('Error al cargar datos');
+        showNotification(err.message || 'Error al cargar datos', 'error');
       } finally {
         setLoading(false);
       }
@@ -57,8 +59,7 @@ const DevolucionPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    setLoading(true);    
 
     try {
       const devolucionData = {
@@ -72,7 +73,7 @@ const DevolucionPage = () => {
       navigate('/dashboard'); // Redirige al dashboard
 
     } catch (err) {
-      setError(err.message || 'Error al registrar la devolución');
+      showNotification(err.message || 'Error al registrar la devolución', 'error');
     } finally {
       setLoading(false);
     }
@@ -81,15 +82,19 @@ const DevolucionPage = () => {
   if (loading && (insumos.length === 0 || tecnicos.length === 0)) return <div>Cargando datos...</div>;
 
   return (
-    <Container fluid className="form-container bg-light min-vh-100 py-4">
-      <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8}>
-        <div style={{ padding: '20px' }}>
+    <Container className="form-container  bg- min-vh-100">
+              <Row className="mb-3 justify-content-center  rounded" style={{
+              padding: '10px 15px',
+              backgroundColor: '#ccd6e0ff',
+              borderRadius: '5px'
+            }}>
+                <Col xs="12" md="10" lg="8" className='bg-light p-3 rounded'>  
+
       <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
             <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
           </Button> 
       
-      <form onSubmit={handleSubmit} style={formStyles}>
+      <Form onSubmit={handleSubmit} style={formStyles}>
         <h2>Registrar Devolución</h2>
         
         <label>Insumo Devuelto:</label>
@@ -115,10 +120,10 @@ const DevolucionPage = () => {
 
         <Button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#17a2b8'}}>
           {loading ? 'Registrando...' : 'Confirmar Devolución'}
-        </Button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-    </div></Col>
+        </Button>        
+      </Form>
+    
+    </Col>
       </Row>
     </Container>
 
