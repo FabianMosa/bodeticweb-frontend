@@ -141,13 +141,13 @@ const InventarioCreatePage = () => {
           <form onSubmit={handleSubmit} style={formStyles}>
 
         <h2 as="h2" className="text-center fw-bold form-header">
-              Registrar Nuevo Insumo
+              Registrar Insumo
         </h2>
         {/* SECCIÓN 1: DATOS DEL INGRESO */}
         <fieldset style={fieldsetStyles}>
           <legend>1. Información de Ingreso (Factura/Guía)</legend>
           
-          <label>Proveedor:</label>
+          <label>Proveedor</label>
           <select name="id_proveedor" onChange={handleChange} style={inputStyles} required value={formData.id_proveedor}>
           {proveedores.map(prov => (
             <option key={prov.PK_id_proveedor} value={prov.PK_id_proveedor}>
@@ -156,10 +156,10 @@ const InventarioCreatePage = () => {
           ))}
         </select> 
         <br />
-          <label>N° Documento (Factura/Guía):</label>
+          <label>N° Documento (Factura/Guía)</label>
           <input type="text" name="codigo_documento" value={formData.codigo_documento} onChange={handleChange} style={inputStyles} required />
 
-          <label>Fecha Emisión (Documento):</label>
+          <label>Fecha Emisión (Documento)</label>
           <input type="date" name="fecha_emision" value={formData.fecha_emision} onChange={handleChange} style={inputStyles} required />
         </fieldset>
         
@@ -169,7 +169,7 @@ const InventarioCreatePage = () => {
         <input type="text" name="nombre" onChange={handleChange} style={inputStyles} required />
         
         <Form.Group className="mb-3" controlId="formSku">
-                        <Form.Label>SKU (Código Barras):</Form.Label>
+                        <Form.Label>SKU (Código Barras)</Form.Label>
                         <InputGroup>
                           <Form.Control 
                             type="text" 
@@ -190,7 +190,7 @@ const InventarioCreatePage = () => {
                         </InputGroup>
         </Form.Group> 
                   
-        <label>Categoría:</label>
+        <label>Categoría</label>
         <select name="id_categoria" onChange={handleChange} style={inputStyles} required value={formData.id_categoria}>
           {categorias.map(cat => (
             <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
@@ -198,16 +198,16 @@ const InventarioCreatePage = () => {
             </option>
           ))}
         </select>           
-        <label>Stock Inicial:</label>
+        <label>Stock Inicial</label>
         <input type="number" name="stock_inicial" min="0" onChange={handleChange} style={inputStyles} required />
         
-        <label>Stock Mínimo:</label>
+        <label>Stock Mínimo</label>
         <input type="number" name="stock_minimo" min="1" onChange={handleChange} style={inputStyles} required />
         
-        <label>Fecha Vencimiento (Opcional):</label>
+        <label>Fecha Vencimiento (Opcional)</label>
         <input type="date" name="fecha_vencimiento" onChange={handleChange} style={inputStyles} />
         
-        <label>Descripción (Opcional):</label>
+        <label>Descripción (Opcional)</label>
         <textarea name="descripcion" onChange={handleChange} style={inputStyles}></textarea>
         </fieldset>
         <button type="submit" disabled={loading} style={buttonStyles}>

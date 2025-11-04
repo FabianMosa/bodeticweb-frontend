@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import movimientoService from '../services/movimiento.service';
 //import { useNotification } from '../context/NotificationContext'; // <-- 1. IMPORTAR
 import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form } from 'react-bootstrap';
+import {useNotification} from '../context/NotificationContext';
 // --- Estilos para el Modal (Pop-up) ---
 const modalOverlayStyles = {
   position: 'fixed',
@@ -41,13 +42,13 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
   const [cantidad, setCantidad] = useState(1);
   const [codigo_ot, setCodigo_ot] = useState('');
   const [tipo_movimiento, setTipo_movimiento] = useState('Salida-Uso'); // Valor por defecto
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);  
+   const { showNotification } = useNotification(); // Para mostrar notificaciones
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    
 
     try {
       const salidaData = {
@@ -60,13 +61,13 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
       // Llamamos al servicio
       const response = await movimientoService.registrarSalida(salidaData);
 
-      alert(response.message);
+      showNotification(response.message, 'success');
       onSuccess(insumo.PK_id_insumo, response.nuevo_stock); // Pasa el ID y el nuevo stock a la página padre
       onClose(); // Cierra el modal
 
     } catch (err) {
       // Mostramos el error del backend (ej. "Stock insuficiente")
-      setError(err.message || 'Error al registrar la salida');
+      showNotification(err.message || 'Error al registrar la salida', 'error');
     } finally {
       setLoading(false);
     }
@@ -118,10 +119,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             max={insumo.stock_actual} // No permite poner más del stock
             style={inputStyles}
             required
-          />
-
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          
+          />          
           <div style={{ marginTop: '20px', textAlign: 'right' }}>
             <button type="button" onClick={onClose} style={{...buttonStyles, backgroundColor: '#6c757d', color: 'white'}}>
               Cancelar

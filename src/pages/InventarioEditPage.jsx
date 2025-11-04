@@ -4,7 +4,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
 import {useNotification} from '../context/NotificationContext'
 import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form } from 'react-bootstrap';
-// (Estilos del formulario)
+
+// ---------------------------------------------------(Estilos del formulario)
 const formStyles = {
   display: 'flex',
   flexDirection: 'column',
@@ -91,47 +92,50 @@ const InventarioEditPage = () => {
   if (loading || !formData) return <div>Cargando datos del insumo...</div>;
 
   return (
-    <Container fluid className="bg-light min-vh-100 py-4">
-      <Row className="mb-3 align-items-center">
-        <div>
-          <Button variant="outline-secondary" size="sm" as={Link} to="/dashboard">
-            <i className="bi bi-arrow-left me-1"></i> Volver
-          </Button>
-           <Card xs='auto'>
-            <form onSubmit={handleSubmit} style={formStyles}>
-              <h2>Editar Insumo (RF-06)</h2>
+    <Container className="form-container bg-light min-vh-100">
+              <Row className="mb-3 align-items-center justify-content-center  rounded" style={{
+              padding: '10px 15px',
+              backgroundColor: '#ccd6e0ff',
+              borderRadius: '5px'
+            }}>
+        <Col xs="12" md="10" lg="8" className='bg-light p-3 rounded'>                    
+              <Button variant="outline-primary" size="sm" as={Link} to="/inventario" className="mb-3">
+                              <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+              </Button>
               
-              <label>Nombre:</label>
-              <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} style={inputStyles} required />
-              
-              <label>SKU (Código de Barras):</label>
-              <input type="text" name="sku" value={formData.sku} onChange={handleChange} style={inputStyles} required />
-              
-              <label>Categoría:</label>
-              <select name="FK_id_categoria" value={formData.FK_id_categoria} onChange={handleChange} style={inputStyles} required>
-                {categorias.map(cat => (
-                  <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
-                    {cat.nombre_categoria}
-                  </option>
-                ))}
-              </select>
-              
-              {/* No editamos el Stock Actual aquí, solo el mínimo */}
-              <label>Stock Mínimo:</label>
-              <input type="number" name="stock_minimo" value={formData.stock_minimo} min="1" onChange={handleChange} style={inputStyles} required />
-              
-              <label>Fecha Vencimiento (Opcional):</label>
-              <input type="date" name="fecha_vencimiento" value={formData.fecha_vencimiento || ''} onChange={handleChange} style={inputStyles} />
-              
-              <label>Descripción (Opcional):</label>
-              <textarea name="descripcion" value={formData.descripcion || ''} onChange={handleChange} style={inputStyles}></textarea>
+                <Form onSubmit={handleSubmit} style={formStyles}>
+                  <h2 className='text-align-centre'>Modificar Insumo</h2>
+                  
+                  <label>Nombre</label>
+                  <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} style={inputStyles} required />
+                  
+                  <label>SKU (Código de Barras)</label>
+                  <input type="text" name="sku" value={formData.sku} onChange={handleChange} style={inputStyles} required />
+                  
+                  <label>Categoría</label>
+                  <select name="FK_id_categoria" value={formData.FK_id_categoria} onChange={handleChange} style={inputStyles} required>
+                    {categorias.map(cat => (
+                      <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
+                        {cat.nombre_categoria}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  {/*----------- No editamos el Stock Actual aquí, solo el mínimo */}
+                  <label>Stock Mínimo</label>
+                  <input type="number" name="stock_minimo" value={formData.stock_minimo} min="1" onChange={handleChange} style={inputStyles} required />
+                  
+                  <label>Fecha Vencimiento (Opcional)</label>
+                  <input type="date" name="fecha_vencimiento" value={formData.fecha_vencimiento || ''} onChange={handleChange} style={inputStyles} />
+                  
+                  <label>Descripción (Opcional)</label>
+                  <textarea name="descripcion" value={formData.descripcion || ''} onChange={handleChange} style={inputStyles}></textarea>
 
-              <button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#ffc107'}}>
-                {loading ? 'Actualizando...' : 'Actualizar Insumo'}
-              </button>
-            </form>
-         </Card>
-    </div>
+                  <Button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#ffc107'}}>
+                    {loading ? 'Actualizando...' : 'Actualizar Insumo'}
+                  </Button>
+                </Form>                       
+        </Col>
     </Row>
     </Container>
   );

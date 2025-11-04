@@ -42,12 +42,12 @@ const HistorialPage = () => {
         setInsumosList(insumosData);
         setTecnicosList(tecnicosData);
       } catch (err) {
-        showNotification(err.message ||'Error al cargar filtros');
+        showNotification(err.message ||'Error al cargar filtros', 'error');
       }
     };
     loadDropdowns();
     fetchHistorial(); // Cargar historial inicial
-  }, []);
+  }, [showNotification]);
 
   // Función para buscar (JSON)
   const fetchHistorial = (e = null) => {
@@ -88,29 +88,29 @@ const HistorialPage = () => {
       {/* --- FILTROS --- */}
       <Form style={filterStyles}>
         <div>
-          <label>Desde:</label><br/>
+          <label>Desde</label><br/>
           <input type="date" name="fecha_inicio" value={filtros.fecha_inicio} onChange={handleFilterChange} />
         </div>
         <div>
-          <label>Hasta:</label><br/>
+          <label>Hasta</label><br/>
           <input type="date" name="fecha_fin" value={filtros.fecha_fin} onChange={handleFilterChange} />
         </div>
         <div>
-          <label>Insumo:</label><br/>
+          <label>Insumo</label><br/>
           <select name="id_insumo" value={filtros.id_insumo} onChange={handleFilterChange}>
             <option value="">-- Todos --</option>
             {insumosList.map(i => <option key={i.PK_id_insumo} value={i.PK_id_insumo}>{i.nombre}</option>)}
           </select>
         </div>
         <div>
-          <label>Técnico:</label><br/>
+          <label>Técnico</label><br/>
           <select name="id_usuario" value={filtros.id_usuario} onChange={handleFilterChange}>
             <option value="">-- Todos --</option>
             {tecnicosList.map(t => <option key={t.PK_id_usuario} value={t.PK_id_usuario}>{t.nombre}</option>)}
           </select>
         </div>
         <div>
-          <label>Tipo:</label><br/>
+          <label>Tipo</label><br/>
           <select name="tipo_movimiento" value={filtros.tipo_movimiento} onChange={handleFilterChange}>
             <option value="">-- Todos --</option>
             <option value="Entrada">Entrada</option>
@@ -130,7 +130,7 @@ const HistorialPage = () => {
             <th style={thStyles}>Fecha</th>
             <th style={thStyles}>Tipo</th>
             <th style={thStyles}>Insumo</th>
-            <th style={thStyles}>Cant.</th>
+            <th style={thStyles}>Cantidad</th>
             <th style={thStyles}>Usuario</th>
             <th style={thStyles}>OT</th>
             <th style={thStyles}>Documento</th>
