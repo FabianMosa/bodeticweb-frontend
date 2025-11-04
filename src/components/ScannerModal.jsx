@@ -1,30 +1,9 @@
 // frontend/src/components/ScannerModal.jsx
 import React, { useState } from 'react';
 import { useZxing } from 'react-zxing';
+import{Modal,Button,Alert, Container} from 'react-bootstrap';
 
-// (Estilos del modal, copiados de SalidaModal)
-const modalOverlayStyles = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  backgroundColor: 'rgba(0, 0, 0, 0.7)', // Más oscuro
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 1000,
-};
-
-const modalContentStyles = {
-  backgroundColor: 'white',
-  padding: '20px',
-  borderRadius: '8px',
-  width: '90%',
-  maxWidth: '500px',
-  textAlign: 'center'
-};
-
+//----------------------------------------------------------
 /**
  * @param {object} props
  * @param {function} props.onClose - Función para cerrar el modal
@@ -32,40 +11,79 @@ const modalContentStyles = {
  */
 const ScannerModal = ({ onClose, onScanSuccess }) => {
   const [scanStatus, setScanStatus] = useState('Buscando código...');
+  const [error, setError] = useState(null);
 
   const { ref } = useZxing({
+    // --- 1. LA SOLUCIÓN: FORZAR EL ENFOQUE AUTOMÁTICO ---
+    // Le pedimos al navegador que use la cámara trasera (environment)
+    // y que active el modo de enfoque continuo.
+    constraints: { 
+      video: { 
+        facingMode: 'environment',
+        focusMode: 'continuous' 
+      } 
+    },
+    // --- Fin de la Solución ---
+
     onResult(result) {
       const sku = result.getText();
       setScanStatus(`SKU Encontrado: ${sku}`);
+      
       // Llamamos a la función del padre con el SKU
       onScanSuccess(sku);
+      
       // Cerramos el modal
       onClose();
     },
     onError(error) {
-      console.error(error);
-      setScanStatus('Error al iniciar la cámara.');
+      console.error("Error de ZXing:", error);
+      // --- 2. MEJORA: MOSTRAR ERRORES EN LA UI ---
+      // Si la cámara falla, lo mostramos al usuario
+      setError(error.message || 'Error al iniciar la cámara.');
+      setScanStatus('Error');
     }
   });
 
   return (
-    <div style={modalOverlayStyles} onClick={onClose}>
-      <div style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ marginTop: 0 }}>Escanear SKU</h2>
-        <p>Apunta la cámara al código de barras del insumo</p>
+    // 3. REFACTORIZAR A MODAL DE REACT-BOOTSTRAP
+   
+      <Modal show={true} onHide={onClose} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className="bi bi-upc-scan me-2"></i>Escanear SKU
+          </Modal.Title>
+        </Modal.Header>
+      <Modal.Body className="text-center">
+        
+        <p className="text-muted">Apunta la cámara al código de barras del insumo</p>
         
         {/* Aquí es donde la librería 'react-zxing' activa la cámara */}
         <video 
           ref={ref} 
-          style={{ width: '100%', borderRadius: '8px', border: '1px solid grey' }}
+          className="scanner-video"
         />
         
-        <p><em>{scanStatus}</em></p>
-        <button onClick={onClose} style={{ padding: '10px 20px' }}>
+        {/* Mostrar el estado o el error */}
+        {!error && <p className="mt-3"><em>{scanStatus}</em></p>}
+        {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
+
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
           Cancelar
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Modal.Footer>
+
+      {/*---------------ESTILOS (El video necesita un tamaño) */}
+      <style>{`
+        .scanner-video {
+          width: 100%;
+          border-radius: 8px;
+          border: 1px solid #dee2e6;
+        }
+      `}</style>
+    </Modal>
+    
   );
 };
 
