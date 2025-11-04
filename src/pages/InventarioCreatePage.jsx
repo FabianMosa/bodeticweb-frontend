@@ -135,7 +135,7 @@ const InventarioCreatePage = () => {
    <Container fluid style={{ padding: '20px' }} className='form-container bg-light min-vh py-4'>
       <Row className="justify-content-center">
         <Col  xs={12} md={10} lg={8}>
-          <Button variant="outline-secondary" size="sm" as={Link} to="/inventario" className="mb-3">
+          <Button variant="outline-primary" size="sm" as={Link} to="/inventario" className="mb-3">
             <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
           </Button>
           <form onSubmit={handleSubmit} style={formStyles}>
