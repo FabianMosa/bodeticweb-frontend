@@ -1,52 +1,47 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import insumoService from '../services/insumo.service';
+import insumoService from '../services/insumo.service'; // (Lo mantenemos por si se necesita, aunque no en este flujo)
 import usuarioService from '../services/usuario.service';
 import movimientoService from '../services/movimiento.service';
-import{useNotification} from '../context/NotificationContext';
+import { useNotification } from '../context/NotificationContext';
 
-import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
-// (Estilos del formulario)
-const formStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  maxWidth: '500px',
-  margin: '20px auto',
-  padding: '20px',
-  border: '1px solid #ccc',
-  borderRadius: '8px',
-};
-const inputStyles = { marginBottom: '10px', padding: '8px', fontSize: '16px' };
-const buttonStyles = { padding: '10px', fontSize: '16px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer' };
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 
 const DevolucionPage = () => {
-  const [insumos, setInsumos] = useState([]);
-  const [tecnicos, setTecnicos] = useState([]);
-  
-  const [selectedInsumo, setSelectedInsumo] = useState('');
+  // --- Estados de Datos ---
+  const [tecnicos, setTecnicos] = useState([]); // Lista de todos los técnicos
+  const [allPrestamos, setAllPrestamos] = useState([]); // Lista de TODOS los préstamos activos
+  const [insumosFiltrados, setInsumosFiltrados] = useState([]); // Insumos que el técnico seleccionado debe
+
+  // --- Estados del Formulario ---
   const [selectedTecnico, setSelectedTecnico] = useState('');
+  const [selectedInsumoId, setSelectedInsumoId] = useState('');
   const [cantidad, setCantidad] = useState(1);
+  const [maxCantidad, setMaxCantidad] = useState(1); // Máximo que se puede devolver
   
   const [loading, setLoading] = useState(true);
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
-  // Cargar los desplegables (Insumos y Técnicos)
+  // --- 1. Cargar datos iniciales (Técnicos y TODOS los Préstamos) ---
   useEffect(() => {
-    const loadDropdowns = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const [insumosData, tecnicosData] = await Promise.all([
-          insumoService.getInsumos(),
-          usuarioService.getUsuariosTecnicos()
+        // Pedimos los técnicos y la lista completa de préstamos pendientes
+        const [tecnicosData, prestamosData] = await Promise.all([
+          usuarioService.getUsuariosTecnicos(),
+          movimientoService.getPrestamosActivos() // (RF-09)
         ]);
         
-        setInsumos(insumosData);
         setTecnicos(tecnicosData);
+        setAllPrestamos(prestamosData);
         
-        // Settear valores por defecto para los <select>
-        if (insumosData.length > 0) setSelectedInsumo(insumosData[0].PK_id_insumo);
-        if (tecnicosData.length > 0) setSelectedTecnico(tecnicosData[0].PK_id_usuario);
+        // Settear valor por defecto para el primer <select>
+        if (tecnicosData.length > 0) {
+          setSelectedTecnico(tecnicosData[0].PK_id_usuario);
+        }
 
       } catch (err) {
         showNotification(err.message || 'Error al cargar datos', 'error');
@@ -54,22 +49,66 @@ const DevolucionPage = () => {
         setLoading(false);
       }
     };
-    loadDropdowns();
-  }, []);
+    loadData();
+  }, [showNotification]); // Quitar 'insumos' y 'tecnicos' de las dependencias
 
+  // --- 2. Reaccionar al cambio de Técnico (Dropdown en Cascada) ---
+  useEffect(() => {
+    if (selectedTecnico) {
+      // Filtramos la lista de préstamos para mostrar solo los de este técnico
+      const prestamosDelTecnico = allPrestamos.filter(
+        p => p.FK_id_usuario === parseInt(selectedTecnico)
+      );
+      setInsumosFiltrados(prestamosDelTecnico);
+      
+      // Auto-seleccionar el primer insumo de la nueva lista
+      if (prestamosDelTecnico.length > 0) {
+        setSelectedInsumoId(prestamosDelTecnico[0].FK_id_insumo);
+        setMaxCantidad(prestamosDelTecnico[0].cantidad_pendiente);
+      } else {
+        setSelectedInsumoId('');
+        setMaxCantidad(1);
+      }
+      setCantidad(1); // Resetear cantidad
+    }
+  }, [selectedTecnico, allPrestamos]); // Este hook depende del técnico seleccionado
+
+  // --- 3. Reaccionar al cambio de Insumo ---
+  useEffect(() => {
+    if (selectedInsumoId) {
+      // Encontrar el préstamo seleccionado para saber su cantidad máxima
+      const prestamo = insumosFiltrados.find(
+        p => p.FK_id_insumo === parseInt(selectedInsumoId)
+      );
+      if (prestamo) {
+        setMaxCantidad(prestamo.cantidad_pendiente);
+      }
+    }
+    setCantidad(1); // Resetear cantidad
+  }, [selectedInsumoId, insumosFiltrados]);
+
+  // --- 4. Lógica de Envío (Submit) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);    
 
+    if (cantidad > maxCantidad) {
+        showNotification(`Error: La cantidad a devolver (${cantidad}) es mayor a la pendiente (${maxCantidad}).`, 'error');
+        setLoading(false);
+        return;
+    }
+
     try {
       const devolucionData = {
-        id_insumo: parseInt(selectedInsumo),
+        id_insumo: parseInt(selectedInsumoId),
         cantidad_devuelta: parseInt(cantidad),
         id_usuario_tecnico: parseInt(selectedTecnico)
       };
 
-      await movimientoService.registrarDevolucion(devolucionData);
-      alert('Devolución registrada con éxito');
+      const response = await movimientoService.registrarDevolucion(devolucionData);
+      
+      // 5. Usar Notificación Global (reemplaza el alert())
+      showNotification(response.message, 'success');
       navigate('/dashboard'); // Redirige al dashboard
 
     } catch (err) {
@@ -79,55 +118,128 @@ const DevolucionPage = () => {
     }
   };
   
-  if (loading && (insumos.length === 0 || tecnicos.length === 0)) return <div>Cargando datos...</div>;
+  if (loading && tecnicos.length === 0) {
+    return (
+        <Container fluid className="bg-light min-vh-100 py-4 text-center">
+            <Spinner animation="border" variant="primary" />
+            <p>Cargando datos...</p>
+        </Container>
+    );
+  }
 
   return (
-    <Container className="form-container  bg- min-vh-100">
-              <Row className="mb-3 justify-content-center  rounded" style={{
-              padding: '10px 15px',
-              backgroundColor: '#ccd6e0ff',
-              borderRadius: '5px'
-            }}>
-                <Col xs="12" md="10" lg="8" className='bg-light p-3 rounded'>  
+    <Container fluid className="form-container bg-light min-vh-100 py-4">          
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8} xl={6}>         
+          <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+        <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+          </Button>
 
-      <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
-            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-          </Button> 
-      
-      <Form onSubmit={handleSubmit} style={formStyles}>
-        <h2>Registrar Devolución</h2>
-        
-        <label>Insumo Devuelto:</label>
-        <select value={selectedInsumo} onChange={(e) => setSelectedInsumo(e.target.value)} style={inputStyles} required>
-          {insumos.map(insumo => (
-            <option key={insumo.PK_id_insumo} value={insumo.PK_id_insumo}>
-              {insumo.nombre} (Stock: {insumo.stock_actual})
-            </option>
-          ))}
-        </select>
-        
-        <label>Técnico que Devuelve:</label>
-        <select value={selectedTecnico} onChange={(e) => setSelectedTecnico(e.target.value)} style={inputStyles} required>
-          {tecnicos.map(tec => (
-            <option key={tec.PK_id_usuario} value={tec.PK_id_usuario}>
-              {tec.nombre}
-            </option>
-          ))}
-        </select>
-        
-        <label>Cantidad Devuelta:</label>
-        <input type="number" value={cantidad} min="1" onChange={(e) => setCantidad(e.target.value)} style={inputStyles} required />
+          <Card className="shadow-sm border-0">
+            <Card.Header as="h2" className="text-center fw-bold form-header">
+              Registrar Devolución
+            </Card.Header>
+            <Card.Body className="p-4 p-md-5">
+              
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="formTecnico">
+                  <Form.Label className="fw-bold">Técnico que Devuelve:</Form.Label>
+                  <Form.Select 
+                    value={selectedTecnico} 
+                    onChange={(e) => setSelectedTecnico(e.target.value)} 
+                    required 
+                    className="form-control-focus"
+                    disabled={loading}
+                  >
+                    {tecnicos.length === 0 && <option disabled>No hay técnicos</option>}
+                    {tecnicos.map(tec => (
+                      <option key={tec.PK_id_usuario} value={tec.PK_id_usuario}>
+                        {tec.nombre}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+                
+                <Form.Group className="mb-3" controlId="formInsumo">
+                  <Form.Label className="fw-bold">Insumo Devuelto (Solo pendientes):</Form.Label>
+                  <Form.Select 
+                    value={selectedInsumoId} 
+                    onChange={(e) => setSelectedInsumoId(e.target.value)} 
+                    required 
+                    className="form-control-focus"
+                    disabled={insumosFiltrados.length === 0 || loading}
+                  >
+                    {insumosFiltrados.length === 0 ? (
+                      <option disabled value="">-- Este técnico no tiene préstamos --</option>
+                    ) : (
+                      insumosFiltrados.map(prestamo => (
+                        <option key={prestamo.FK_id_insumo} value={prestamo.FK_id_insumo}>
+                          {prestamo.nombre_insumo} (Pendiente: {prestamo.cantidad_pendiente})
+                        </option>
+                      ))
+                    )}
+                  </Form.Select>
+                </Form.Group>
+                
+                <Form.Group className="mb-3" controlId="formCantidad">
+                  <Form.Label className="fw-bold">Cantidad Devuelta:</Form.Label>
+                  <Form.Control 
+                    type="number" 
+                    value={cantidad} 
+                    min="1" 
+                    max={maxCantidad} // 6. Validación de máximo
+                    onChange={(e) => setCantidad(e.target.value)} 
+                    required 
+                    className="form-control-focus"
+                    disabled={insumosFiltrados.length === 0 || loading}
+                  />
+                  {insumosFiltrados.length > 0 && 
+                    <Form.Text className="text-muted">
+                      Máximo a devolver: {maxCantidad}
+                    </Form.Text>
+                  }
+                </Form.Group>
 
-        <Button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#17a2b8'}}>
-          {loading ? 'Registrando...' : 'Confirmar Devolución'}
-        </Button>        
-      </Form>
-    
-    </Col>
+                <div className="d-grid gap-2 mt-4">
+                  <Button 
+                    variant="info" 
+                    type="submit" 
+                    disabled={loading || insumosFiltrados.length === 0} 
+                    className="text-white"
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                        <span className="ms-2">Registrando...</span>
+                      </>
+                    ) : (
+                      'Confirmar Devolución'
+                    )}
+                  </Button>
+                </div>
+              </Form>
+            
+            </Card.Body>
+          </Card>
+        </Col>
       </Row>
-    </Container>
 
-    
+      {/* --- 7. Estilos CSS --- */}
+      <style>{`
+        .form-container {
+          background-color: #f8f9fa;
+        }
+        .form-header {
+          background-color: #343a40;
+          color: white;
+          padding: 1.25rem;
+        }
+        .form-control-focus:focus {
+          border-color: var(--bs-info);
+          box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+        }
+      `}</style>
+    </Container>
   );
 };
 

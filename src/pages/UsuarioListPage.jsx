@@ -1,105 +1,146 @@
 
+// frontend/src/pages/UsuarioListPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import usuarioService from '../services/usuario.service';
-import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
-// --- Estilos ---
-const tableStyles = {
-  width: '100%',
-  marginTop: '20px',
-  borderCollapse: 'collapse'
-};
-const thStyles = {
-  border: '1px solid #ddd',
-  padding: '8px',
-  backgroundColor: '#f2f2f2'
-};
-const tdStyles = {
-  border: '1px solid #ddd',
-  padding: '8px'
-};
-const buttonStyles = { 
-  padding: '5px 10px', 
-  fontSize: '14px', 
-  cursor: 'pointer',
-  border: 'none',
-  borderRadius: '4px',
-  marginRight: '5px'
-};
-// --- Fin Estilos ---
+import { useNotification } from '../context/NotificationContext'; // <-- 1. Importar Notificaciones
+
+// 2. Importar los componentes de Bootstrap necesarios
+import { Container, Row, Col, Card, Button, Alert, Spinner, Table } from 'react-bootstrap';
 
 const UsuarioListPage = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { showNotification } = useNotification(); // <-- 3. Usar el hook de notificación
 
   useEffect(() => {
+    setLoading(true);
     usuarioService.getAllUsuarios()
       .then(data => setUsuarios(data))
-      .catch(() => setError('Error al cargar usuarios'))
+      .catch((err) => {
+        // 4. Usar notificación global para errores
+        showNotification(err.message || 'Error al cargar usuarios', 'error');
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [showNotification]); // Añadir showNotification a las dependencias
   
-  if (loading) return <div>Cargando usuarios...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
   return (
     <Container fluid className="form-container bg-light min-vh-100 py-4">
-        <Row className="justify-content-center">
+      <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8}>
-          <Card>
-            <Card.Body>              
-              <div style={{ padding: '20px' }}>
-        <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
-              <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-        </Button>  
-        <br /> 
-        <Link to="/usuarios/nuevo" style={{
-          padding: '10px 15px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '5px'
-        }}>
-        Crear Nuevo Usuario
-      </Link>
-      <h2 style={{ marginTop: '15px',  }} className='fw-bold p-2' >Gestión de Usuarios</h2>
-      
-      <table style={tableStyles}>
-        <thead>
-          <tr>
-            <th style={thStyles}>Nombre</th>
-            <th style={thStyles}>RUT</th>
-            <th style={thStyles}>Rol</th>
-            <th style={thStyles}>Estado</th>
-            <th style={thStyles}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map(user => (
-            <tr key={user.PK_id_usuario}>
-              <td style={tdStyles}>{user.nombre}</td>
-              <td style={tdStyles}>{user.rut}</td>
-              <td style={tdStyles}>{user.nombre_rol}</td>
-              <td style={tdStyles}>
-                {user.activo ? 'Activo' : 'Deshabilitado'}
-              </td>
-              <td style={tdStyles}>
-                <Link to={`/usuarios/editar/${user.PK_id_usuario}`} style={{...buttonStyles, backgroundColor: '#dc3545', color: 'black', textDecoration: 'none'}}>
-                  Editar
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          
+          {/* Botón Volver y Título */}
+          <Row className="mb-3 align-items-center">
+            <Col xs="auto">
+              <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+                      <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+              </Button>
+            </Col>
+            
+          </Row>
+
+          <Card className="shadow-sm">
+            <Card.Header as="h2" className="p-3">
+              <Col>
+              <h1 className="h2 p-3 mb-0 section-title text-center text-md-start">Gestión de Usuarios</h1>
+            </Col>
+              <Button variant="success" as={Link} to="/usuarios/nuevo">
+                <i className="bi bi-plus-circle me-1"></i> Crear Nuevo Usuario
+              </Button>
+            </Card.Header>
+            <Card.Body className="p-0 p-md-3">
+              
+              {loading ? (
+                 <div className="text-center p-5">
+                    <Spinner animation="border" role="status" variant="primary">
+                      <span className="visually-hidden">Cargando...</span>
+                    </Spinner>
+                 </div>
+              ) : (
+                // 5. USAR EL COMPONENTE <Table> CON LA PROP 'responsive="md"'
+                <Table striped bordered hover responsive="md" size="sm" className="usuario-table align-middle mb-0">
+                  <thead className="table-primary">
+                    <tr>
+                      <th>Nombre</th>
+                      {/* 6. Ocultar RUT en celulares (pantallas 'sm') */}
+                      <th className="d-none d-md-table-cell">RUT</th>
+                      <th>Rol</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usuarios.length > 0 ? (
+                      usuarios.map(user => (
+                        <tr key={user.PK_id_usuario} className={!user.activo ? 'table-danger' : ''}>
+                          <td>{user.nombre}</td>
+                          <td className="d-none d-md-table-cell">{user.rut}</td>
+                          <td>{user.nombre_rol}</td>
+                          <td>
+                            {/* 7. Usar Badges de Bootstrap para el estado */}
+                            <span className={`badge ${user.activo ? 'bg-success' : 'bg-secondary'}`}>
+                              {user.activo ? 'Activo' : 'Deshabilitado'}
+                            </span>
+                          </td>
+                          <td>
+                            {/* 8. Usar Botón de Bootstrap */}
+                            <Button 
+                              as={Link} 
+                              to={`/usuarios/editar/${user.PK_id_usuario}`} 
+                              variant="warning" 
+                              size="sm"
+                              title="Editar"
+                            >
+                              <i className="bi bi-pencil-fill"></i> Editar
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="text-center text-muted py-4">
+                          No hay usuarios registrados.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              )}
             </Card.Body>
           </Card>
         </Col>
-      </Row>    
+      </Row>
+
+      {/* 9. Estilos autocontenidos */}
+      <style>{`
+        .section-title {
+            color: #495057;
+        }
+        .usuario-table {
+            font-size: 0.9rem;
+        }
+        .btn-sm {
+            /* Asegurar que el botón no sea demasiado pequeño */
+            padding: 0.25rem 0.5rem;
+            font-size: 0.85rem;
+        }
+        /* Ajustes para móvil */
+        @media (max-width: 767.98px) {
+             .usuario-table {
+                font-size: 0.8rem;
+            }
+            .usuario-table td, .usuario-table th {
+                padding: 0.5rem 0.4rem;
+            }
+             /* Centrar texto de cabecera en móvil */
+            .usuario-table th {
+                text-align: center;
+            }
+        }
+      `}</style>
+
     </Container>
-    
   );
 };
 
