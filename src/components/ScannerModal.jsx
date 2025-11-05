@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useZxing } from 'react-zxing';
 import{Modal,Button,Alert, Container} from 'react-bootstrap';
-
+import { DecodeHintType } from '@zxing/library';
 //----------------------------------------------------------
 /**
  * @param {object} props
@@ -13,6 +13,19 @@ const ScannerModal = ({ onClose, onScanSuccess }) => {
   const [scanStatus, setScanStatus] = useState('Buscando código...');
   const [error, setError] = useState(null);
 
+  const hints = new Map();
+  const formats = [
+    DecodeHintType.QR_CODE,
+    DecodeHintType.CODE_128,
+    DecodeHintType.CODE_39,
+    DecodeHintType.EAN_13,
+    DecodeHintType.EAN_8,
+    DecodeHintType.UPC_A,
+    DecodeHintType.UPC_E,
+    // ... puedes añadir más si es necesario
+  ];
+
+  hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
   const { ref } = useZxing({
     // --- 1. LA SOLUCIÓN: FORZAR EL ENFOQUE AUTOMÁTICO ---
     // Le pedimos al navegador que use la cámara trasera (environment)
@@ -24,7 +37,7 @@ const ScannerModal = ({ onClose, onScanSuccess }) => {
       } 
     },
     // --- Fin de la Solución ---
-
+hints,
     onResult(result) {
       const sku = result.getText();
       setScanStatus(`SKU Encontrado: ${sku}`);
