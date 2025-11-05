@@ -1,84 +1,75 @@
-// frontend/src/components/ScannerModal.jsx
+
 import React, { useState } from 'react';
-import { useZxing } from 'react-zxing';
-import{Modal,Button,Alert, Container} from 'react-bootstrap';
+import { Modal, Button, Alert, Spinner } from 'react-bootstrap';
+
+// 1. Importar la librería original (Plan A)
+import { useZxing } from 'react-zxing'; 
+// 2. Importar los "formatos" (hints) desde la librería @zxing/library
 import { DecodeHintType } from '@zxing/library';
-//----------------------------------------------------------
-/**
- * @param {object} props
- * @param {function} props.onClose - Función para cerrar el modal
- * @param {function} props.onScanSuccess - Función que se llama con el SKU encontrado
- */
+
 const ScannerModal = ({ onClose, onScanSuccess }) => {
-  const [scanStatus, setScanStatus] = useState('Buscando código...');
   const [error, setError] = useState(null);
 
+  // 3. DEFINIR LOS FORMATOS QUE QUEREMOS BUSCAR
+  // Esta es la clave que faltaba: le decimos a ZXing
+  // que no solo busque QR, sino también códigos de barras 1D.
   const hints = new Map();
   const formats = [
-    DecodeHintType.QR_CODE,
     DecodeHintType.CODE_128,
     DecodeHintType.CODE_39,
     DecodeHintType.EAN_13,
     DecodeHintType.EAN_8,
     DecodeHintType.UPC_A,
     DecodeHintType.UPC_E,
-    // ... puedes añadir más si es necesario
+    DecodeHintType.QR_CODE, // Aún queremos leer QRs
   ];
-
   hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
+  // También le pedimos que intente con más esfuerzo
+  hints.set(DecodeHintType.TRY_HARDER, true);
+
   const { ref } = useZxing({
-    // --- 1. LA SOLUCIÓN: FORZAR EL ENFOQUE AUTOMÁTICO ---
-    // Le pedimos al navegador que use la cámara trasera (environment)
-    // y que active el modo de enfoque continuo.
+    // 4. PASAR LOS HINTS A LA CONFIGURACIÓN
+    hints,
+
     constraints: { 
       video: { 
-        facingMode: 'environment',
-        focusMode: 'continuous' 
+        facingMode: 'environment', // Usar cámara trasera
+        focusMode: 'continuous'  // Forzar auto-enfoque
       } 
     },
-    // --- Fin de la Solución ---
-hints,
+    
     onResult(result) {
       const sku = result.getText();
-      setScanStatus(`SKU Encontrado: ${sku}`);
-      
-      // Llamamos a la función del padre con el SKU
       onScanSuccess(sku);
-      
-      // Cerramos el modal
       onClose();
     },
     onError(error) {
       console.error("Error de ZXing:", error);
-      // --- 2. MEJORA: MOSTRAR ERRORES EN LA UI ---
-      // Si la cámara falla, lo mostramos al usuario
-      setError(error.message || 'Error al iniciar la cámara.');
-      setScanStatus('Error');
+      setError(error);
     }
   });
 
   return (
-    // 3. REFACTORIZAR A MODAL DE REACT-BOOTSTRAP
-   
-      <Modal show={true} onHide={onClose} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <i className="bi bi-upc-scan me-2"></i>Escanear SKU
-          </Modal.Title>
-        </Modal.Header>
+    <Modal show={true} onHide={onClose} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>
+          <i className="bi bi-upc-scan me-2"></i>Escanear SKU
+        </Modal.Title>
+      </Modal.Header>
       <Modal.Body className="text-center">
-        
-        <p className="text-muted">Apunta la cámara al código de barras del insumo</p>
-        
-        {/* Aquí es donde la librería 'react-zxing' activa la cámara */}
+        <p className="text-muted">Apunta la cámara al código de barras</p>
+
+        {error && (
+          <Alert variant="danger" className="mt-3">
+            Error al iniciar la cámara: {error.message}
+          </Alert>
+        )}
+
+        {/* El <video> donde se muestra la cámara */}
         <video 
           ref={ref} 
           className="scanner-video"
         />
-        
-        {/* Mostrar el estado o el error */}
-        {!error && <p className="mt-3"><em>{scanStatus}</em></p>}
-        {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
 
       </Modal.Body>
       <Modal.Footer>
@@ -87,16 +78,17 @@ hints,
         </Button>
       </Modal.Footer>
 
-      {/*---------------ESTILOS (El video necesita un tamaño) */}
+      {/* Estilos */}
       <style>{`
         .scanner-video {
           width: 100%;
+          max-width: 600px;
+          height: auto;
           border-radius: 8px;
           border: 1px solid #dee2e6;
         }
       `}</style>
     </Modal>
-    
   );
 };
 
