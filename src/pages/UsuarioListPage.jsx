@@ -26,29 +26,18 @@ const UsuarioListPage = () => {
   
 
   return (
-    <Container fluid className="form-container bg-light min-vh-100 py-4">
-      <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8}>
-          
-          {/* Botón Volver y Título */}
-          <Row className="mb-3 align-items-center">
-            <Col xs="auto">
+    <Container fluid className={`bg-light min-vh-100 py-4`}>
+          <Row className="justify-content-center">
+            <Col xs={12} md={10} lg={8} xl={6}>         
               <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
-                      <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
               </Button>
-            </Col>
-            
-          </Row>
-
-          <Card className="shadow-sm">
-            <Card.Header as="h2" className="p-3">
-              <Col>
-              <h1 className="h2 p-3 mb-0 section-title text-center text-md-start">Gestión de Usuarios</h1>
-            </Col>
-              <Button variant="success" as={Link} to="/usuarios/nuevo">
-                <i className="bi bi-plus-circle me-1"></i> Crear Nuevo Usuario
-              </Button>
-            </Card.Header>
+    
+              <Card className="shadow-sm border-0">
+                <Card.Header as="h2" className="text-center fw-bold form-header">
+                  Gestión de Usuarios
+                </Card.Header>
+                
             <Card.Body className="p-0 p-md-3">
               
               {loading ? (
@@ -106,16 +95,28 @@ const UsuarioListPage = () => {
                     )}
                   </tbody>
                 </Table>
-              )}
+              )}                  
             </Card.Body>
           </Card>
-        </Col>
-      </Row>
+      </Col>
+  </Row>
 
       {/* 9. Estilos autocontenidos */}
       <style>{`
         .section-title {
             color: #495057;
+        }
+            .form-container {
+          background-color: #f8f9fa;
+        }
+        .form-header {
+          background-color: #1279e0ff;
+          color: white;
+          padding: 1rem;
+        }
+        .form-control-focus:focus {
+          border-color: var(--bs-info);
+          box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
         }
         .usuario-table {
             font-size: 0.9rem;

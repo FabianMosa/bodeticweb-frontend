@@ -37,39 +37,33 @@ const { showNotification } = useNotification();
 
   return (
     
-    <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-      <Row className="w-100 justify-content-center">
-        {/* El "Col" define el ancho en diferentes pantallas */}
-        <Col xs={12} sm={10} md={8} lg={6} xl={4}>
-
-          <Card className="login-card shadow-sm">
-            <Card.Body className="p-4 p-md-5">
-
-              <h2 className="card-title fw-bold text-center mb-4">
-                BodeTIC
-              </h2>
-               <h2 className="card-title fw-bold text-center mb-4">
-                Iniciar Sesión
-              </h2>
-              
-              {/* 3. Usa los componentes de Formulario */}
-              <Form onSubmit={handleLogin}>
-                <Form.Group className="mb-3" controlId="formRut">
-                  <Form.Label>RUT:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Ingrese su RUT"
-                    value={rut}
-                    onChange={(e) => setRut(e.target.value)}
-                    required className='form-control-focus'
-                  />
+    <Container fluid className={`bg-light min-vh-100 py-4`}>
+          <Row className="justify-content-center">
+            <Col xs={12} md={10} lg={8} xl={6}>         
+                      
+              <Card className="shadow-sm border-1">
+                <Card.Header as="h2" className="text-center fw-bold form-header">
+                  BodeTICWeb
+                </Card.Header>
+                <Card.Body className="p-4 p-md-5">
+                  <Card.Title className="text-center fw-bold" as="h2">Iniciar Sesion</Card.Title>
+                  <Form onSubmit={handleLogin}>
+                    <Form.Group className="mb-3" controlId="formRut">
+                      <Form.Label>RUT:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Ingrese su RUT"
+                        value={rut}
+                        onChange={(e) => setRut(e.target.value)}
+                        required className='form-control-focus'
+                      />                
                 </Form.Group>
 
                 <Form.Group className="mb-4" controlId="formPassword">
                   <Form.Label>Contraseña:</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Contraseña"
+                    placeholder="Ingrese su contraseña"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -98,9 +92,23 @@ const { showNotification } = useNotification();
               </Form>
             </Card.Body>
           </Card>
-
         </Col>
       </Row>
+      {/* --- Estilos CSS --- */}
+                   <style>{`
+                     .form-container {
+                       background-color: #f8f9fa;
+                     }
+                     .form-header {
+                       background-color: #1279e0ff;
+                       color: white;
+                       padding: 1rem;
+                     }
+                     .form-control-focus:focus {
+                       border-color: var(--bs-info);
+                       box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+                     }
+                   `}</style>
     </Container>
   );
 };
