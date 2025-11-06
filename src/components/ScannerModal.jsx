@@ -1,53 +1,84 @@
 
-import React, { useState } from 'react';
-import { Modal, Button, Alert, Spinner } from 'react-bootstrap';
 
-// 1. Importar la librería original (Plan A)
-import { useZxing } from 'react-zxing'; 
-// 2. Importar los "formatos" (hints) desde la librería @zxing/library
-import { DecodeHintType } from '@zxing/library';
+import React, { useState, useEffect, useRef } from 'react';
+import { Modal, Button, Alert } from 'react-bootstrap';
 
 const ScannerModal = ({ onClose, onScanSuccess }) => {
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState('Iniciando cámara...');
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const intervalRef = useRef(null);
 
-  // 3. DEFINIR LOS FORMATOS QUE QUEREMOS BUSCAR
-  // Esta es la clave que faltaba: le decimos a ZXing
-  // que no solo busque QR, sino también códigos de barras 1D.
-  const hints = new Map();
-  const formats = [
-    DecodeHintType.CODE_128,
-    DecodeHintType.CODE_39,
-    DecodeHintType.EAN_13,
-    DecodeHintType.EAN_8,
-    DecodeHintType.UPC_A,
-    DecodeHintType.UPC_E,
-    DecodeHintType.QR_CODE, // Aún queremos leer QRs
-  ];
-  hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
-  // También le pedimos que intente con más esfuerzo
-  hints.set(DecodeHintType.TRY_HARDER, true);
-
-  const { ref } = useZxing({
-    // 4. PASAR LOS HINTS A LA CONFIGURACIÓN
-    hints,
-
-    constraints: { 
-      video: { 
-        facingMode: 'environment', // Usar cámara trasera
-        focusMode: 'continuous'  // Forzar auto-enfoque
-      } 
-    },
-    
-    onResult(result) {
-      const sku = result.getText();
-      onScanSuccess(sku);
-      onClose();
-    },
-    onError(error) {
-      console.error("Error de ZXing:", error);
-      setError(error);
+  useEffect(() => {
+    // --- 1. VERIFICACIÓN DE COMPATIBILIDAD MEJORADA ---
+    if (!('BarcodeDetector' in window)) {
+      setError(
+        'Escáner no compatible. Esta función solo está disponible en navegadores móviles (como Chrome en Android) o en versiones de escritorio con las funciones experimentales activadas.'
+      );
+      setStatus('Error');
+      return;
     }
-  });
+    // --- FIN DE LA MEJORA ---
+
+    const detector = new window.BarcodeDetector({
+      formats: [
+        'code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code'
+      ]
+    });
+
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            focusMode: 'continuous',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          }
+        });
+        
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+          setStatus('Cámara activa. Buscando código...');
+
+          intervalRef.current = setInterval(async () => {
+            if (!videoRef.current || videoRef.current.readyState < 2) return;
+            try {
+              const barcodes = await detector.detect(videoRef.current);
+              if (barcodes.length > 0) {
+                clearInterval(intervalRef.current);
+                onScanSuccess(barcodes[0].rawValue);
+                onClose();
+              }
+            } catch (detectError) {
+              console.warn('Fallo de detección (normal):', detectError);
+            }
+          }, 500);
+        }
+      } catch (camError) {
+        console.error("Error de cámara:", camError);
+        if (camError.name === 'NotAllowedError') {
+          setError('Permiso de cámara denegado. Revise la configuración de su navegador.');
+        } else {
+          setError(`Error al acceder a la cámara: ${camError.message}`);
+        }
+        setStatus('Error');
+      }
+    };
+
+    startCamera();
+
+    // Función de Limpieza
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [onClose, onScanSuccess]);
 
   return (
     <Modal show={true} onHide={onClose} centered size="lg">
@@ -57,19 +88,21 @@ const ScannerModal = ({ onClose, onScanSuccess }) => {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-center">
+        
         <p className="text-muted">Apunta la cámara al código de barras</p>
-
-        {error && (
-          <Alert variant="danger" className="mt-3">
-            Error al iniciar la cámara: {error.message}
-          </Alert>
-        )}
-
-        {/* El <video> donde se muestra la cámara */}
+        
         <video 
-          ref={ref} 
+          ref={videoRef} 
           className="scanner-video"
+          muted
+          playsInline
         />
+        
+        {error ? (
+          <Alert variant="danger" className="mt-3">{error}</Alert>
+        ) : (
+          <p className="mt-3"><em>{status}</em></p>
+        )}
 
       </Modal.Body>
       <Modal.Footer>
@@ -86,6 +119,7 @@ const ScannerModal = ({ onClose, onScanSuccess }) => {
           height: auto;
           border-radius: 8px;
           border: 1px solid #dee2e6;
+          background: #333;
         }
       `}</style>
     </Modal>
