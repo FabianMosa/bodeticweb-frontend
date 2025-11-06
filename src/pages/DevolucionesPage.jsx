@@ -5,7 +5,6 @@ import insumoService from '../services/insumo.service'; // (Lo mantenemos por si
 import usuarioService from '../services/usuario.service';
 import movimientoService from '../services/movimiento.service';
 import { useNotification } from '../context/NotificationContext';
-
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 
 const DevolucionPage = () => {
@@ -128,7 +127,7 @@ const DevolucionPage = () => {
   }
 
   return (
-    <Container fluid className="form-container bg-light min-vh-100 py-4">          
+    <Container fluid className={`bg-light min-vh-100 py-4`}>
       <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8} xl={6}>         
           <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
@@ -217,22 +216,22 @@ const DevolucionPage = () => {
                     )}
                   </Button>
                 </div>
-              </Form>
-            
+              </Form>  
+                        
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* --- 7. Estilos CSS --- */}
+      {/* --- Estilos CSS --- */}
       <style>{`
         .form-container {
           background-color: #f8f9fa;
         }
         .form-header {
-          background-color: #343a40;
+          background-color: #1279e0ff;
           color: white;
-          padding: 1.25rem;
+          padding: 1rem;
         }
         .form-control-focus:focus {
           border-color: var(--bs-info);

@@ -7,7 +7,7 @@ import ScannerModal from '../components/ScannerModal';
 import { useNotification } from '../context/NotificationContext';
 import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form, Pagination } from 'react-bootstrap';
 
-// --- Definir cantidad de items por pagina ---
+// ---------------------------------------------- Definir cantidad de items por pagina ---
 const ITEMS_PER_PAGE = 5;
 
 const InventarioPage = () => {
@@ -15,31 +15,31 @@ const InventarioPage = () => {
   const [loading, setLoading] = useState(true);  
   const [usuarioRol, setUsuarioRol] = useState(null);
 
-  // --- Estados para Filtros y Paginación ---
+  // ---------------------------------------------Estados para Filtros y Paginación ---
   const [categorias, setCategorias] = useState([]);
   const [filtroActivo, setFiltroActivo] = useState(true);
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   
-  // --- Estados de Modales (Simplificado) ---
+  // --- -----------------------------------------Estados de Modales (Simplificado) ---
   const [salidaModalOpen, setSalidaModalOpen] = useState(false);
   const [scannerModalOpen, setScannerModalOpen] = useState(false);
   const [selectedInsumo, setSelectedInsumo] = useState(null);
  
   const { showNotification } = useNotification();
 
-  // --- Cargar insumos y categorias al inicio ---
+  // --- -------------------------------------Cargar insumos y categorias al inicio ---
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
         const [insumosData, categoriasData] = await Promise.all([
-          // 1. LLAMAMOS A LA API SIN FILTRO (trae todos)
+          // LLAMAMOS A LA API SIN FILTRO (trae todos)
           insumoService.getInsumos(), 
           insumoService.getCategorias()
         ]);
         
-        // 2. CORRECCIÓN VITAL: Quitar el .map() que hardcodea 'activo: true'
+        
         setInsumos(insumosData); 
         setCategorias(categoriasData);
 
@@ -52,11 +52,10 @@ const InventarioPage = () => {
 
     loadData();
     const usuarioInfo = JSON.parse(localStorage.getItem('usuario'));
-    if (usuarioInfo) setUsuarioRol(usuarioInfo.usuario.rol);
-  // 3. CORRECCIÓN VITAL: Quitar [showNotification]. Usar [] para que cargue 1 SOLA VEZ.
+    if (usuarioInfo) setUsuarioRol(usuarioInfo.usuario.rol); 
   }, []); 
 
-  // --- Lógica de Filtrado (Ahora funciona) ---
+  // --- --------------------------------------------------Lógica de Filtrado (Ahora funciona) ---
   const insumosFiltrados = useMemo(() => {
     return insumos
       .filter(insumo => {
@@ -71,7 +70,7 @@ const InventarioPage = () => {
       });
   }, [insumos, filtroActivo, filtroCategoria]);
 
-  // --- Lógica de Paginación ---
+  // --- -----------------------------------------------------Lógica de Paginación ---
   const totalPages = Math.ceil(insumosFiltrados.length / ITEMS_PER_PAGE);
   const currentItems = insumosFiltrados.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -88,7 +87,7 @@ const InventarioPage = () => {
     setCurrentPage(1); // Resetear a página 1
   };
     
-  // --- Handler de Toggle (AHORA FUNCIONA) ---
+  // ----------------------------------------------------------- Handler de Toggle (AHORA FUNCIONA) ---
   const handleToggleActivo = async (insumo) => {
     const nuevoEstado = !insumo.activo;
     const confirmMsg = `¿Está seguro que desea ${nuevoEstado ? 'habilitar' : 'deshabilitar'} el insumo "${insumo.nombre}"?`;
@@ -110,7 +109,7 @@ const InventarioPage = () => {
     }
   };
 
-  // --- Handlers de Modales (Unificados) ---
+  // ------------------------------------------------------------ Handlers de Modales (Unificados) ---
   const handleOpenScanner = () => setScannerModalOpen(true);
   const handleCloseScanner = () => setScannerModalOpen(false);
   const handleOpenSalidaModal = (insumo) => {
@@ -147,7 +146,7 @@ const InventarioPage = () => {
     );
   };
 
-  // --- Componente de Paginación ---
+  // --- ------------------------------------------------------------Componente de Paginación ---
   const PaginationComponent = () => {
     if (totalPages <= 1) return null;
     let items = [];
@@ -171,7 +170,7 @@ const InventarioPage = () => {
   return (
     <Container fluid className="inventario-container bg-light min-vh-100 py-4">
       
-      {/* Título y Botón Volver */}
+      {/* ----------------------------------------------------Título y Botón Volver */}
       <Row className="mb-3 align-items-center">
         <Col xs="auto">
           <Button variant="outline-primary" size="sm" as={Link} to="/Dashboard" className="mb-3">
@@ -181,27 +180,27 @@ const InventarioPage = () => {
         
       </Row>
 
-      {/* --- Barra de Acciones y Filtros --- */}
+      {/* --------------------------------------------- Barra de Acciones y Filtros --- */}
       <Card className="shadow-sm mb-3">
         <Card.Body className="p-3">
           <Row className="gy-3 align-items-end">
             
-            <div>
-          <h1 className="h2 mb-0 section-title text-center text-md-start">Gestión de Inventario</h1>
-        </div>
-            {/* Botones de Acción */}
+            <Card.Header as="h2" className="text-center fw-bold form-header">
+                          Registrar Devolución
+                        </Card.Header>
+            {/* ----------------------------------------------Botones de Acción */}
             <Col xs={12} md={6} lg={4} className="d-flex gap-2">
               {usuarioRol === 1 && (
                 <Button variant="success" as={Link} to="/inventario/nuevo" className="flex-grow-1">
-                  <i className="bi bi-plus-circle me-1"></i> Registrar
+                  <i className="bi bi-plus-circle me-1"></i> Registrar Ingreso
                 </Button>
               )}
               <Button variant="info" onClick={handleOpenScanner} className="text-white flex-grow-1">
-                <i className="bi bi-upc-scan me-"></i> Escanear
+                <i className="bi bi-upc-scan me-"></i> Escanear SKU para salida
               </Button>
             </Col>
             <br />
-            {/* Filtro por Categoría */}
+            {/* -----------------------------------------------Filtro por Categoría */}
             <div xs={12} md={6} lg={4} className='mb-3' >
               <Form.Group controlId="filtroCategoria">
                 <Form.Label className="filter-label mb-1">Categoría:</Form.Label>
@@ -220,7 +219,7 @@ const InventarioPage = () => {
               </Form.Group>
             </div>
             
-            {/* Filtros de Estado */}
+            {/* -----------------------------------------------------Filtros de Estado */}
             <Col xs={12} md={6} lg={4}>
               <Form.Group controlId="filtroEstado">
                 <Form.Label className="filter-label mb-1">Estado:</Form.Label>
@@ -246,7 +245,7 @@ const InventarioPage = () => {
         </Card.Body>
       </Card>
 
-      {/* --- Tabla Responsiva --- */}
+      {/* --- ----------------------------------------------------Tabla Responsiva --- */}
       <Row>
         <Col>
           <Card className="shadow-sm">
@@ -293,12 +292,11 @@ const InventarioPage = () => {
                                   </Button>
                                 </>
                               )}
-                              
-                              {/* --- CORRECCIÓN DE AMBOS BUGS AQUÍ --- */}
-                              {insumo.activo ? ( // 1. Arregla el bug del '0'
+                              {/* ----------------------------------------------------Llama al modal de Salida */}                   
+                              {insumo.activo ? (
                                 <Button 
                                   style={{ backgroundColor: '#17a2b8', color: 'white'}}
-                                  onClick={() => handleOpenSalidaModal(insumo)} // 2. Llama a la función correcta
+                                  onClick={() => handleOpenSalidaModal(insumo)}
                                   disabled={insumo.stock_actual === 0}
                                 >
                                   Registrar Salida
@@ -341,7 +339,20 @@ const InventarioPage = () => {
         />
       )}
 
-     
+     <style>{`
+        .form-container {
+          background-color: #f8f9fa;
+        }
+        .form-header {
+          background-color: #1279e0ff;
+          color: white;
+          padding: 1rem;
+        }
+        .form-control-focus:focus {
+          border-color: var(--bs-info);
+          box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+        }
+      `}</style>
       
     </Container>
   );

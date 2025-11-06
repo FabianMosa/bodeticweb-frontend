@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import usuarioService from '../services/usuario.service';
 import rolService from '../services/rol.services';
+import { useNotification } from '../context/NotificationContext';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 
 // --- Estilos ---
 const formStyles = {
@@ -25,8 +27,7 @@ const UsuarioEditPage = () => {
   const [formData, setFormData] = useState(null);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
+const { showNotification } = useNotification();
   // Cargar Roles y datos del Usuario
   useEffect(() => {
     const loadData = async () => {
@@ -38,7 +39,7 @@ const UsuarioEditPage = () => {
         setFormData(userData);
         setRoles(rolesData);
       } catch (err) {
-        setError('Error al cargar datos');
+        showNotification(err.message ||'Error al cargar datos', 'error');
       } finally {
         setLoading(false);
       }
@@ -57,7 +58,7 @@ const UsuarioEditPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+  
     
     // Preparamos los datos (sin password)
     const dataToUpdate = {
@@ -69,10 +70,10 @@ const UsuarioEditPage = () => {
 
     try {
       await usuarioService.updateUsuario(id, dataToUpdate);
-      alert('Usuario actualizado con éxito');
+      showNotification('Usuario actualizado con éxito', 'success');
       navigate('/usuarios');
     } catch (err) {
-      setError(err.message || 'Error al actualizar');
+      showNotification(err.message || 'Error al actualizar', 'error');
     } finally {
       setLoading(false);
     }
@@ -81,43 +82,72 @@ const UsuarioEditPage = () => {
   if (loading || !formData) return <div>Cargando...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Link to="/usuarios" style={{...buttonStyles, backgroundColor: '#7a9ee0ff', color: 'black', textDecoration: 'none'}}>{"Volver a menú de usuario"}</Link>
-      <form onSubmit={handleSubmit} style={formStyles}>
-        <h2>Editar Usuario</h2>
-        
-        <label>Nombre:</label>
-        <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} style={inputStyles} required />
-        
-        <label>RUT:</label>
-        <input type="text" name="rut" value={formData.rut} onChange={handleChange} style={inputStyles} required />
-        
-        <label>Rol:</label>
-        <select name="FK_id_rol" value={formData.FK_id_rol} onChange={handleChange} style={inputStyles} required>
-          {roles.map(rol => (
-            <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
-              {rol.nombre_rol}
-            </option>
-          ))}
-        </select>
+    <Container fluid className={`bg-light min-vh-100 py-4`}>
+          <Row className="justify-content-center">
+            <Col xs={12} md={10} lg={8} xl={6}>         
+                  <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+                    <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+                  </Button>
+    
+              <Card className="shadow-sm border-0">
+                <Card.Header as="h2" className="text-center fw-bold form-header">
+                  Editar Usuario
+                </Card.Header>
+                <Card.Body className="p-4 p-md-5">                  
+                    <Form onSubmit={handleSubmit} style={formStyles}>                  
+                      
+                      <label>Nombre:</label>
+                      <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} style={inputStyles} required />
+                      
+                      <label>RUT:</label>
+                      <input type="text" name="rut" value={formData.rut} onChange={handleChange} style={inputStyles} required />
+                      
+                      <label>Rol:</label>
+                      <select name="FK_id_rol" value={formData.FK_id_rol} onChange={handleChange} style={inputStyles} required>
+                        {roles.map(rol => (
+                          <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
+                            {rol.nombre_rol}
+                          </option>
+                        ))}
+                      </select>
 
-        <label>
-          <input 
-            type="checkbox" 
-            name="activo" 
-            checked={formData.activo} 
-            onChange={handleChange} 
-          />
-          Activo (Deshabilitar usuario si se desmarca)
-        </label>
+                      <label>
+                        <input 
+                          type="checkbox" 
+                          name="activo" 
+                          checked={formData.activo} 
+                          onChange={handleChange} 
+                        />
+                        Activo (Deshabilitar usuario si se desmarca)
+                      </label>
 
-        <button type="submit" disabled={loading} style={buttonStyles}>
-          {loading ? 'Actualizando...' : 'Actualizar Usuario'}
-        </button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-    </div>
+                      <Button type="submit" disabled={loading} style={buttonStyles}>
+                        {loading ? 'Actualizando...' : 'Actualizar Usuario'}
+                      </Button>
+                    </Form>                 
+                </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+             
+                   {/* --- Estilos CSS --- */}
+                   <style>{`
+                     .form-container {
+                       background-color: #f8f9fa;
+                     }
+                     .form-header {
+                       background-color: #1279e0ff;
+                       color: white;
+                       padding: 1rem;
+                     }
+                     .form-control-focus:focus {
+                       border-color: var(--bs-info);
+                       box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+                     }
+                   `}</style>
+      </Container>
   );
 };
+
 
 export default UsuarioEditPage;

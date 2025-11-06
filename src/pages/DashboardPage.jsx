@@ -95,19 +95,21 @@ useEffect(() => {
   return (
     <Container>
       {/* --- Navbar Superior --- */}
-      <Navbar bg="primary" variant="dark" expand="lg" className="mb-4 shadow-sm main-navbar">
+      <Navbar bg="primary" variant="primary" expand="lg" className="mb-4 shadow-sm main-navbar">
         <Container>
           {/* <Navbar.Brand as={Link} to="/dashboard">
              <img src={logoTic} width="30" height="30" className="d-inline-block align-top me-2 rounded-circle" alt="BodeTIC Logo"/> 
             BodeTICWeb
           </Navbar.Brand> */}
           <Navbar.Brand as={Link} to="/dashboard" className="align-items-center">
-            BodeTICWeb
+            <Card.Header as="h2" className="text-center fw-bold form-header text-white mb-0">
+                BodeTICWeb
+            </Card.Header>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
             <Nav className="align-items-center">
-              <Navbar.Text className="text-warning me-3">
+              <Navbar.Text className="me-3 text-white">
                 Usuario: <strong className="user-name">{nombreUsuario}</strong>
               </Navbar.Text>
               <Button variant="danger" size="sm" onClick={handleLogout}>
@@ -161,11 +163,9 @@ useEffect(() => {
                 </Card>
             </Col></>
           )}  
-        </Row>
-        
-       
+        </Row>         
      
-      {/* --- 6. WIDGETS DE DATOS (ALERTAS Y PRÉSTAMOS) --- */}
+      {/* -------------------------------WIDGETS DE DATOS (ALERTAS Y PRÉSTAMOS) --- */}
       <Container style={widgetContainerStyles}>        
       {/* Widget de Préstamos - Visible para Todos */}
         <Card style={widgetStyles}>

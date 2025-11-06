@@ -43,61 +43,62 @@ const getPrestamosActivos = async () => {
  * Obtiene el historial de movimientos filtrado.
  * @param {object} filtros - { fecha_inicio, fecha_fin, id_insumo, id_usuario, tipo_movimiento }
  */
-const getHistorial = async (filtros = {}) => {
+const getHistorial = async (filtros = {}, page = 1, limit = 10) => {
   try {
-    // Convertimos el objeto de filtros a query string
-    const params = new URLSearchParams(filtros).toString();
+    // -------------------------------------Añadir page y limit a los filtros
+    const params = new URLSearchParams({
+      ...filtros,
+      page: page,
+      limit: limit
+    }).toString();
     
     const response = await api.get(`/movimientos/historial?${params}`);
-    return response.data;
-  } catch (error) {
+    return response.data; // Esto ahora es { data: [...], pagination: {...} }
+  } catch (error)
+ {
     console.error('Error en el servicio de obtener historial:', error.response.data);
     throw error.response.data;
   }
 };
 
-// --- AÑADIR ESTA FUNCIÓN PARA EL EXCEL ---
+// -------------------------------------------------FUNCIÓN PARA EL EXCEL ---
 const getHistorialExcel = async (filtros = {}) => {
   try {
-    filtros.formato = 'excel'; // Añadimos el parámetro especial
-    const params = new URLSearchParams(filtros).toString();
+    // --- 1. ESTA ES LA CORRECCIÓN ---
+    // Creamos una COPIA de los filtros y añadimos el formato
+    const filtrosParaExcel = {
+      ...filtros, // Copia todas las propiedades de 'filtros'
+      formato: 'excel' // Añade la propiedad 'formato'
+    };
+    // El 'filtros' original NUNCA se modifica
+    // --- FIN DE LA CORRECCIÓN ---
+
+    // 2. Usamos la copia para generar los parámetros
+    const params = new URLSearchParams(filtrosParaExcel).toString();
     
     const response = await api.get(`/movimientos/historial?${params}`, {
-      responseType: 'blob', // 1. Le decimos a Axios que esperamos un archivo
+      responseType: 'blob', 
     });
-    
-    // --- 2. LA CORRECCIÓN ESTÁ AQUÍ ---
-    // response.data ya ES el blob. No lo envolvemos en new Blob([]).
-    const url = window.URL.createObjectURL(response.data); 
-    
-    // 3. (El resto del código de descarga es correcto)
+
+    // (Tu lógica de manejo de errores de blob aquí)
+    if (response.data.type === 'application/json') {
+      const errorText = await response.data.text();
+      const errorJson = JSON.parse(errorText);
+      throw new Error(errorJson.message || 'Error en el backend al generar Excel');
+    }
+
+    // (Tu lógica de descarga de archivo aquí)
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', 'Reporte_BodeTIC.xlsx');
     document.body.appendChild(link);
     link.click();
-    
-    // 4. Limpiar
     link.remove();
-    window.URL.revokeObjectURL(url);
     
   } catch (error) {
-    // Si el backend falló y envió un error JSON (en lugar de un blob),
-    // necesitamos leer ese error.
-    if (error.response && error.response.data.toString() === "[object Blob]") {
-        try {
-            // Intentamos leer el blob como texto (que contiene el error JSON)
-            const errorJson = JSON.parse(await error.response.data.text());
-            console.error('Error (JSON) al descargar el Excel:', errorJson);
-            throw errorJson; // Lanzamos el error legible
-        } catch (e) {
-            console.error('Error al parsear el blob de error:', e);
-            throw new Error('Ocurrió un error desconocido al generar el reporte.');
-        }
-    } else {
-       console.error('Error al descargar el Excel:', error);
-       throw error.response ? error.response.data : new Error('Error de red');
-    }
+    console.error('Error al descargar el Excel:', error);
+    throw error; 
   }
 };
 
