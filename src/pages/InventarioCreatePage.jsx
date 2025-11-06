@@ -14,7 +14,7 @@ const formStyles = {
   maxWidth: '600px',
   margin: '20px auto',
   padding: '20px',
-  border: '1px solid #3a3cb4ff',
+  border: '1px solid #8f90b3ff',
   borderRadius: '8px',
   boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
 };
@@ -132,19 +132,22 @@ const InventarioCreatePage = () => {
   if (loading) return <div>Cargando datos...</div>;
 
   return (
-   <Container fluid style={{ padding: '20px' }} className='form-container bg-light min-vh py-4'>
-      <Row className="justify-content-center">
-        <Col  xs={12} md={10} lg={8}>
-          <Button variant="outline-primary" size="sm" as={Link} to="/inventario" className="mb-3">
-            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-          </Button>
-          <form onSubmit={handleSubmit} style={formStyles}>
-
-        <h2 as="h2" className="text-center fw-bold form-header">
-              Registrar Insumo
-        </h2>
-        {/* SECCIÓN 1: DATOS DEL INGRESO */}
-        <fieldset style={fieldsetStyles}>
+   <Container fluid className={`bg-light min-vh-100 py-4`}>
+         <Row className="justify-content-center">
+           <Col xs={12} md={10} lg={8} xl={6}>  
+           {/* -----------------------------------------------------------Botón de Volver al Inventario */}
+             <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+           <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+             </Button>
+   
+             <Card className="shadow-sm border-0">
+               <Card.Header as="h2" className="text-center fw-bold form-header">
+                 Registrar Devolución
+               </Card.Header>
+               <Card.Body className="p-4 p-md-5">
+          <Form onSubmit={handleSubmit} style={formStyles}>        
+        {/* ------------------------------------------------------------- DATOS DEL INGRESO */}
+        <Form.Group style={fieldsetStyles}>
           <legend>1. Información de Ingreso (Factura/Guía)</legend>
           
           <label>Proveedor</label>
@@ -161,9 +164,9 @@ const InventarioCreatePage = () => {
 
           <label>Fecha Emisión (Documento)</label>
           <input type="date" name="fecha_emision" value={formData.fecha_emision} onChange={handleChange} style={inputStyles} required />
-        </fieldset>
-        
-        <fieldset style={{...fieldsetStyles, border: '1px solid #ccc'}}>
+        </Form.Group>
+
+        <Form.Group style={{...fieldsetStyles, border: '1px solid #ccc'}}>
           <legend>2. Información del Insumo</legend>
         <label>Nombre:</label>
         <input type="text" name="nombre" onChange={handleChange} style={inputStyles} required />
@@ -209,20 +212,37 @@ const InventarioCreatePage = () => {
         
         <label>Descripción (Opcional)</label>
         <textarea name="descripcion" onChange={handleChange} style={inputStyles}></textarea>
-        </fieldset>
-        <button type="submit" disabled={loading} style={buttonStyles}>
+        </Form.Group>
+        <Button type="submit" disabled={loading} style={buttonStyles}>
           {loading ? 'Guardando...' : 'Crear Insumo'}
-        </button>        
-      </form>
-      {/* 5. RENDERIZAR EL MODAL DEL ESCÁNER (al final del return) */}
+        </Button>        
+      </Form>
+      {/* ---------------------------------------------------------------------------------RENDERIZAR EL MODAL DEL ESCÁNER (al final del return) */}
       {showScanner && (
         <ScannerModal 
           onClose={() => setShowScanner(false)}
           onScanSuccess={handleScanSuccess} 
         />
       )}
+                </Card.Body>
+              </Card>
     </Col>
   </Row>
+  {/* --- Estilos CSS --- */}
+      <style>{`
+        .form-container {
+          background-color: #f8f9fa;
+        }
+        .form-header {
+          background-color: #1279e0ff;
+          color: white;
+          padding: 1rem;
+        }
+        .form-control-focus:focus {
+          border-color: var(--bs-info);
+          box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+        }
+      `}</style>
     </Container>
   );
 };
