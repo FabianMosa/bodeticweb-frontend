@@ -23,11 +23,11 @@ const NotificationModal = () => {
         <Modal.Title>
           {isError ? (
             <>
-              <i className="bi bi-exclamation-triangle-fill me-2"></i> Error
+              <i className="bi bi-exclamation-triangle-fill me-2"></i> Error!!!, Algo salió mal
             </>
           ) : (
             <>
-              <i className="bi bi-check-circle-fill me-2"></i> Éxito
+              <i className="bi bi-check-circle-fill me-2"></i> Operación Exitosa
             </>
           )}
         </Modal.Title>

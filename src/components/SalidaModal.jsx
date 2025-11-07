@@ -1,10 +1,9 @@
-// frontend/src/components/SalidaModal.jsx
+
 import React, { useState } from 'react';
 import movimientoService from '../services/movimiento.service';
-//import { useNotification } from '../context/NotificationContext'; // <-- 1. IMPORTAR
-import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form } from 'react-bootstrap';
-import {useNotification} from '../context/NotificationContext';
-// --- Estilos para el Modal (Pop-up) ---
+import { useNotification } from '../context/NotificationContext';
+
+// --- Estilos para el Modal (Tus estilos originales) ---
 const modalOverlayStyles = {
   position: 'fixed',
   top: 0,
@@ -31,42 +30,54 @@ const buttonStyles = { padding: '10px', fontSize: '16px', border: 'none', cursor
 // --- Fin Estilos ---
 
 
-/**
- * @param {object} props
- * @param {object} props.insumo - El insumo seleccionado { PK_id_insumo, nombre, stock_actual }
- * @param {function} props.onClose - Función para cerrar el modal
- * @param {function} props.onSuccess - Función a ejecutar si la salida es exitosa
- */
 const SalidaModal = ({ insumo, onClose, onSuccess }) => {
+  
+  // ---------------------------------------------"CANNOT READ PROPERTIES OF NULL" ---
+  // Añadimos esta "Guardia". Si el 'insumo' es nulo
+  // (porque el modal se está cerrando), no renderizar nada.
+  // Esto previene el error "Cannot read properties of null (reading 'nombre')"
+  if (!insumo) {
+    return null;
+  }
+  // --- FIN DE LA CORRECCIÓN 1 ---
+
   // Estado local para el formulario del modal
   const [cantidad, setCantidad] = useState(1);
   const [codigo_ot, setCodigo_ot] = useState('');
-  const [tipo_movimiento, setTipo_movimiento] = useState('Salida-Uso'); // Valor por defecto
-  const [loading, setLoading] = useState(false);  
-   const { showNotification } = useNotification(); // Para mostrar notificaciones
+  const [tipo_movimiento, setTipo_movimiento] = useState('Salida-Uso');
+  const [loading, setLoading] = useState(false);
+  const [descripcion, setDescripcion] = useState(''); // Estado para la descripción
+  const { showNotification } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
-
     try {
       const salidaData = {
         id_insumo: insumo.PK_id_insumo,
         cantidad: parseInt(cantidad, 10),
-        tipo_movimiento, // 'Salida-Uso' o 'Préstamo'
-        codigo_ot
+        tipo_movimiento,
+        codigo_ot,
+        descripcion // Añadido para el backend
       };
 
       // Llamamos al servicio
       const response = await movimientoService.registrarSalida(salidaData);
 
-      showNotification(response.message, 'success');
-      onSuccess(insumo.PK_id_insumo, response.nuevo_stock); // Pasa el ID y el nuevo stock a la página padre
+      // -------------------------------------------------"NO SE CIERRA" ---
+      // Reemplazamos el 'alert()' (que bloquea el código)
+      // por la notificación global.
+      // alert(response.message); // <-- ESTA LÍNEA ES EL BUG
+      showNotification(response.message, 'success'); // <-- ESTA ES LA SOLUCIÓN
+
+      // Ahora estas líneas SÍ se ejecutarán inmediatamente
+      onSuccess(insumo.PK_id_insumo, response.nuevo_stock); // Actualiza la tabla
       onClose(); // Cierra el modal
+      // --- FIN DE LA CORRECCIÓN 2 ---
 
     } catch (err) {
-      // Mostramos el error del backend (ej. "Stock insuficiente")
+      // Mostramos el error en nuestro modal de notificación global
       showNotification(err.message || 'Error al registrar la salida', 'error');
     } finally {
       setLoading(false);
@@ -74,6 +85,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
   };
 
   return (
+    
     <div style={modalOverlayStyles} onClick={onClose}>
       <div style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
         <h2 style={{marginTop: 0}}>Registrar Salida</h2>
@@ -81,7 +93,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
         <p style={{color: '#555'}}><strong>Stock Actual:</strong> {insumo.stock_actual}</p>
         
         <form onSubmit={handleSubmit}>
-          {/* Tipo de Movimiento (RF-04 vs RF-05) */}
+          {/* Tipo de Movimiento */}
           <div style={{ marginBottom: '15px' }}>
             <label>
               <input 
@@ -89,7 +101,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
                 value="Salida-Uso"
                 checked={tipo_movimiento === 'Salida-Uso'}
                 onChange={(e) => setTipo_movimiento(e.target.value)}
-              /> Uso 
+              /> Uso
             </label>
             <label style={{ marginLeft: '20px' }}>
               <input 
@@ -101,25 +113,45 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             </label>
           </div>
 
-          <label>N° Hoja de Terreno (OT):</label>
+          {/* N° Hoja de Terreno (OT) */}
+          <label>
+            N° Hoja de Terreno (OT)
+            {tipo_movimiento === 'Salida-Uso' ? 
+              <span style={{color: 'red'}}>*</span> : 
+              <span style={{color: 'grey'}}> (Opcional)</span>
+            }
+          </label>
           <input 
             type="text"
             value={codigo_ot}
             onChange={(e) => setCodigo_ot(e.target.value)}
             style={inputStyles}
-            required 
+            required={tipo_movimiento === 'Salida-Uso'} // Lógica de 'required'
           />
           
+          {/* Cantidad */}
           <label>Cantidad:</label>
           <input 
             type="number"
             value={cantidad}
             onChange={(e) => setCantidad(e.target.value)}
             min="1"
-            max={insumo.stock_actual} // No permite poner más del stock
+            max={insumo.stock_actual}
             style={inputStyles}
             required
-          />          
+          />
+          
+          {/* --- CAMPO DE DESCRIPCIÓN AÑADIDO --- */}
+          <label>Detalle (Opcional):</label>
+          <input
+            type="text"
+            placeholder="A quién se entrega, motivo..."
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            style={inputStyles}
+          />
+          {/* --- FIN DEL CAMPO AÑADIDO --- */}
+
           <div style={{ marginTop: '20px', textAlign: 'right' }}>
             <button type="button" onClick={onClose} style={{...buttonStyles, backgroundColor: '#6c757d', color: 'white'}}>
               Cancelar

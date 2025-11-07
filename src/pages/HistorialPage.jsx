@@ -138,7 +138,7 @@ const HistorialPage = () => {
             <Card.Body className="p-3">
               <Row className="gy-3 align-items-end">
                 
-                <Card.Header as="h2" className="text-center fw-bold form-header">
+                <Card.Header as="h2" className="text-center bg-primary fw-bold form-header">
                   Historial de Movimientos
                 </Card.Header>            
                       
@@ -232,7 +232,7 @@ const HistorialPage = () => {
                   <th className="d-none d-md-table-cell">Usuario</th>
                   {/* Ocultar en tablet y móvil */}
                   <th className="d-none d-lg-table-cell">OT</th>
-                  <th className="d-none d-lg-table-cell">Documento</th>
+                  <th className="d-none d-lg-table-cell">Descripcion</th>
                 </tr>
               </thead>
               <tbody>
@@ -250,7 +250,7 @@ const HistorialPage = () => {
                       <td className="text-center fw-bold">{mov.cantidad}</td>
                       <td className="d-none d-md-table-cell">{mov.nombre_usuario}</td>
                       <td className="d-none d-lg-table-cell">{mov.codigo_ot || 'N/A'}</td>
-                      <td className="d-none d-lg-table-cell">{mov.codigo_documento || 'N/A'}</td>
+                      <td className="d-none d-lg-table-cell">{mov.descripcion || 'N/A'}</td>
                     </tr>
                   ))
                 ) : (
@@ -273,7 +273,6 @@ const HistorialPage = () => {
           background-color: #f8f9fa;
         }
         .form-header {
-          background-color: #1279e0ff;
           color: white;
           padding: 1rem;
         }

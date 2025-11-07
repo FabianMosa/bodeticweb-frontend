@@ -185,8 +185,8 @@ const InventarioPage = () => {
         <Card.Body className="p-3">
           <Row className="gy-3 align-items-end">
             
-            <Card.Header as="h2" className="text-center fw-bold form-header">
-                          Registrar Devolución
+            <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
+                          Gestionar Inventario
                         </Card.Header>
             {/* ----------------------------------------------Botones de Acción */}
             <Col xs={12} md={6} lg={4} className="d-flex gap-2">
@@ -299,7 +299,7 @@ const InventarioPage = () => {
                                   onClick={() => handleOpenSalidaModal(insumo)}
                                   disabled={insumo.stock_actual === 0}
                                 >
-                                  Registrar Salida
+                                  Salida
                                 </Button>
                               ) : null} 
                               
@@ -343,8 +343,7 @@ const InventarioPage = () => {
         .form-container {
           background-color: #f8f9fa;
         }
-        .form-header {
-          background-color: #1279e0ff;
+        .form-header {          
           color: white;
           padding: 1rem;
         }

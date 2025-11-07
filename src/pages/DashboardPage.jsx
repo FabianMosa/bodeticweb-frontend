@@ -94,7 +94,7 @@ useEffect(() => {
 
   return (
     <Container>
-      {/* --- Navbar Superior --- */}
+      {/* ----------------------------------------------------------------- Navbar Superior --- */}
       <Navbar bg="primary" variant="primary" expand="lg" className="mb-4 shadow-sm main-navbar">
         <Container>
           {/* <Navbar.Brand as={Link} to="/dashboard">
@@ -169,7 +169,7 @@ useEffect(() => {
       <Container style={widgetContainerStyles}>        
       {/* Widget de Préstamos - Visible para Todos */}
         <Card style={widgetStyles}>
-          <h3>Mis Préstamos Pendientes</h3>
+          <h3>Préstamos Pendientes</h3>
           {loading ? <p>Cargando...</p> : (
             prestamos.length > 0 ? (
               <ul style={listStyles}>
@@ -188,7 +188,7 @@ useEffect(() => {
         {usuarioRol === 1 && alertas && (
           <>
             <Card style={widgetStyles}>
-              <h3 style={{color: '#dc3545'}}>Alerta: Stock Bajo</h3>
+              <h3 style={{color: '#dc3545'}}>Alerta de Stock</h3>
               {loading ? <p>Cargando...</p> : (
                 alertas.stockBajo.length > 0 ? (
                   <ul style={listStyles}>
@@ -204,7 +204,7 @@ useEffect(() => {
               )}
             </Card>
             <Card style={widgetStyles}>
-              <h3 style={{color: '#ffc107'}}>Alerta: Próximos a Vencer</h3>
+              <h3 style={{color: '#ffc107'}}>Alerta de Vencimiento</h3>
               {loading ? <p>Cargando...</p> : (
                 alertas.porVencer.length > 0 ? (
                   <ul style={listStyles}>

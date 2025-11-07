@@ -35,7 +35,7 @@ const inputStyles = {
 const buttonStyles = { 
   padding: '12px', 
   fontSize: '16px', 
-  backgroundColor: '#28a745', 
+  backgroundColor: '#36d836ff', 
   color: 'white', 
   border: 'none', 
   cursor: 'pointer',
@@ -141,7 +141,7 @@ const InventarioCreatePage = () => {
              </Button>
    
              <Card className="shadow-sm border-0">
-               <Card.Header as="h2" className="text-center fw-bold form-header">
+               <Card.Header as="h2" className="text-center bg-primary fw-bold form-header">
                  Registrar Devolución
                </Card.Header>
                <Card.Body className="p-4 p-md-5">
@@ -233,8 +233,7 @@ const InventarioCreatePage = () => {
         .form-container {
           background-color: #f8f9fa;
         }
-        .form-header {
-          background-color: #1279e0ff;
+        .form-header {          
           color: white;
           padding: 1rem;
         }
