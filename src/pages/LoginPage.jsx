@@ -42,7 +42,7 @@ const { showNotification } = useNotification();
             <Col xs={12} md={10} lg={8} xl={6}>         
                       
               <Card className="shadow-sm border-1">
-                <Card.Header as="h2" className="text-center fw-bold form-header">
+                <Card.Header as="h2" className="text-center bg-primary fw-bold form-header">
                   BodeTICWeb
                 </Card.Header>
                 <Card.Body className="p-4 p-md-5">
@@ -99,8 +99,7 @@ const { showNotification } = useNotification();
                      .form-container {
                        background-color: #f8f9fa;
                      }
-                     .form-header {
-                       background-color: #1279e0ff;
+                     .form-header {                       
                        color: white;
                        padding: 1rem;
                      }

@@ -95,16 +95,20 @@ const UsuarioCreatePage = () => {
   if (loading) return <div>Cargando roles...</div>;
 
   return (
-    <Container className="form-container bg-light min-vh-100 py-4">
-      <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8}> 
-        <Card className='shadow-sm border-0'>
-          <div style={{ padding: '20px' }}>
-      <Button variant="outline-primary" size="sm" as={Link} to="/usuarios" className="mb-3">
-              <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-      </Button>      
-      <form onSubmit={handleSubmit} style={formStyles}>
-        <h2>Crear Nuevo Usuario</h2>
+    <Container fluid className={`bg-light min-vh-100 py-4`}>
+              <Row className="justify-content-center">
+                <Col xs={12} md={10} lg={8} xl={6}>         
+                  <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+                <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+                  </Button>
+        
+                  <Card className="shadow-sm border-0">
+                    <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
+                      Gestión de Usuarios
+                    </Card.Header>
+                    
+                <Card.Body className="p-0 p-md-3">   
+      <Form onSubmit={handleSubmit} style={formStyles}>   
         
         <label>Nombre Completo:</label>
         <input 
@@ -157,14 +161,28 @@ const UsuarioCreatePage = () => {
           {submitting ? 'Guardando...' : 'Crear Usuario'}
         </Button>
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-      </form>
-    </div>
-        </Card>
-        </Col>
-      </Row>
-    </Container>
+      </Form>
     
-  );
-};
+    </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          {/* --- Estilos CSS --- */}
+                       <style>{`
+                         .form-container {
+                           background-color: #f8f9fa;
+                         }
+                         .form-header {                       
+                           color: white;
+                           padding: 1rem;
+                         }
+                         .form-control-focus:focus {
+                           border-color: var(--bs-info);
+                           box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+                         }
+                       `}</style>
+        </Container>
+      );
+    };
 
 export default UsuarioCreatePage;

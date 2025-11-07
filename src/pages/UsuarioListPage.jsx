@@ -34,12 +34,14 @@ const UsuarioListPage = () => {
               </Button>
     
               <Card className="shadow-sm border-0">
-                <Card.Header as="h2" className="text-center fw-bold form-header">
+                <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
                   Gestión de Usuarios
                 </Card.Header>
                 
             <Card.Body className="p-0 p-md-3">
-              
+              <Button variant="primary" size="sm" as={Link} to="/usuarios/nuevo" className="mb-3">
+                <i className="bi bi-plus-circle me-1"></i> Crear Usuario
+              </Button>
               {loading ? (
                  <div className="text-center p-5">
                     <Spinner animation="border" role="status" variant="primary">
@@ -110,7 +112,6 @@ const UsuarioListPage = () => {
           background-color: #f8f9fa;
         }
         .form-header {
-          background-color: #1279e0ff;
           color: white;
           padding: 1rem;
         }
