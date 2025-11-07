@@ -35,8 +35,8 @@ const inputStyles = {
 const buttonStyles = { 
   padding: '12px', 
   fontSize: '16px', 
-  backgroundColor: '#36d836ff', 
   color: 'white', 
+  backgroundColor: '#28a745', 
   border: 'none', 
   cursor: 'pointer',
   borderRadius: '4px',
