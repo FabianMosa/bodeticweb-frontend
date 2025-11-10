@@ -1,13 +1,20 @@
 import api from './api'; 
-const getInsumos = async (filtroActivo) => { 
-   try {
-    // 2. Envía el filtro como query param
-    const response = await api.get('/insumos', {
-      params: {
-        activo: filtroActivo 
-      }
-    });
-    return response.data;
+const getInsumos = async (filtros = {}, page = 1, limit = 5) => {
+  try {
+    // 1. Añadir filtros, page y limit a los parámetros
+    const params = new URLSearchParams({
+      activo: filtros.activo,
+      categoria: filtros.categoria,
+      search: filtros.search,
+      page: page,
+      limit: limit
+    }).toString();
+    
+    // 2. Limpiar parámetros vacíos (opcional pero limpio)
+    const cleanParams = params.replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
+
+    const response = await api.get(`/insumos?${cleanParams}`);
+    return response.data; // Devuelve { data: [...], pagination: {...} }
   } catch (error) {
     console.error('Error en el servicio de obtener insumos:', error.response.data);
     throw error.response.data;

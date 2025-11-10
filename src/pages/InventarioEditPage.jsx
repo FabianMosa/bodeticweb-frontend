@@ -92,20 +92,20 @@ const InventarioEditPage = () => {
   if (loading || !formData) return <div>Cargando datos del insumo...</div>;
 
   return (
-    <Container className="form-container bg-light min-vh-100">
-              <Row className="mb-3 align-items-center justify-content-center  rounded" style={{
-              padding: '10px 15px',
-              backgroundColor: '#ccd6e0ff',
-              borderRadius: '5px'
-            }}>
-        <Col xs="12" md="10" lg="8" className='bg-light p-3 rounded'>                    
-              <Button variant="outline-primary" size="sm" as={Link} to="/inventario" className="mb-3">
-                              <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-              </Button>
+     <Container fluid className={`bg-light min-vh-100 py-4`}>
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8} xl={6}>         
+          <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+        <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+          </Button>
+
+          <Card className="shadow-sm border-0">
+            <Card.Header as="h2" className="text-center text-white fw-bold bg-primary form-header">
+              Modificar Insumo
+            </Card.Header>
+            <Card.Body className="p-4 p-md-5">
               
-                <Form onSubmit={handleSubmit} style={formStyles}>
-                  <h2 className='text-align-centre'>Modificar Insumo</h2>
-                  
+                <Form onSubmit={handleSubmit} style={formStyles}>           
                   <label>Nombre</label>
                   <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} style={inputStyles} required />
                   
@@ -121,7 +121,7 @@ const InventarioEditPage = () => {
                     ))}
                   </select>
                   
-                  {/*----------- No editamos el Stock Actual aquí, solo el mínimo */}
+                  {/*----------------------- No editamos el Stock Actual aquí, solo el mínimo */}
                   <label>Stock Mínimo</label>
                   <input type="number" name="stock_minimo" value={formData.stock_minimo} min="1" onChange={handleChange} style={inputStyles} required />
                   
@@ -134,7 +134,9 @@ const InventarioEditPage = () => {
                   <Button type="submit" disabled={loading} style={{...buttonStyles, backgroundColor: '#ffc107'}}>
                     {loading ? 'Actualizando...' : 'Actualizar Insumo'}
                   </Button>
-                </Form>                       
+                </Form>    
+            </Card.Body>
+          </Card>                   
         </Col>
     </Row>
     </Container>

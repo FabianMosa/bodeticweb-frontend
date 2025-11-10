@@ -59,22 +59,20 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
         cantidad: parseInt(cantidad, 10),
         tipo_movimiento,
         codigo_ot,
-        descripcion // Añadido para el backend
+        descripcion 
       };
-
-      // Llamamos al servicio
+ 
       const response = await movimientoService.registrarSalida(salidaData);
 
       // -------------------------------------------------"NO SE CIERRA" ---
       // Reemplazamos el 'alert()' (que bloquea el código)
       // por la notificación global.
-      // alert(response.message); // <-- ESTA LÍNEA ES EL BUG
+      // alert(response.message);
       showNotification(response.message, 'success'); // <-- ESTA ES LA SOLUCIÓN
 
       // Ahora estas líneas SÍ se ejecutarán inmediatamente
       onSuccess(insumo.PK_id_insumo, response.nuevo_stock); // Actualiza la tabla
-      onClose(); // Cierra el modal
-      // --- FIN DE LA CORRECCIÓN 2 ---
+      onClose(); // Cierra el modal     
 
     } catch (err) {
       // Mostramos el error en nuestro modal de notificación global
@@ -88,7 +86,8 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
     
     <div style={modalOverlayStyles} onClick={onClose}>
       <div style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{marginTop: 0}}>Registrar Salida</h2>
+        <h2 style={{marginTop: 0}} className='text-center'>Registrar Salida</h2>
+        <br />
         <p><strong>Insumo:</strong> {insumo.nombre}</p>
         <p style={{color: '#555'}}><strong>Stock Actual:</strong> {insumo.stock_actual}</p>
         
@@ -141,7 +140,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             required
           />
           
-          {/* --- CAMPO DE DESCRIPCIÓN AÑADIDO --- */}
+          {/* ------------------------------------------ CAMPO DE DESCRIPCIÓN AÑADIDO --- */}
           <label>Detalle (Opcional):</label>
           <input
             type="text"
@@ -150,8 +149,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             onChange={(e) => setDescripcion(e.target.value)}
             style={inputStyles}
           />
-          {/* --- FIN DEL CAMPO AÑADIDO --- */}
-
+         
           <div style={{ marginTop: '20px', textAlign: 'right' }}>
             <button type="button" onClick={onClose} style={{...buttonStyles, backgroundColor: '#6c757d', color: 'white'}}>
               Cancelar
