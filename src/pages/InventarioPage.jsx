@@ -6,7 +6,7 @@ import ScannerModal from '../components/ScannerModal';
 import { useNotification } from '../context/NotificationContext';
 import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form, Pagination, InputGroup } from 'react-bootstrap';
 
-const ITEMS_PER_PAGE = 5; // ¡Debe coincidir con el 'limit' del backend!
+const ITEMS_PER_PAGE = 9; // ¡Debe coincidir con el 'limit' del backend!
 
 const InventarioPage = () => {
   const [insumos, setInsumos] = useState([]); // Almacena los insumos de la PÁGINA ACTUAL
