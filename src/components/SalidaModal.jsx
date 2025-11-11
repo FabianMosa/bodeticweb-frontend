@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import movimientoService from '../services/movimiento.service';
 import { useNotification } from '../context/NotificationContext';
+import { Card,Container } from 'react-bootstrap';
 
 // --- Estilos para el Modal (Tus estilos originales) ---
 const modalOverlayStyles = {
@@ -19,7 +20,7 @@ const modalOverlayStyles = {
 
 const modalContentStyles = {
   backgroundColor: 'white',
-  padding: '20px',
+  padding: '10px',
   borderRadius: '8px',
   width: '400px',
   boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
@@ -85,8 +86,8 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
   return (
     
     <div style={modalOverlayStyles} onClick={onClose}>
-      <div style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{marginTop: 0}} className='text-center'>Registrar Salida</h2>
+      <Card style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
+        <Card.Header style={{marginTop: 0}} className=' h2 text-center bg-primary text-white'>Registrar Salida</Card.Header>
         <br />
         <p><strong>Insumo:</strong> {insumo.nombre}</p>
         <p style={{color: '#555'}}><strong>Stock Actual:</strong> {insumo.stock_actual}</p>
@@ -159,7 +160,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             </button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };
