@@ -87,7 +87,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
     
     <div style={modalOverlayStyles} onClick={onClose}>
       <Card style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
-        <Card.Header style={{marginTop: 0}} className=' h2 text-center bg-primary text-white'>Registrar Salida</Card.Header>
+        <Card.Header style={{marginTop: 0}} className=' h2 p-3 border text-center bg-primary text-white'>Registrar Salida</Card.Header>
         <br />
         <p><strong>Insumo:</strong> {insumo.nombre}</p>
         <p style={{color: '#555'}}><strong>Stock Actual:</strong> {insumo.stock_actual}</p>
