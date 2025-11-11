@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import usuarioService from '../services/usuario.service';
-import rolService from '../services/rol.services';
+import rolService from '../services/rol.service';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
 import { useNotification } from '../context/NotificationContext';
 

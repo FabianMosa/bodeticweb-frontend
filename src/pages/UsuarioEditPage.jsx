@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import usuarioService from '../services/usuario.service';
-import rolService from '../services/rol.services';
+import rolService from '../services/rol.service';
 import { useNotification } from '../context/NotificationContext';
-import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner,InputGroup} from 'react-bootstrap';
 
 // ----------------------------------------------------------------- Estilos ---
 const formStyles = {
@@ -19,6 +19,82 @@ const formStyles = {
 const inputStyles = { marginBottom: '10px', padding: '8px', fontSize: '16px' };
 const buttonStyles = { padding: '10px', fontSize: '16px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer' };
 
+const ChangePasswordForm = ({ userId }) => {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { showNotification } = useNotification();
+
+  const handleSubmitPassword = async (e) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showNotification('Las contraseñas no coinciden', 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await usuarioService.changePasswordAdmin(userId, newPassword);
+      showNotification('Contraseña actualizada con éxito', 'success');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      showNotification(err.message || 'Error al actualizar la contraseña', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="shadow-sm border-0 mt-4">
+      <Card.Header as="h5" className="fw-bold form-header">
+        <i className="bi bi-key-fill me-2"></i> Cambiar Contraseña
+      </Card.Header>
+      <Card.Body className="p-4">
+        <Form noValidate onSubmit={handleSubmitPassword}>
+          <Form.Group className="mb-3" controlId="formNewPassword">
+            <Form.Label>Nueva Contraseña:</Form.Label>
+            <InputGroup>
+              <Form.Control
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Mínimo 6 caracteres"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="form-control-focus"
+              />
+              <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+              </Button>
+            </InputGroup>
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="formConfirmPassword">
+            <Form.Label>Confirmar Contraseña:</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Repita la contraseña"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="form-control-focus"
+            />
+          </Form.Group>
+
+          <div className="d-grid">
+            <Button variant="warning" type="submit" disabled={loading}>
+              {loading ? <Spinner as="span" size="sm" animation="border" /> : 'Actualizar Contraseña'}
+            </Button>
+          </div>
+        </Form>
+      </Card.Body>
+    </Card>
+  );
+};
+
 const UsuarioEditPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,7 +102,9 @@ const UsuarioEditPage = () => {
   const [formData, setFormData] = useState(null);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 const { showNotification } = useNotification();
+
   // Cargar Roles y datos del Usuario
   useEffect(() => {
     const loadData = async () => {
@@ -39,12 +117,13 @@ const { showNotification } = useNotification();
         setRoles(rolesData);
       } catch (err) {
         showNotification(err.message ||'Error al cargar datos', 'error');
+        navigate('/usuarios');// Volver a la lista si hay error
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [id]);
+  }, [id, navigate, showNotification]);//
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -78,7 +157,11 @@ const { showNotification } = useNotification();
     }
   };
 
-  if (loading || !formData) return <div>Cargando...</div>;
+  if (loading || !formData) return (
+    <Container fluid className="d-flex min-vh-100 justify-content-center align-items-center bg-light">
+      <Spinner animation="border" variant="primary" />
+    </Container>
+  );
 
   return (
     <Container fluid className={`bg-light min-vh-100 py-4`}>
@@ -100,10 +183,7 @@ const { showNotification } = useNotification();
                       
                       <label>RUT:</label>
                       <input type="text" name="rut" value={formData.rut} onChange={handleChange} style={inputStyles} required />
-
-                      <label>Contraseña:</label>
-                      <input type="password" name="password" value={formData.password || ''} onChange={handleChange} style={inputStyles} />
-                      
+                  
                       <label>Rol:</label>
                       <select name="FK_id_rol" value={formData.FK_id_rol} onChange={handleChange} style={inputStyles} required>
                         {roles.map(rol => (
@@ -123,12 +203,14 @@ const { showNotification } = useNotification();
                         Activo (Deshabilitar usuario si se desmarca)
                       </label>
 
-                      <Button type="submit" disabled={loading} style={buttonStyles}>
-                        {loading ? 'Actualizando...' : 'Actualizar Usuario'}
+                      <Button type="submit" disabled={submitting} style={buttonStyles}>
+                        {submitting ? 'Actualizando...' : 'Actualizar Usuario'}
                       </Button>
                     </Form>                 
                 </Card.Body>
             </Card>
+            {/* Formulario de Contraseña */}
+          <ChangePasswordForm userId={id} />
           </Col>
         </Row>
              
