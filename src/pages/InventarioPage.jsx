@@ -1,47 +1,59 @@
-// frontend/src/pages/InventarioPage.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import insumoService from '../services/insumo.service';
 import SalidaModal from '../components/SalidaModal'; 
 import ScannerModal from '../components/ScannerModal';
 import { useNotification } from '../context/NotificationContext';
-import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form, Pagination } from 'react-bootstrap';
+import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form, Pagination, InputGroup } from 'react-bootstrap';
 
-// ---------------------------------------------- Definir cantidad de items por pagina ---
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 5; // ¡Debe coincidir con el 'limit' del backend!
 
 const InventarioPage = () => {
-  const [insumos, setInsumos] = useState([]);
+  const [insumos, setInsumos] = useState([]); // Almacena los insumos de la PÁGINA ACTUAL
   const [loading, setLoading] = useState(true);  
   const [usuarioRol, setUsuarioRol] = useState(null);
-
-  // ---------------------------------------------Estados para Filtros y Paginación ---
   const [categorias, setCategorias] = useState([]);
+
+  // ------------------------------------------------------------- Estados para Filtros ---
   const [filtroActivo, setFiltroActivo] = useState(true);
   const [filtroCategoria, setFiltroCategoria] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [filtroNombre, setFiltroNombre] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); 
   
-  // --- -----------------------------------------Estados de Modales (Simplificado) ---
+  // -------------------------------------------------------------- Estados para Paginación ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
+  // -------------------------------------------------------------    Estados de Modales (Simplificado) ---
   const [salidaModalOpen, setSalidaModalOpen] = useState(false);
   const [scannerModalOpen, setScannerModalOpen] = useState(false);
   const [selectedInsumo, setSelectedInsumo] = useState(null);
  
   const { showNotification } = useNotification();
 
-  // --- -------------------------------------Cargar insumos y categorias al inicio ---
+  // ------------------------------------------------------------- Cargar datos (Insumos y Categorías) ---
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [insumosData, categoriasData] = await Promise.all([
-          // LLAMAMOS A LA API SIN FILTRO (trae todos)
-          insumoService.getInsumos(), 
-          insumoService.getCategorias()
-        ]);
         
+        // Cargar categorías (solo si no se han cargado)
+        if (categorias.length === 0) {
+          const categoriasData = await insumoService.getCategorias();
+          setCategorias(categoriasData);
+        }
+
+        // Cargar Insumos Paginados y Filtrados
+        const filtros = {
+          activo: filtroActivo,
+          categoria: filtroCategoria,
+          search: filtroNombre
+        };
+        // El backend hace todo el trabajo de filtrar y paginar
+        const response = await insumoService.getInsumos(filtros, currentPage, ITEMS_PER_PAGE);
         
-        setInsumos(insumosData); 
-        setCategorias(categoriasData);
+        setInsumos(response.data); // 'insumos' ahora SÍ tiene los 5 ítems
+        setTotalPages(response.pagination.totalPages); // El backend nos dice cuántas páginas hay
 
       } catch (err) {
         showNotification(err.message || 'Error al cargar datos', 'error');
@@ -52,42 +64,29 @@ const InventarioPage = () => {
 
     loadData();
     const usuarioInfo = JSON.parse(localStorage.getItem('usuario'));
-    if (usuarioInfo) setUsuarioRol(usuarioInfo.usuario.rol); 
-  }, []); 
+    if (usuarioInfo) setUsuarioRol(usuarioInfo.usuario.rol);
+  // EL USE EFFECT AHORA DEPENDE DE LOS FILTROS Y LA PÁGINA
+  }, [filtroActivo, filtroCategoria, filtroNombre, currentPage]);
 
-  // --- --------------------------------------------------Lógica de Filtrado (Ahora funciona) ---
-  const insumosFiltrados = useMemo(() => {
-    return insumos
-      .filter(insumo => {
-        // Filtro 1: Activo / Deshabilitado
-        // Ahora 'insumo.activo' tiene el valor real de la BBDD
-        return filtroActivo ? insumo.activo : !insumo.activo;
-      })
-      .filter(insumo => {
-        // Filtro 2: Categoría
-        if (filtroCategoria === '') return true;
-        return insumo.FK_id_categoria === parseInt(filtroCategoria);
-      });
-  }, [insumos, filtroActivo, filtroCategoria]);
-
-  // --- -----------------------------------------------------Lógica de Paginación ---
-  const totalPages = Math.ceil(insumosFiltrados.length / ITEMS_PER_PAGE);
-  const currentItems = insumosFiltrados.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  // --- Handlers de Filtros ---
+  // ------------------------------------------------- Handlers de Filtros (actualizan el estado y resetean la página) ---
   const handleFiltroActivoChange = (isActivo) => {
     setFiltroActivo(isActivo);
-    setCurrentPage(1); // Resetear a página 1
+    setCurrentPage(1); 
   };
   const handleFiltroCategoriaChange = (e) => {
     setFiltroCategoria(e.target.value);
-    setCurrentPage(1); // Resetear a página 1
+    setCurrentPage(1);
   };
-    
-  // ----------------------------------------------------------- Handler de Toggle (AHORA FUNCIONA) ---
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setFiltroNombre(searchTerm);
+    setCurrentPage(1);
+  };
+
+  // ------------------------------------------------------------- Handler de Toggle (Deshabilitar/Habilitar) ---
   const handleToggleActivo = async (insumo) => {
     const nuevoEstado = !insumo.activo;
     const confirmMsg = `¿Está seguro que desea ${nuevoEstado ? 'habilitar' : 'deshabilitar'} el insumo "${insumo.nombre}"?`;
@@ -96,7 +95,7 @@ const InventarioPage = () => {
       try {
         await insumoService.toggleActivo(insumo.PK_id_insumo, nuevoEstado);
         
-        // 4. ESTO AHORA ES PERMANENTE (porque el useEffect no lo revierte)
+        // Actualizamos el estado localmente
         setInsumos(prevInsumos => 
           prevInsumos.map(i => 
             i.PK_id_insumo === insumo.PK_id_insumo ? { ...i, activo: nuevoEstado } : i
@@ -109,33 +108,37 @@ const InventarioPage = () => {
     }
   };
 
-  // ------------------------------------------------------------ Handlers de Modales (Unificados) ---
+  // ------------------------------------------------------------- Handlers de Modales (Unificados) ---
   const handleOpenScanner = () => setScannerModalOpen(true);
   const handleCloseScanner = () => setScannerModalOpen(false);
+
   const handleOpenSalidaModal = (insumo) => {
     setSelectedInsumo(insumo);
-    setSalidaModalOpen(true);
+    setSalidaModalOpen(true); // Solo usamos este estado
   };
+
   const handleCloseSalidaModal = () => {
-    setSalidaModalOpen(false);
-    setSelectedInsumo(null);
+    setSalidaModalOpen(false); // Solo usamos este estado
+    setSelectedInsumo(null); 
   };
+  
   const handleScanSuccess = async (sku) => {
-    setScannerModalOpen(false);
+    setScannerModalOpen(false); 
     setLoading(true);
     try {
       const insumoEncontrado = await insumoService.getInsumoBySku(sku);
       if (insumoEncontrado) {
-        handleOpenSalidaModal(insumoEncontrado);
-      } else {
+        handleOpenSalidaModal(insumoEncontrado); // handler unificado
+      } else { 
         showNotification(`SKU "${sku}" no encontrado en la base de datos.`, 'error');
       }
     } catch (err) {
       showNotification(err.message || 'Error al buscar el SKU', 'error');
-    } finally {
-      setLoading(false);
+    } finally { 
+      setLoading(false); 
     }
   }; 
+
   const handleSalidaSuccess = (insumoId, nuevoStock) => {    
     setInsumos(prevInsumos => 
       prevInsumos.map(insumo => 
@@ -146,7 +149,7 @@ const InventarioPage = () => {
     );
   };
 
-  // --- ------------------------------------------------------------Componente de Paginación ---
+  // --- Componente de Paginación (Sin cambios) ---
   const PaginationComponent = () => {
     if (totalPages <= 1) return null;
     let items = [];
@@ -166,86 +169,106 @@ const InventarioPage = () => {
     );
   };
 
-
+  // --- RENDERIZADO (JSX) ---
   return (
     <Container fluid className="inventario-container bg-light min-vh-100 py-4">
       
-      {/* ----------------------------------------------------Título y Botón Volver */}
+      {/* Título y Botón Volver */}
       <Row className="mb-3 align-items-center">
         <Col xs="auto">
-          <Button variant="outline-primary" size="sm" as={Link} to="/Dashboard" className="mb-3">
+          <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
             <i className="bi bi-arrow-left me-1"></i> Volver al Dashboard
           </Button>
         </Col>
-        
       </Row>
 
-      {/* --------------------------------------------- Barra de Acciones y Filtros --- */}
+      {/* Barra de Acciones y Filtros */}
       <Card className="shadow-sm mb-3">
+        <Card.Header as="h2" className="text-center fw-bold bg-primary text-white form-header">
+                      Registrar Devolución
+        </Card.Header>
         <Card.Body className="p-3">
-          <Row className="gy-3 align-items-end">
-            
-            <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
-                          Gestionar Inventario
-                        </Card.Header>
-            {/* ----------------------------------------------Botones de Acción */}
-            <Col xs={12} md={6} lg={4} className="d-flex gap-2">
+          {/* Fila 1: Botones */}
+          <Row className="gy-2 mb-3">
+            <Col xs={12} md="auto" className="d-flex gap-2">
               {usuarioRol === 1 && (
-                <Button variant="success" as={Link} to="/inventario/nuevo" className="flex-grow-1">
-                  <i className="bi bi-plus-circle me-1"></i> Registrar Ingreso
+                <Button variant="success" as={Link} to="/inventario/nuevo">
+                  <i className="bi bi-plus-circle me-1"></i> Registrar
                 </Button>
               )}
-              <Button variant="info" onClick={handleOpenScanner} className="text-white flex-grow-1">
-                <i className="bi bi-upc-scan me-"></i> Escanear SKU para salida
+              <Button variant="info" onClick={handleOpenScanner} className="text-white">
+                <i className="bi bi-upc-scan me-1"></i> Escanear
               </Button>
             </Col>
-            <br />
-            {/* -----------------------------------------------Filtro por Categoría */}
-            <div xs={12} md={6} lg={4} className='mb-3' >
-              <Form.Group controlId="filtroCategoria">
-                <Form.Label className="filter-label mb-1">Categoría:</Form.Label>
-                <Form.Select 
-                  size="sm" 
-                  value={filtroCategoria} 
-                  onChange={handleFiltroCategoriaChange}
-                >
-                  <option value="">-- Todas las Categorías --</option>
-                  {categorias.map(cat => (
-                    <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
-                      {cat.nombre_categoria}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </div>
-            
-            {/* -----------------------------------------------------Filtros de Estado */}
-            <Col xs={12} md={6} lg={4}>
-              <Form.Group controlId="filtroEstado">
-                <Form.Label className="filter-label mb-1">Estado:</Form.Label>
-                <ButtonGroup aria-label="Filtro de estado" className="w-100">
-                  <Button 
-                    size="sm"
-                    variant={filtroActivo ? 'primary' : 'outline-secondary'} 
-                    onClick={() => handleFiltroActivoChange(true)}
-                  >
-                    <i className="bi bi-eye-fill me-1"></i> Activos
-                  </Button>
-                  <Button 
-                    size="sm"
-                    variant={!filtroActivo ? 'danger' : 'outline-secondary'} 
-                    onClick={() => handleFiltroActivoChange(false)}
-                  >
-                    <i className="bi bi-eye-slash-fill me-1"></i> Deshabilitados
-                  </Button>
-                </ButtonGroup>
-              </Form.Group>
-            </Col>
           </Row>
+          
+          {/* Fila 2: Filtros */}
+          <Form onSubmit={handleSearchSubmit}>
+            <Row className="gy-3 align-items-end">
+              
+              <Col xs={12} md={6} lg={4}>
+                <Form.Group controlId="filtroNombre">
+                  <Form.Label className="filter-label mb-1">Buscar por Nombre:</Form.Label>
+                  <InputGroup size="sm">
+                    <Form.Control
+                      type="text"
+                      placeholder="Ej: Cable HDMI..."
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                    />
+                    <Button variant="outline-secondary" type="submit">
+                      <i className="bi bi-search"></i>
+                    </Button>
+                  </InputGroup>
+                </Form.Group>
+              </Col>
+              
+              <Col xs={12} md={6} lg={4}>
+                <Form.Group controlId="filtroCategoria">
+                  <Form.Label className="filter-label mb-1">Categoría:</Form.Label>
+                  <Form.Select 
+                    size="sm" 
+                    value={filtroCategoria} 
+                    onChange={handleFiltroCategoriaChange}
+                    disabled={categorias.length === 0} // Deshabilitar si aún no cargan
+                  >
+                    <option value="">-- Todas las Categorías --</option>
+                    {categorias.map(cat => (
+                      <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
+                        {cat.nombre_categoria}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              
+              <Col xs={12} md={12} lg={4}>
+                <Form.Group controlId="filtroEstado">
+                  <Form.Label className="filter-label mb-1">Estado:</Form.Label>
+                  <ButtonGroup aria-label="Filtro de estado" className="w-100">
+                    <Button 
+                      size="sm"
+                      variant={filtroActivo ? 'primary' : 'outline-secondary'} 
+                      onClick={() => handleFiltroActivoChange(true)}
+                    >
+                      <i className="bi bi-eye-fill me-1"></i> Activos
+                    </Button>
+                    <Button 
+                      size="sm"
+                      variant={!filtroActivo ? 'danger' : 'outline-secondary'} 
+                      onClick={() => handleFiltroActivoChange(false)}
+                    >
+                      <i className="bi bi-eye-slash-fill me-1"></i> Deshabilitados
+                    </Button>
+                  </ButtonGroup>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
         </Card.Body>
       </Card>
 
-      {/* --- ----------------------------------------------------Tabla Responsiva --- */}
+      {/* Tabla Responsiva */}
       <Row>
         <Col>
           <Card className="shadow-sm">
@@ -257,7 +280,7 @@ const InventarioPage = () => {
               ) : (
                 <>
                   <Table striped bordered hover responsive="md" size="sm" className="inventario-table align-middle mb-0">
-                    <thead className="table-primary text-white">
+                    <thead className="table-light">
                       <tr>
                         <th>SKU</th>
                         <th>Nombre</th>
@@ -268,8 +291,9 @@ const InventarioPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentItems.length > 0 ? (
-                        currentItems.map((insumo) => (
+                      {/* RENDERIZAR 'insumos' (el array de la página actual) */}
+                      {insumos.length > 0 ? (
+                        insumos.map((insumo) => (
                           <tr key={insumo.PK_id_insumo} className={!insumo.activo ? 'table-danger' : ''}>
                             <td>{insumo.sku}</td>
                             <td>{insumo.nombre}</td>
@@ -324,7 +348,7 @@ const InventarioPage = () => {
         </Col>
       </Row>
 
-      {/* --- Modales --- */}
+      {/* Modales */}
       {salidaModalOpen && (
         <SalidaModal 
           insumo={selectedInsumo}
@@ -339,20 +363,20 @@ const InventarioPage = () => {
         />
       )}
 
-     <style>{`
-        .form-container {
-          background-color: #f8f9fa;
-        }
-        .form-header {          
-          color: white;
-          padding: 1rem;
-        }
-        .form-control-focus:focus {
-          border-color: var(--bs-info);
-          box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+      {/* Estilos CSS (Autocontenidos) */}
+      <style>{`
+        .inventario-container { padding-bottom: 3rem; }
+        .section-title { color: #495057; }
+        .filter-label { font-size: 0.85rem; font-weight: 500; color: #555; }
+        .inventario-table { font-size: 0.9rem; }
+        .stock-low { color: var(--bs-danger); font-weight: bold; }
+        .btn-sm i { font-size: 0.9rem; vertical-align: middle; }
+        @media (max-width: 767.98px) {
+             .inventario-table { font-size: 0.8rem; }
+             .inventario-table td, .inventario-table th { padding: 0.5rem 0.4rem; }
+             .button-group-actions { display: flex; flex-direction: column; gap: 4px; }
         }
       `}</style>
-      
     </Container>
   );
 };

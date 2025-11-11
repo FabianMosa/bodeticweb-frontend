@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import movimientoService from '../services/movimiento.service';
 import { useNotification } from '../context/NotificationContext';
+import { Card,Container } from 'react-bootstrap';
 
 // --- Estilos para el Modal (Tus estilos originales) ---
 const modalOverlayStyles = {
@@ -19,7 +20,7 @@ const modalOverlayStyles = {
 
 const modalContentStyles = {
   backgroundColor: 'white',
-  padding: '20px',
+  padding: '10px',
   borderRadius: '8px',
   width: '400px',
   boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
@@ -59,22 +60,20 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
         cantidad: parseInt(cantidad, 10),
         tipo_movimiento,
         codigo_ot,
-        descripcion // Añadido para el backend
+        descripcion 
       };
-
-      // Llamamos al servicio
+ 
       const response = await movimientoService.registrarSalida(salidaData);
 
       // -------------------------------------------------"NO SE CIERRA" ---
       // Reemplazamos el 'alert()' (que bloquea el código)
       // por la notificación global.
-      // alert(response.message); // <-- ESTA LÍNEA ES EL BUG
+      // alert(response.message);
       showNotification(response.message, 'success'); // <-- ESTA ES LA SOLUCIÓN
 
       // Ahora estas líneas SÍ se ejecutarán inmediatamente
       onSuccess(insumo.PK_id_insumo, response.nuevo_stock); // Actualiza la tabla
-      onClose(); // Cierra el modal
-      // --- FIN DE LA CORRECCIÓN 2 ---
+      onClose(); // Cierra el modal     
 
     } catch (err) {
       // Mostramos el error en nuestro modal de notificación global
@@ -87,8 +86,9 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
   return (
     
     <div style={modalOverlayStyles} onClick={onClose}>
-      <div style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{marginTop: 0}}>Registrar Salida</h2>
+      <Card style={modalContentStyles} onClick={(e) => e.stopPropagation()}>
+        <Card.Header style={{marginTop: 0}} className=' h2 p-3 border text-center bg-primary text-white'>Registrar Salida</Card.Header>
+        <br />
         <p><strong>Insumo:</strong> {insumo.nombre}</p>
         <p style={{color: '#555'}}><strong>Stock Actual:</strong> {insumo.stock_actual}</p>
         
@@ -141,7 +141,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             required
           />
           
-          {/* --- CAMPO DE DESCRIPCIÓN AÑADIDO --- */}
+          {/* ------------------------------------------ CAMPO DE DESCRIPCIÓN AÑADIDO --- */}
           <label>Detalle (Opcional):</label>
           <input
             type="text"
@@ -150,8 +150,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             onChange={(e) => setDescripcion(e.target.value)}
             style={inputStyles}
           />
-          {/* --- FIN DEL CAMPO AÑADIDO --- */}
-
+         
           <div style={{ marginTop: '20px', textAlign: 'right' }}>
             <button type="button" onClick={onClose} style={{...buttonStyles, backgroundColor: '#6c757d', color: 'white'}}>
               Cancelar
@@ -161,7 +160,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
             </button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };
