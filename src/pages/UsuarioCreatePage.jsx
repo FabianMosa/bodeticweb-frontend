@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import usuarioService from '../services/usuario.service';
 import rolService from '../services/rol.services';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
+import { useNotification } from '../context/NotificationContext';
 
 // (Estilos del formulario)
 const formStyles = {
@@ -39,6 +40,7 @@ const UsuarioCreatePage = () => {
   const [loading, setLoading] = useState(false); // Para cargar roles
   const [submitting, setSubmitting] = useState(false); // Para enviar formulario
   const [error, setError] = useState('');
+  const { showNotification } = useNotification();
 
   // 1. Cargar los roles para el desplegable
   useEffect(() => {
@@ -74,7 +76,7 @@ const UsuarioCreatePage = () => {
     
     // Validación extra
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
       setSubmitting(false);
       return;
     }
@@ -82,11 +84,11 @@ const UsuarioCreatePage = () => {
     try {
       // Llamamos al servicio de creación
       await usuarioService.createUsuario(formData);
-      alert('Usuario creado con éxito');
+      showNotification('Usuario creado con éxito', 'success');
       navigate('/usuarios'); // Redirige a la lista de usuarios
     } catch (err) {
       // El backend nos dirá si el RUT ya existe
-      setError(err.message || 'Error al crear el usuario');
+      showNotification(err.message || 'Error al crear el usuario', 'error');
     } finally {
       setSubmitting(false);
     }
