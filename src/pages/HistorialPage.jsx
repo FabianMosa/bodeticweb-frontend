@@ -18,13 +18,13 @@ const HistorialPage = () => {
   const [filtros, setFiltros] = useState({
     fecha_inicio: '',
     fecha_fin: '',
-    id_insumo: '',
+    id_categoria: '',
     id_usuario: '',
     tipo_movimiento: ''
   });
   
   // --- Estados para los desplegables ---
-  const [insumosList, setInsumosList] = useState([]);
+  const [categoriasList, setCategoriasList] = useState([]);
   const [tecnicosList, setTecnicosList] = useState([]);
 
   // --- Estado para la paginación ---
@@ -38,17 +38,15 @@ const HistorialPage = () => {
     const loadDropdowns = async () => {
       setLoadingDropdowns(true);
       try {
-        // Pedimos ambas listas
-        // Hacemos un 'getInsumos' con un límite muy alto para llenar el dropdown
-        // (En una V2, esto debería ser un endpoint '/api/insumos/list' separado)
-        const [insumosResponse, tecnicosData] = await Promise.all([
-          insumoService.getInsumos({}, 1, 1000), // Pedir página 1, límite 1000
+        // --- 4. CORRECCIÓN: Llamar a getCategorias ---
+        const [categoriasData, tecnicosData] = await Promise.all([
+          insumoService.getCategorias(), // <-- ANTES: getInsumos
           usuarioService.getUsuariosTecnicos()
         ]);
+        // --- FIN CORRECCIÓN ---
 
-        // --- 2. ESTA ES LA CORRECCIÓN ---
-        // El array de insumos está en 'insumosResponse.data'
-        setInsumosList(insumosResponse.data);
+        // 'getCategorias' y 'getUsuariosTecnicos' devuelven arrays
+        setCategoriasList(categoriasData);
         setTecnicosList(tecnicosData);
       } catch (err) {
         showNotification(err.message ||'Error al cargar filtros', 'error');
@@ -57,7 +55,7 @@ const HistorialPage = () => {
       }
     };
     loadDropdowns();
-  }, [showNotification]); // Quitar 'showNotification' si causa bucles
+  }, []); // Quitar 'showNotification' si causa bucles
 
   
   // 3. Cargar el historial (SE EJECUTA AL CAMBIAR FILTROS O PÁGINA)
@@ -131,8 +129,8 @@ const HistorialPage = () => {
           </Button>
 
           <Card className="shadow-sm border-0">
-            <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
-              Registrar Devolución
+            <Card.Header as="h2" className="text-center text-white fw-bold bg-primary form-header">
+              Historial de Movimientos
             </Card.Header>
             <Card.Body className="p-4 p-md-5">
           <Form>
@@ -153,19 +151,19 @@ const HistorialPage = () => {
 
             <Row className="mb-3 gy-3">
               <Col xs={12} md={4}>
-                <Form.Group controlId="filtroInsumo">
-                  <Form.Label className="filter-label mb-1">Insumo:</Form.Label>
+                <Form.Group controlId="filtroCategoria"> 
+                  <Form.Label className="filter-label mb-1">Categoría:</Form.Label>
                   <Form.Select 
                       size="sm" 
-                      name="id_insumo" 
-                      value={filtros.id_insumo} 
+                      name="id_categoria" // <-- Usar el nombre de filtro correcto
+                      value={filtros.id_categoria} 
                       onChange={handleFilterChange} 
                       className="form-control-focus"
-                      disabled={loadingDropdowns} // Deshabilitar mientras carga
+                      disabled={loadingDropdowns}
                     >
-                    <option value="">-- Todos --</option>
-                      {/* 6. AHORA SÍ FUNCIONA: insumosList es un array */}
-                    {insumosList.map(i => <option key={i.PK_id_insumo} value={i.PK_id_insumo}>{i.nombre}</option>)}
+                    <option value="">-- Todas --</option>
+                      {/* Mapear 'categoriasList' */}
+                    {categoriasList.map(cat => <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>{cat.nombre_categoria}</option>)}
                   </Form.Select>
                 </Form.Group>
               </Col>
