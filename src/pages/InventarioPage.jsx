@@ -185,7 +185,7 @@ const InventarioPage = () => {
       {/* Barra de Acciones y Filtros */}
       <Card className="shadow-sm mb-3">
         <Card.Header as="h2" className="text-center fw-bold bg-primary text-white form-header">
-                      Registrar Devolución
+          Gestión de Inventario
         </Card.Header>
         <Card.Body className="p-3">
           {/* Fila 1: Botones */}

@@ -142,7 +142,7 @@ const InventarioCreatePage = () => {
    
              <Card className="shadow-sm border-0">
                <Card.Header as="h2" className="text-center bg-primary fw-bold form-header">
-                 Registrar Devolución
+                Ingreso Insumo 
                </Card.Header>
                <Card.Body className="p-4 p-md-5">
           <Form onSubmit={handleSubmit} style={formStyles}>        
@@ -214,7 +214,7 @@ const InventarioCreatePage = () => {
         <textarea name="descripcion" onChange={handleChange} style={inputStyles}></textarea>
         </Form.Group>
         <Button type="submit" disabled={loading} style={buttonStyles}>
-          {loading ? 'Guardando...' : 'Crear Insumo'}
+          {loading ? 'Guardando...' : 'Ingresar Insumo'}
         </Button>        
       </Form>
       {/* ---------------------------------------------------------------------------------RENDERIZAR EL MODAL DEL ESCÁNER (al final del return) */}
