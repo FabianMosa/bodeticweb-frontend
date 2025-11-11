@@ -171,7 +171,7 @@ const InventarioPage = () => {
 
   // --- RENDERIZADO (JSX) ---
   return (
-    <Container fluid className="inventario-container bg-light min-vh-100 py-4">
+    <Container fluid className="bg-light min-vh-100 py-4">
       
       {/* Título y Botón Volver */}
       <Row className="mb-3 align-items-center">
@@ -291,7 +291,7 @@ const InventarioPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* RENDERIZAR 'insumos' (el array de la página actual) */}
+                      {/* ------------------------------------------RENDERIZAR 'insumos' (el array de la página actual) */}
                       {insumos.length > 0 ? (
                         insumos.map((insumo) => (
                           <tr key={insumo.PK_id_insumo} className={!insumo.activo ? 'table-danger' : ''}>

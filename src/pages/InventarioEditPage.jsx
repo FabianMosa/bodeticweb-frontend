@@ -123,7 +123,7 @@ const InventarioEditPage = () => {
                   
                   {/*----------------------- No editamos el Stock Actual aquí, solo el mínimo */}
                   <label>Stock Mínimo</label>
-                  <input type="number" name="stock_minimo" value={formData.stock_minimo} min="1" onChange={handleChange} style={inputStyles} required />
+                  <input type="number" name="stock_minimo" value={formData.stock_minimo} min="0" onChange={handleChange} style={inputStyles} required />
                   
                   <label>Fecha Vencimiento (Opcional)</label>
                   <input type="date" name="fecha_vencimiento" value={formData.fecha_vencimiento || ''} onChange={handleChange} style={inputStyles} />
