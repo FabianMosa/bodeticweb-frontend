@@ -55,10 +55,21 @@ const updateUsuario = async (id, usuarioData) => {
   }
 };
 
+const changePasswordAdmin = async (id, newPassword) => {
+  try {
+    const response = await api.put(`/usuarios/${id}/change-password`, { newPassword });
+    return response.data;
+  } catch (error) {
+    console.error('Error en el servicio de cambiar password:', error.response.data);
+    throw error.response.data;
+  }
+};
+
 export default {
   getUsuariosTecnicos,
   getAllUsuarios,
   getUsuarioById,
   createUsuario,
   updateUsuario,
+  changePasswordAdmin,
 };
