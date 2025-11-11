@@ -63,9 +63,9 @@ const InventarioCreatePage = () => {
       }
     };
     loadDropdowns();
-  }, [showNotification]);
+  }, []);// showNotification
 
-  // Handler genérico para inputs
+  // ------------------------------------------------ Handler genérico para inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -75,7 +75,7 @@ const InventarioCreatePage = () => {
     }
   };
   
-  // Lógica para "Buscar o Crear Documento"
+  //----------------------------------------------- Lógica para "Buscar o Crear Documento"
   const handleBuscarDocumento = async () => {
     if (!formData.codigo_documento) {
       showNotification('Ingrese un N° de Documento para buscar', 'error');
@@ -115,13 +115,13 @@ const InventarioCreatePage = () => {
     }));
   };
 
-  // Lógica para el Escáner de SKU
+  //----------------------------------------------- Lógica para el Escáner de SKU
   const handleScanSuccess = (skuScaneado) => {
     setFormData(prev => ({ ...prev, sku: skuScaneado }));
     setShowScanner(false);
   };
 
-  // Lógica de Envío
+  //----------------------------------------------- Lógica de Envío
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -156,7 +156,7 @@ const InventarioCreatePage = () => {
     }
   };
   
-  // 3. Usar un Spinner de Carga de Bootstrap
+  //----------------------------------------------- Usar un Spinner de Carga de Bootstrap
   if (loadingDropdowns) return (
     <Container fluid className="d-flex min-vh-100 justify-content-center align-items-center bg-light">
       <div className="text-center">
