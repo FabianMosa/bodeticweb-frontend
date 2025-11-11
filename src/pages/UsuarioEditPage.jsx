@@ -6,7 +6,7 @@ import rolService from '../services/rol.services';
 import { useNotification } from '../context/NotificationContext';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 
-// --- Estilos ---
+// ----------------------------------------------------------------- Estilos ---
 const formStyles = {
   display: 'flex',
   flexDirection: 'column',
@@ -18,7 +18,6 @@ const formStyles = {
 };
 const inputStyles = { marginBottom: '10px', padding: '8px', fontSize: '16px' };
 const buttonStyles = { padding: '10px', fontSize: '16px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer' };
-// --- Fin Estilos ---
 
 const UsuarioEditPage = () => {
   const { id } = useParams();
@@ -101,6 +100,9 @@ const { showNotification } = useNotification();
                       
                       <label>RUT:</label>
                       <input type="text" name="rut" value={formData.rut} onChange={handleChange} style={inputStyles} required />
+
+                      <label>Contraseña:</label>
+                      <input type="password" name="password" value={formData.password || ''} onChange={handleChange} style={inputStyles} />
                       
                       <label>Rol:</label>
                       <select name="FK_id_rol" value={formData.FK_id_rol} onChange={handleChange} style={inputStyles} required>

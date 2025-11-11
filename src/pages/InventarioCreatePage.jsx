@@ -314,7 +314,7 @@ const InventarioCreatePage = () => {
                         <Form.Control 
                           type="number" 
                           name="stock_inicial" 
-                          min="0" 
+                          min="1" 
                           value={formData.stock_inicial}
                           onChange={handleChange} 
                           required 
@@ -328,7 +328,7 @@ const InventarioCreatePage = () => {
                         <Form.Control 
                           type="number" 
                           name="stock_minimo" 
-                          min="1" 
+                          min="0" 
                           value={formData.stock_minimo}
                           onChange={handleChange} 
                           required 
