@@ -123,7 +123,7 @@ const HistorialPage = () => {
   return (
     <Container fluid className={`bg-light min-vh-100 py-4`}>
       <Row className="justify-content-center">
-        <Col xs="auto">         
+        <Col xs={12} md={10} lg={8} xl={7} className="form-container historial-container">         
           <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
         <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
           </Button>
