@@ -101,7 +101,7 @@ const InventarioEditPage = () => {
 
           <Card className="shadow-sm border-0">
             <Card.Header as="h2" className="text-center text-white fw-bold bg-primary form-header">
-              Modificar Insumo
+              Editar Insumo
             </Card.Header>
             <Card.Body className="p-4 p-md-5">
               

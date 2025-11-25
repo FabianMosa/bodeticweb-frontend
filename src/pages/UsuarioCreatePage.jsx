@@ -106,7 +106,7 @@ const UsuarioCreatePage = () => {
         
                   <Card className="shadow-sm border-0">
                     <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
-                         Nuevo Usuario
+                          Crear Usuario
                     </Card.Header>
                     
                 <Card.Body className="p-0 p-md-3">   
