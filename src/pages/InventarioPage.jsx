@@ -294,7 +294,8 @@ const InventarioPage = () => {
                       {/* ------------------------------------------RENDERIZAR 'insumos' (el array de la página actual) */}
                       {insumos.length > 0 ? (
                         insumos.map((insumo) => (
-                          <tr key={insumo.PK_id_insumo} className={!insumo.activo ? 'border-start border-danger border-3' : ''}>
+                          <tr key={insumo.PK_id_insumo} style={!insumo.activo ? { opacity: 0.8, backgroundColor: '#f8f9fa' } : {}}
+                            className={!insumo.activo ? 'border-start border-danger border-5' : ''}>
                             <td>{insumo.sku}</td>
                             <td>{insumo.nombre}</td>
                             <td className="d-none d-md-table-cell">{insumo.nombre_categoria}</td>
@@ -308,6 +309,7 @@ const InventarioPage = () => {
                                   <Link className='btn' to={`/inventario/editar/${insumo.PK_id_insumo}`} style={{ backgroundColor: '#ffc107'}}>
                                     Editar
                                   </Link>
+                                  <br />
                                   <Button
                                     style={{ backgroundColor: insumo.activo ? '#dc3545' : '#28a745', color: 'white'}}
                                     onClick={() => handleToggleActivo(insumo)}
