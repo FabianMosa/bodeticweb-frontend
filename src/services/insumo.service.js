@@ -1,5 +1,5 @@
 import api from './api'; 
-const getInsumos = async (filtros = {}, page = 1, limit = 5) => {
+const getInsumos = async (filtros = {}, page = 1, limit = 9) => {
   try {
     // 1. Añadir filtros, page y limit a los parámetros
     const params = new URLSearchParams({

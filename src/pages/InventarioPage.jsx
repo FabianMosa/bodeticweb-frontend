@@ -6,7 +6,7 @@ import ScannerModal from '../components/ScannerModal';
 import { useNotification } from '../context/NotificationContext';
 import { Container, Row, Col, Button, Table, Card, Spinner, ButtonGroup, Form, Pagination, InputGroup } from 'react-bootstrap';
 
-const ITEMS_PER_PAGE = 5; // ¡Debe coincidir con el 'limit' del backend!
+const ITEMS_PER_PAGE = 9; // ¡Debe coincidir con el 'limit' del backend!
 
 const InventarioPage = () => {
   const [insumos, setInsumos] = useState([]); // Almacena los insumos de la PÁGINA ACTUAL
@@ -66,7 +66,7 @@ const InventarioPage = () => {
     const usuarioInfo = JSON.parse(localStorage.getItem('usuario'));
     if (usuarioInfo) setUsuarioRol(usuarioInfo.usuario.rol);
   // EL USE EFFECT AHORA DEPENDE DE LOS FILTROS Y LA PÁGINA
-  }, [filtroActivo, filtroCategoria, filtroNombre, currentPage]);
+  }, [filtroActivo, filtroCategoria, filtroNombre, currentPage]);//
 
   // ------------------------------------------------- Handlers de Filtros (actualizan el estado y resetean la página) ---
   const handleFiltroActivoChange = (isActivo) => {

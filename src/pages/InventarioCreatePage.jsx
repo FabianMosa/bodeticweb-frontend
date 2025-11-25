@@ -181,7 +181,7 @@ const InventarioCreatePage = () => {
             </Card.Header>
             <Card.Body className="p-4 p-md-5">
               
-              {/* 4. Usar 100% Componentes React-Bootstrap (sin estilos inline) */}
+              {/* Componentes React-Bootstrap (sin estilos inline) */}
               <Form onSubmit={handleSubmit}>
                 
                 {/* --- SECCIÓN DE DOCUMENTO --- */}
@@ -290,7 +290,7 @@ const InventarioCreatePage = () => {
                   </Form.Group> 
                           
                   <Form.Group className="mb-3" controlId="formCategoria">
-                    <Form.Label>Categoría</Form.Label>
+                    <Form.Label className='filter-label mb-1'>Categoría</Form.Label>
                     <Form.Select 
                       name="id_categoria" 
                       onChange={handleChange} 
@@ -298,7 +298,7 @@ const InventarioCreatePage = () => {
                       value={formData.id_categoria}
                       disabled={categorias.length === 0}
                       className="form-control-focus"
-                    >
+                    >                    
                       {categorias.map(cat => (
                         <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
                           {cat.nombre_categoria}

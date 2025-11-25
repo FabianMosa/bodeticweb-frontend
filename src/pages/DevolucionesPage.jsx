@@ -23,7 +23,7 @@ const DevolucionPage = () => {
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
-  // --- 1. Cargar datos iniciales (Técnicos y TODOS los Préstamos) ---
+  // --- Cargar datos iniciales (Técnicos y TODOS los Préstamos) ---
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -51,7 +51,7 @@ const DevolucionPage = () => {
     loadData();
   }, [showNotification]); // Quitar 'insumos' y 'tecnicos' de las dependencias
 
-  // --- 2. Reaccionar al cambio de Técnico (Dropdown en Cascada) ---
+  // --- Reaccionar al cambio de Técnico (Dropdown en Cascada) ---
   useEffect(() => {
     if (selectedTecnico) {
       // Filtramos la lista de préstamos para mostrar solo los de este técnico
@@ -72,7 +72,7 @@ const DevolucionPage = () => {
     }
   }, [selectedTecnico, allPrestamos]); // Este hook depende del técnico seleccionado
 
-  // --- 3. Reaccionar al cambio de Insumo ---
+  // --- Reaccionar al cambio de Insumo ---
   useEffect(() => {
     if (selectedInsumoId) {
       // Encontrar el préstamo seleccionado para saber su cantidad máxima
@@ -86,7 +86,7 @@ const DevolucionPage = () => {
     setCantidad(1); // Resetear cantidad
   }, [selectedInsumoId, insumosFiltrados]);
 
-  // --- 4. Lógica de Envío (Submit) ---
+  // --- Lógica de Envío (Submit) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);    
@@ -106,7 +106,7 @@ const DevolucionPage = () => {
 
       const response = await movimientoService.registrarDevolucion(devolucionData);
       
-      // 5. Usar Notificación Global (reemplaza el alert())
+      // Usar Notificación Global (reemplaza el alert())
       showNotification(response.message, 'success');
       navigate('/dashboard'); // Redirige al dashboard
 
@@ -186,7 +186,7 @@ const DevolucionPage = () => {
                     type="number" 
                     value={cantidad} 
                     min="1" 
-                    max={maxCantidad} // 6. Validación de máximo
+                    max={maxCantidad} // Validación de máximo
                     onChange={(e) => setCantidad(e.target.value)} 
                     required 
                     className="form-control-focus"
