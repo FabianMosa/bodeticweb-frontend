@@ -100,13 +100,13 @@ const UsuarioCreatePage = () => {
     <Container fluid className={`bg-light min-vh-100 py-4`}>
               <Row className="justify-content-center">
                 <Col xs={12} md={10} lg={8} xl={6}>         
-                  <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
-                <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+                  <Button variant="outline-primary" size="sm" as={Link} to="/usuarios" className="mb-3">
+                <i className="bi bi-arrow-left me-1"></i> Volver a Usuarios
                   </Button>
         
                   <Card className="shadow-sm border-0">
                     <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
-                      Gestión de Usuarios
+                         Nuevo Usuario
                     </Card.Header>
                     
                 <Card.Body className="p-0 p-md-3">   
@@ -160,7 +160,7 @@ const UsuarioCreatePage = () => {
         </select>
 
         <Button type="submit" disabled={submitting} style={buttonStyles}>
-          {submitting ? 'Guardando...' : 'Crear Usuario'}
+          {submitting ? 'Guardando...' : 'Ingresar Usuario'}
         </Button>
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
       </Form>
