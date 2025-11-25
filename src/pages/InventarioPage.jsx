@@ -66,7 +66,7 @@ const InventarioPage = () => {
     const usuarioInfo = JSON.parse(localStorage.getItem('usuario'));
     if (usuarioInfo) setUsuarioRol(usuarioInfo.usuario.rol);
   // EL USE EFFECT AHORA DEPENDE DE LOS FILTROS Y LA PÁGINA
-  }, [filtroActivo, filtroCategoria, filtroNombre, currentPage]);
+  }, [filtroActivo, filtroCategoria, filtroNombre, currentPage]);//
 
   // ------------------------------------------------- Handlers de Filtros (actualizan el estado y resetean la página) ---
   const handleFiltroActivoChange = (isActivo) => {

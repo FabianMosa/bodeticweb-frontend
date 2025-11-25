@@ -40,7 +40,7 @@ const UsuarioListPage = () => {
                 
             <Card.Body className="p-1 p-md-1">
               <br />
-              <Button variant="primary" size="md" as={Link} to="/usuarios/nuevo" className="mb-4">
+              <Button variant="primary" size="md" as={Link} to="/usuarios/nuevo" className="mb-4 bg-primary px-3">
                 <i className="bi bi-plus-circle me-2"></i> Crear Usuario
               </Button>
               {loading ? (
