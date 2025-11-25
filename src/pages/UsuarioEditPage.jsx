@@ -167,8 +167,8 @@ const { showNotification } = useNotification();
     <Container fluid className={`bg-light min-vh-100 py-4`}>
           <Row className="justify-content-center">
             <Col xs={12} md={10} lg={8} xl={6}>         
-                  <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
-                    <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
+                  <Button variant="outline-primary" size="sm" as={Link} to="/usuarios" className="mb-3">
+                    <i className="bi bi-arrow-left me-1"></i> Volver a Usuarios
                   </Button>
     
               <Card className="shadow-sm border-0">
