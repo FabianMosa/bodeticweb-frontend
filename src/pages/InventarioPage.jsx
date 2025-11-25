@@ -294,7 +294,7 @@ const InventarioPage = () => {
                       {/* ------------------------------------------RENDERIZAR 'insumos' (el array de la página actual) */}
                       {insumos.length > 0 ? (
                         insumos.map((insumo) => (
-                          <tr key={insumo.PK_id_insumo} className={!insumo.activo ? 'border-start border-danger border-2' : ''}>
+                          <tr key={insumo.PK_id_insumo} className={!insumo.activo ? 'table-secondary' : ''}>
                             <td>{insumo.sku}</td>
                             <td>{insumo.nombre}</td>
                             <td className="d-none d-md-table-cell">{insumo.nombre_categoria}</td>
