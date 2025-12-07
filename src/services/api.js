@@ -15,13 +15,13 @@ const api = axios.create({
 // con el formato 'Bearer <token>'
 api.interceptors.request.use(
   (config) => {
-    // 1. Obtenemos los datos del usuario del localStorage
+    // Obtenemos los datos del usuario del localStorage
     const usuarioStorage = localStorage.getItem("usuario");
     if (usuarioStorage) {
-      // 2. Obtenemos el token
+      // Obtenemos el token
       const token = JSON.parse(usuarioStorage).token;
 
-      // 3. Lo añadimos al header de autorización
+      // Lo añadimos al header de autorización
       if (token) {
         config.headers["Authorization"] = "Bearer " + token;
       }
