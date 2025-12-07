@@ -9,7 +9,7 @@ const ScannerModal = ({ onClose, onScanSuccess }) => {
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    // --- 1. VERIFICACIÓN DE COMPATIBILIDAD MEJORADA ---
+    // ---VERIFICACIÓN DE COMPATIBILIDAD---
     if (!("BarcodeDetector" in window)) {
       setError(
         "Escáner no compatible. Esta función solo está disponible en navegadores móviles (como Chrome en Android) o en versiones de escritorio con las funciones experimentales activadas."
@@ -17,8 +17,6 @@ const ScannerModal = ({ onClose, onScanSuccess }) => {
       setStatus("Error");
       return;
     }
-    // --- FIN DE LA MEJORA ---
-
     const detector = new window.BarcodeDetector({
       formats: [
         "code_128",

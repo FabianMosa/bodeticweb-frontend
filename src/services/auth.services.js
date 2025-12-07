@@ -1,4 +1,3 @@
-// frontend/src/services/auth.service.js
 import api from "./api"; // Importamos la instancia de Axios
 
 const login = async (rut, password) => {

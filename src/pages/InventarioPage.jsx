@@ -255,7 +255,7 @@ const InventarioPage = () => {
               <Col xs={12} md={6} lg={4}>
                 <Form.Group controlId="filtroNombre">
                   <Form.Label className="filter-label mb-1">
-                    Buscar por Nombre:
+                    Buscar por Nombre
                   </Form.Label>
                   <InputGroup size="sm">
                     <Form.Control
@@ -274,7 +274,7 @@ const InventarioPage = () => {
               <Col xs={12} md={6} lg={4}>
                 <Form.Group controlId="filtroCategoria">
                   <Form.Label className="filter-label mb-1">
-                    Categoría:
+                    Categoría
                   </Form.Label>
                   <Form.Select
                     size="sm"
@@ -297,7 +297,7 @@ const InventarioPage = () => {
 
               <Col xs={12} md={12} lg={4}>
                 <Form.Group controlId="filtroEstado">
-                  <Form.Label className="filter-label mb-1">Estado:</Form.Label>
+                  <Form.Label className="filter-label mb-1">Estado</Form.Label>
                   <ButtonGroup aria-label="Filtro de estado" className="w-100">
                     <Button
                       size="sm"
@@ -325,10 +325,10 @@ const InventarioPage = () => {
       {/* Tabla Responsiva */}
       <Row>
         <Col>
-          <Card className="shadow-sm">
+          <Card className="shadow-sm mb-4">
             <Card.Body className="p-0 p-md-3">
               {loading ? (
-                <div className="text-center p-5">
+                <div className="text-center p-4">
                   <Spinner animation="border" role="status" variant="primary" />
                 </div>
               ) : (
@@ -339,7 +339,7 @@ const InventarioPage = () => {
                     hover
                     responsive="md"
                     size="sm"
-                    className="inventario-table align-middle mb-0"
+                    className="inventario-table align-middle mb-0 text-center"
                   >
                     <thead className="table-light">
                       <tr>
@@ -348,7 +348,9 @@ const InventarioPage = () => {
                         <th className="d-none d-md-table-cell">Categoría</th>
                         <th>Stock</th>
                         <th className="d-none d-lg-table-cell">Stock Mín.</th>
-                        <th style={{ minWidth: "180px" }}>Acciones</th>
+                        <th style={{ minWidth: "180px", textAlign: "center" }}>
+                          Acciones
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -391,6 +393,7 @@ const InventarioPage = () => {
                                 display: "flex",
                                 gap: "0.5rem",
                                 flexWrap: "wrap",
+                                justifyContent: "center",
                               }}
                             >
                               {usuarioRol === 1 && (

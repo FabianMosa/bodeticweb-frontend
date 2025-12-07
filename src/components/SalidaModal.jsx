@@ -105,7 +105,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
           <strong>Insumo:</strong> {insumo.nombre}
         </p>
         <p style={{ color: "#555" }}>
-          <strong>Stock Actual:</strong> {insumo.stock_actual}
+          <strong>Stock Actual</strong> {insumo.stock_actual}
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -149,7 +149,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
           />
 
           {/* Cantidad */}
-          <label>Cantidad:</label>
+          <label>Cantidad</label>
           <input
             type="number"
             value={cantidad}
@@ -161,7 +161,7 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
           />
 
           {/* ------------------------------------------ CAMPO DE DESCRIPCIÓN AÑADIDO --- */}
-          <label>Detalle (Opcional):</label>
+          <label>Detalle (Opcional)</label>
           <input
             type="text"
             placeholder="A quién se entrega, motivo..."

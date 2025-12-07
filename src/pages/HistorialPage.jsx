@@ -114,29 +114,29 @@ const HistorialPage = () => {
           active={number === currentPage}
           onClick={() => setCurrentPage(number)}
         >
-                    {number}       {" "}
+                    {number}       
         </Pagination.Item>
       );
     }
     return (
       <Pagination className="justify-content-center mt-3">
-               {" "}
+               
         <Pagination.Prev
           onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           disabled={currentPage === 1}
         />
                 {items}
-               {" "}
+               
         <Pagination.Next
           onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
           disabled={currentPage === totalPages}
         />
-             {" "}
+             
       </Pagination>
     );
   };
 
-  // 5. JSX CORREGIDO Y ORDENADO
+  // JSX CORREGIDO Y ORDENADO
   return (
     <Container fluid className={`bg-light min-vh-100 py-4`}>
       <Row className="justify-content-center">
@@ -156,27 +156,27 @@ const HistorialPage = () => {
           >
             <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
           </Button>
-          <Card className="shadow-sm border-0">
+          <Card className="shadow-lg border-0">
             <Card.Header
               as="h2"
               className="text-center text-white fw-bold bg-primary form-header"
             >
               Historial de Movimientos
             </Card.Header>
-            <Card.Body className="p-4 p-md-5">
-                       {" "}
+            <Card.Body className="p-4 shadow-lg border-20 bg-white">
+                       
               <Form>
-                           {" "}
+                           
                 <Row className="mb-3 gy-3">
-                               {" "}
+                               
                   <Col xs={12} md={6}>
-                                   {" "}
+                                   
                     <Form.Group controlId="filtroFechaInicio">
-                                       {" "}
+                                       
                       <Form.Label className="filter-label mb-1">
-                        Desde:
+                        Desde
                       </Form.Label>
-                                       {" "}
+                                       
                       <Form.Control
                         type="date"
                         name="fecha_inicio"
@@ -184,19 +184,19 @@ const HistorialPage = () => {
                         onChange={handleFilterChange}
                         size="sm"
                       />
-                                     {" "}
+                                     
                     </Form.Group>
-                                 {" "}
+                                 
                   </Col>
-                               {" "}
+                               
                   <Col xs={12} md={6}>
-                                   {" "}
+                                   
                     <Form.Group controlId="filtroFechaFin">
-                                       {" "}
+                                       
                       <Form.Label className="filter-label mb-1">
                         Hasta:
                       </Form.Label>
-                                       {" "}
+                                       
                       <Form.Control
                         type="date"
                         name="fecha_fin"
@@ -204,19 +204,15 @@ const HistorialPage = () => {
                         onChange={handleFilterChange}
                         size="sm"
                       />
-                                     {" "}
+                                     
                     </Form.Group>
-                                 {" "}
+                                 
                   </Col>
-                             {" "}
-                </Row>
-                           {" "}
-                <Row className="mb-3 gy-3">
-                               {" "}
+                                           
                   <Col xs={12} md={4}>
                     <Form.Group controlId="filtroNombre">
                       <Form.Label className="filter-label mb-1">
-                        Buscar por Nombre:
+                        Buscar por Nombre
                       </Form.Label>
                       <InputGroup size="sm">
                         <Form.Control
@@ -228,9 +224,12 @@ const HistorialPage = () => {
                         </Button>
                       </InputGroup>
                     </Form.Group>
+                  </Col>
+                               
+                  <Col xs={12} md={4}>
                     <Form.Group controlId="filtroNombre">
                       <Form.Label className="filter-label mb-1">
-                        Buscar por Nro. fáctura:
+                        Buscar por Nro. fáctura
                       </Form.Label>
                       <InputGroup size="sm">
                         <Form.Control type="text" placeholder="..." />
@@ -239,12 +238,15 @@ const HistorialPage = () => {
                         </Button>
                       </InputGroup>
                     </Form.Group>
+                  </Col>
+                               
+                  <Col xs={12} md={4}>
                     <Form.Group controlId="filtroCategoria">
-                                       {" "}
+                                       
                       <Form.Label className="filter-label mb-1">
-                        Categoría:
+                        Categoría
                       </Form.Label>
-                                       {" "}
+                                       
                       <Form.Select
                         size="sm"
                         name="id_categoria" // <-- Usar el nombre de filtro correcto
@@ -253,9 +255,8 @@ const HistorialPage = () => {
                         className="form-control-focus"
                         disabled={loadingDropdowns}
                       >
-                                           {" "}
-                        <option value="">-- Todas --</option>
-                        {/* Mapear 'categoriasList' */}                   {" "}
+                                           <option value="">-- Todas --</option>
+                        {/* Mapear 'categoriasList' */}                   
                         {categoriasList.map((cat) => (
                           <option
                             key={cat.PK_id_categoria}
@@ -264,21 +265,21 @@ const HistorialPage = () => {
                             {cat.nombre_categoria}
                           </option>
                         ))}
-                                         {" "}
+                                         
                       </Form.Select>
-                                     {" "}
+                                     
                     </Form.Group>
-                                 {" "}
+                                 
                   </Col>
-                               {" "}
+                               
                   <Col xs={12} md={4}>
-                                   {" "}
+                                   
                     <Form.Group controlId="filtroTecnico">
-                                       {" "}
+                                       
                       <Form.Label className="filter-label mb-1">
-                        Técnico:
+                        Técnico
                       </Form.Label>
-                                       {" "}
+                                       
                       <Form.Select
                         size="sm"
                         name="id_usuario"
@@ -287,28 +288,28 @@ const HistorialPage = () => {
                         className="form-control-focus"
                         disabled={loadingDropdowns} // Deshabilitar mientras carga
                       >
-                                           {" "}
-                        <option value="">-- Todos --</option>                   {" "}
+                                           <option value="">-- Todos --</option>
+                                           
                         {tecnicosList.map((t) => (
                           <option key={t.PK_id_usuario} value={t.PK_id_usuario}>
                             {t.nombre}
                           </option>
                         ))}
-                                         {" "}
+                                         
                       </Form.Select>
-                                     {" "}
+                                     
                     </Form.Group>
-                                 {" "}
+                                 
                   </Col>
-                               {" "}
+                               
                   <Col xs={12} md={4}>
-                                   {" "}
+                                   
                     <Form.Group controlId="filtroTipo">
-                                       {" "}
+                                       
                       <Form.Label className="filter-label mb-1">
-                        Tipo:
+                        Tipo
                       </Form.Label>
-                                       {" "}
+                                       
                       <Form.Select
                         size="sm"
                         name="tipo_movimiento"
@@ -316,60 +317,53 @@ const HistorialPage = () => {
                         onChange={handleFilterChange}
                         className="form-control-focus"
                       >
-                                           {" "}
-                        <option value="">-- Todos --</option>                   {" "}
+                                           <option value="">-- Todos --</option>
+                                           
                         <option value="Entrada">Entrada</option>               
                             <option value="Salida-Uso">Salida-Uso</option>     
                                       <option value="Préstamo">Préstamo</option>
-                                           {" "}
+                                           
                         <option value="Devolución">Devolución</option>         
-                               {" "}
+                               
                       </Form.Select>
-                                     {" "}
+                                     
                     </Form.Group>
-                                 {" "}
+                                 
                   </Col>
-                             {" "}
-                </Row>
-                                       {" "}
-                <Row>
-                               {" "}
-                  <Col className="d-flex justify-content-end gap-2 mt-3">
+                                           
+                  <Col
+                    className="d-flex justify-content-end gap-2 mt-2"
+                    xs={12}
+                    md={12}
+                  >
                     {/* 7. Botón "Buscar" eliminado (ahora es automático) */}   
-                               {" "}
+                             
                     <Button
                       variant="success"
                       onClick={handleExportar}
                       disabled={loading || loadingDropdowns}
                     >
-                                       {" "}
-                      <i className="bi bi-file-earmark-excel-fill me-1"></i>{" "}
-                      Exportar Excel                {" "}
+                      {" "}
+                                       
+                      <i className="bi bi-file-earmark-excel-fill me-1 "></i>
+                      Exportar Excel                
                     </Button>
-                                 {" "}
+                                 
                   </Col>
-                             {" "}
+                             
                 </Row>
-                         {" "}
+                         
               </Form>
-                     {" "}
-            </Card.Body>
-                 {" "}
-          </Card>
-                                    {/* Tabla de Resultados */}     {" "}
-          <Card className="shadow-sm">
-                   {" "}
-            <Card.Body className="p-0 p-md-3">
-                       {" "}
+                               
               {loading ? (
                 <div className="text-center p-5">
-                                 {" "}
+                                 
                   <Spinner animation="border" role="status" variant="primary" />
                                
                 </div>
               ) : (
                 <>
-                             {" "}
+                             
                   <Table
                     striped
                     bordered
@@ -378,36 +372,33 @@ const HistorialPage = () => {
                     size="sm"
                     className="historial-table align-middle mb-0"
                   >
-                                 {" "}
-                    <thead className="table-primary">
-                                     {" "}
+                                 
+                    <thead className="table-primary text-center align-middle">
                       <tr>
-                                          <th>Fecha</th>                 {" "}
-                        <th>Tipo</th>                  <th>Insumo</th>         
-                                <th className="text-center">Cant.</th>         
-                               {" "}
-                        <th className="d-none d-md-table-cell">Usuario</th>     
-                                   {" "}
-                        <th className="d-none d-lg-table-cell">OT</th>         
-                               {" "}
-                        <th className="d-none d-lg-table-cell">Descripcion</th> 
-                                     {" "}
+                        <th>Fecha y Hora</th>
+                        <th>Tipo</th>
+                        <th>Insumo</th>
+                        <th className="text-center fw-bold">Cantidad</th>
+                        <th className="d-none d-md-table-cell">Técnico</th>
+                        <th className="d-none d-lg-table-cell">OT</th>
+                        <th className="d-none d-lg-table-cell">Descripción</th>
                       </tr>
-                                   {" "}
+                                   
                     </thead>
-                                 {" "}
+                                 
                     <tbody>
-                                     {" "}
+                                     
                       {historial.length > 0 ? (
                         historial.map((mov) => (
                           <tr key={mov.PK_id_movimiento}>
-                                                 {" "}
+                                                 
                             <td>
                               {new Date(mov.fecha_hora).toLocaleString("es-CL")}
                             </td>
-                                                 {" "}
+                                                 
                             <td>
-                                                     {" "}
+                              {" "}
+                                                     
                               <span
                                 className={`badge ${
                                   mov.tipo_movimiento === "Entrada"
@@ -418,28 +409,27 @@ const HistorialPage = () => {
                                 }`}
                               >
                                                           {mov.tipo_movimiento} 
-                                                     {" "}
+                                                     
                               </span>
-                                                   {" "}
+                                                   
                             </td>
-                                                  <td>{mov.nombre_insumo}</td> 
-                                               {" "}
+                            <td>{mov.nombre_insumo}</td>                     
                             <td className="text-center fw-bold">
                               {mov.cantidad}
                             </td>
-                                                 {" "}
+                                                 
                             <td className="d-none d-md-table-cell">
                               {mov.nombre_usuario}
                             </td>
-                                                 {" "}
+                                                 
                             <td className="d-none d-lg-table-cell">
                               {mov.codigo_ot || "N/A"}
                             </td>
-                                                 {" "}
+                                                 
                             <td className="d-none d-lg-table-cell">
                               {mov.descripcion || "N/A"}
                             </td>
-                                               {" "}
+                                               
                           </tr>
                         ))
                       ) : (
@@ -452,22 +442,22 @@ const HistorialPage = () => {
                           </td>
                         </tr>
                       )}
-                               {" "}
+                               
                     </tbody>
-                               {" "}
+                               
                   </Table>
-                              <PaginationComponent />           {" "}
+                              <PaginationComponent />           
                 </>
               )}
-                       {" "}
+                       
             </Card.Body>
-                     {" "}
+                     
           </Card>
-                 {" "}
+                 
         </Col>
-             {" "}
+             
       </Row>
-                                             {/* --- Estilos CSS --- */}     {" "}
+                                             {/* --- Estilos CSS --- */}     
       <style>{`
                     .form-container {
                       background-color: #f8f9fa;
@@ -492,7 +482,7 @@ const HistorialPage = () => {
                         .historial-table td, .historial-table th { padding: 0.5rem 0.4rem; }
                     }
                   `}</style>
-         {" "}
+         
     </Container>
   );
 };

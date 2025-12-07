@@ -101,7 +101,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <Container>
+    <Container className="min-vh-100">
       {/* ----------------------------------------------------------------- Navbar Superior --- */}
       <Navbar
         bg="primary"

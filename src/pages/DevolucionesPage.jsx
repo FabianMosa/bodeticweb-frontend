@@ -154,7 +154,7 @@ const DevolucionPage = () => {
             <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
           </Button>
 
-          <Card className="shadow-sm border-0">
+          <Card className="shadow-lg border-0">
             <Card.Header
               as="h2"
               className="text-center fw-bold bg-primary form-header"
