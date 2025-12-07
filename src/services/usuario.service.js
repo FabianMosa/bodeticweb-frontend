@@ -1,24 +1,27 @@
-
-import api from './api';
+import api from "./api";
 
 const getUsuariosTecnicos = async () => {
   try {
-    const response = await api.get('/usuarios/tecnicos');
+    const response = await api.get("/usuarios/tecnicos");
     return response.data;
   } catch (error) {
-    console.error('Error en el servicio de obtener técnicos:', error.response.data);
+    console.error(
+      "Error en el servicio de obtener técnicos:",
+      error.response.data
+    );
     throw error.response.data;
   }
 };
 
-// --- AÑADIR LAS NUEVAS FUNCIONES CRUD ---
-
 const getAllUsuarios = async () => {
   try {
-    const response = await api.get('/usuarios');
+    const response = await api.get("/usuarios");
     return response.data;
   } catch (error) {
-    console.error('Error en el servicio de obtener usuarios:', error.response.data);
+    console.error(
+      "Error en el servicio de obtener usuarios:",
+      error.response.data
+    );
     throw error.response.data;
   }
 };
@@ -28,7 +31,10 @@ const getUsuarioById = async (id) => {
     const response = await api.get(`/usuarios/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error en el servicio de obtener usuario por ID:', error.response.data);
+    console.error(
+      "Error en el servicio de obtener usuario por ID:",
+      error.response.data
+    );
     throw error.response.data;
   }
 };
@@ -36,10 +42,13 @@ const getUsuarioById = async (id) => {
 const createUsuario = async (usuarioData) => {
   try {
     // usuarioData = { nombre, rut, password, id_rol }
-    const response = await api.post('/usuarios', usuarioData);
+    const response = await api.post("/usuarios", usuarioData);
     return response.data;
   } catch (error) {
-    console.error('Error en el servicio de crear usuario:', error.response.data);
+    console.error(
+      "Error en el servicio de crear usuario:",
+      error.response.data
+    );
     throw error.response.data;
   }
 };
@@ -50,17 +59,25 @@ const updateUsuario = async (id, usuarioData) => {
     const response = await api.put(`/usuarios/${id}`, usuarioData);
     return response.data;
   } catch (error) {
-    console.error('Error en el servicio de actualizar usuario:', error.response.data);
+    console.error(
+      "Error en el servicio de actualizar usuario:",
+      error.response.data
+    );
     throw error.response.data;
   }
 };
 
 const changePasswordAdmin = async (id, newPassword) => {
   try {
-    const response = await api.put(`/usuarios/${id}/change-password`, { newPassword });
+    const response = await api.put(`/usuarios/${id}/change-password`, {
+      newPassword,
+    });
     return response.data;
   } catch (error) {
-    console.error('Error en el servicio de cambiar password:', error.response.data);
+    console.error(
+      "Error en el servicio de cambiar password:",
+      error.response.data
+    );
     throw error.response.data;
   }
 };

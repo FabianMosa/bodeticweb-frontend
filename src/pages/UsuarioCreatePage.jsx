@@ -1,70 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import usuarioService from '../services/usuario.service';
-import rolService from '../services/rol.service';
-import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
-import { useNotification } from '../context/NotificationContext';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import usuarioService from "../services/usuario.service";
+import rolService from "../services/rol.service";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+  Spinner,
+  InputGroup,
+} from "react-bootstrap";
+import { useNotification } from "../context/NotificationContext";
 
 // (Estilos del formulario)
 const formStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  maxWidth: '500px',
-  margin: '20px auto',
-  padding: '20px',
-  border: '1px solid #ccc',
-  borderRadius: '8px',
+  display: "flex",
+  flexDirection: "column",
+  maxWidth: "500px",
+  margin: "20px auto",
+  padding: "20px",
+  border: "1px solid #ccc",
+  borderRadius: "8px",
 };
-const inputStyles = { marginBottom: '10px', padding: '8px', fontSize: '16px' };
-const buttonStyles = { 
-  padding: '10px', 
-  fontSize: '16px', 
-  backgroundColor: '#28a745', 
-  color: 'white', 
-  border: 'none', 
-  cursor: 'pointer' 
+const inputStyles = { marginBottom: "10px", padding: "8px", fontSize: "16px" };
+const buttonStyles = {
+  padding: "10px",
+  fontSize: "16px",
+  backgroundColor: "#28a745",
+  color: "white",
+  border: "none",
+  cursor: "pointer",
 };
 
 const UsuarioCreatePage = () => {
   const navigate = useNavigate();
-  
+
   // Estado para el formulario
   const [formData, setFormData] = useState({
-    nombre: '',
-    rut: '',
-    password: '',
-    id_rol: '' // Empezar vacío
+    nombre: "",
+    rut: "",
+    password: "",
+    id_rol: "", // Empezar vacío
   });
-  
+
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false); // Para cargar roles
   const [submitting, setSubmitting] = useState(false); // Para enviar formulario
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { showNotification } = useNotification();
 
   // 1. Cargar los roles para el desplegable
   useEffect(() => {
     setLoading(true);
-    rolService.getRoles()
-      .then(data => {
+    rolService
+      .getRoles()
+      .then((data) => {
         setRoles(data);
         // Si hay roles, seleccionar el primero por defecto (ej. 'Técnico')
         if (data.length > 0) {
           // Asumiendo que el rol 'Técnico' es el más común (ej. ID 2)
-          const defaultRole = data.find(r => r.nombre_rol === 'Técnico') || data[0];
-          setFormData(prev => ({ ...prev, id_rol: defaultRole.PK_id_rol }));
+          const defaultRole =
+            data.find((r) => r.nombre_rol === "Técnico") || data[0];
+          setFormData((prev) => ({ ...prev, id_rol: defaultRole.PK_id_rol }));
         }
       })
-      .catch(() => setError('Error al cargar roles'))
+      .catch(() => setError("Error al cargar roles"))
       .finally(() => setLoading(false));
   }, []); // El array vacío [] significa "ejecutar solo al montar"
 
   // 2. Manejar cambios en el formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -72,11 +84,14 @@ const UsuarioCreatePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setError('');
-    
+    setError("");
+
     // Validación extra
     if (formData.password.length < 6) {
-      showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
+      showNotification(
+        "La contraseña debe tener al menos 6 caracteres",
+        "error"
+      );
       setSubmitting(false);
       return;
     }
@@ -84,11 +99,11 @@ const UsuarioCreatePage = () => {
     try {
       // Llamamos al servicio de creación
       await usuarioService.createUsuario(formData);
-      showNotification('Usuario creado con éxito', 'success');
-      navigate('/usuarios'); // Redirige a la lista de usuarios
+      showNotification("Usuario creado con éxito", "success");
+      navigate("/usuarios"); // Redirige a la lista de usuarios
     } catch (err) {
       // El backend nos dirá si el RUT ya existe
-      showNotification(err.message || 'Error al crear el usuario', 'error');
+      showNotification(err.message || "Error al crear el usuario", "error");
     } finally {
       setSubmitting(false);
     }
@@ -98,79 +113,94 @@ const UsuarioCreatePage = () => {
 
   return (
     <Container fluid className={`bg-light min-vh-100 py-4`}>
-              <Row className="justify-content-center">
-                <Col xs={12} md={10} lg={8} xl={6}>         
-                  <Button variant="outline-primary" size="sm" as={Link} to="/usuarios" className="mb-3">
-                <i className="bi bi-arrow-left me-1"></i> Volver a Usuarios
-                  </Button>
-        
-                  <Card className="shadow-sm border-0">
-                    <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
-                          Crear Usuario
-                    </Card.Header>
-                    
-                <Card.Body className="p-0 p-md-3">   
-      <Form onSubmit={handleSubmit} style={formStyles}>   
-        
-        <label>Nombre Completo:</label>
-        <input 
-          type="text" 
-          name="nombre" 
-          value={formData.nombre}
-          onChange={handleChange} 
-          style={inputStyles} 
-          required 
-        />
-        
-        <label>RUT (para login):</label>
-        <input 
-          type="text" 
-          name="rut" 
-          value={formData.rut}
-          onChange={handleChange} 
-          style={inputStyles} 
-          required 
-        />
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8} xl={6}>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            as={Link}
+            to="/usuarios"
+            className="mb-3"
+          >
+            <i className="bi bi-arrow-left me-1"></i> Volver a Usuarios
+          </Button>
 
-        <label>Contraseña Temporal:</label>
-        <input 
-          type="password" 
-          name="password" 
-          value={formData.password}
-          onChange={handleChange} 
-          style={inputStyles} 
-          required 
-          minLength="6"
-        />
-        
-        <label>Rol:</label>
-        <select 
-          name="id_rol" 
-          value={formData.id_rol} 
-          onChange={handleChange} 
-          style={inputStyles} 
-          required
-        >
-          <option value="" disabled>-- Seleccione un rol --</option>
-          {roles.map(rol => (
-            <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
-              {rol.nombre_rol}
-            </option>
-          ))}
-        </select>
+          <Card className="shadow-sm border-0">
+            <Card.Header
+              as="h2"
+              className="text-center fw-bold bg-primary form-header"
+            >
+              Crear Usuario
+            </Card.Header>
 
-        <Button type="submit" disabled={submitting} style={buttonStyles}>
-          {submitting ? 'Guardando...' : 'Ingresar Usuario'}
-        </Button>
-        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-      </Form>
-    
-    </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-          {/* --- Estilos CSS --- */}
-                       <style>{`
+            <Card.Body className="p-0 p-md-3">
+              <Form onSubmit={handleSubmit} style={formStyles}>
+                <label>Nombre Completo:</label>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  style={inputStyles}
+                  required
+                />
+
+                <label>RUT (para login):</label>
+                <input
+                  type="text"
+                  name="rut"
+                  value={formData.rut}
+                  onChange={handleChange}
+                  style={inputStyles}
+                  required
+                />
+
+                <label>Contraseña Temporal:</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  style={inputStyles}
+                  required
+                  minLength="6"
+                />
+
+                <label>Rol:</label>
+                <select
+                  name="id_rol"
+                  value={formData.id_rol}
+                  onChange={handleChange}
+                  style={inputStyles}
+                  required
+                >
+                  <option value="" disabled>
+                    -- Seleccione un rol --
+                  </option>
+                  {roles.map((rol) => (
+                    <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
+                      {rol.nombre_rol}
+                    </option>
+                  ))}
+                </select>
+
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  style={buttonStyles}
+                >
+                  {submitting ? "Guardando..." : "Ingresar Usuario"}
+                </Button>
+                {error && (
+                  <p style={{ color: "red", marginTop: "10px" }}>{error}</p>
+                )}
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+      {/* --- Estilos CSS --- */}
+      <style>{`
                          .form-container {
                            background-color: #f8f9fa;
                          }
@@ -183,8 +213,8 @@ const UsuarioCreatePage = () => {
                            box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
                          }
                        `}</style>
-        </Container>
-      );
-    };
+    </Container>
+  );
+};
 
 export default UsuarioCreatePage;
