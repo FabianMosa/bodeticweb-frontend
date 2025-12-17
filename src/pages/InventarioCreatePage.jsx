@@ -255,6 +255,24 @@ const InventarioCreatePage = () => {
                 {/* --- SECCIÓN DE INSUMO --- */}
                 <fieldset className="border p-3 rounded">
                   <legend className="fs-5 fw-semibold">2. Información del Insumo</legend>
+
+                   <Form.Group className="mb-3" controlId="formCategoria">
+                    <Form.Label className='filter-label mb-1'>Categoría</Form.Label>
+                    <Form.Select 
+                      name="id_categoria" 
+                      onChange={handleChange} 
+                      required 
+                      value={formData.id_categoria}
+                      disabled={categorias.length === 0}
+                      className="form-control-focus"
+                    >                    
+                      {categorias.map(cat => (
+                        <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
+                          {cat.nombre_categoria}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group> 
                   
                   <Form.Group className="mb-3" controlId="formNombre">
                     <Form.Label>Nombre:</Form.Label>
@@ -288,25 +306,7 @@ const InventarioCreatePage = () => {
                       </Button>
                     </InputGroup>
                   </Form.Group> 
-                          
-                  <Form.Group className="mb-3" controlId="formCategoria">
-                    <Form.Label className='filter-label mb-1'>Categoría</Form.Label>
-                    <Form.Select 
-                      name="id_categoria" 
-                      onChange={handleChange} 
-                      required 
-                      value={formData.id_categoria}
-                      disabled={categorias.length === 0}
-                      className="form-control-focus"
-                    >                    
-                      {categorias.map(cat => (
-                        <option key={cat.PK_id_categoria} value={cat.PK_id_categoria}>
-                          {cat.nombre_categoria}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                  
+                                            
                   <Row>
                     <Col xs={6}>
                       <Form.Group className="mb-3" controlId="formStockInicial">
