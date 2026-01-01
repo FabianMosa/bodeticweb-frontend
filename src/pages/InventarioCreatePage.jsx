@@ -4,9 +4,9 @@ import insumoService from "../services/insumo.service";
 import proveedorService from "../services/proveedor.service";
 import documentoService from "../services/documento.service";
 import ScannerModal from "../components/ScannerModal.jsx";
+import LocationPicker from "../components/LocationPicker.jsx"; // 1. Importar el componente de ubicación
 import { useNotification } from "../context/NotificationContext";
 
-// 1. Importar todos los componentes de Formulario
 import {
   Container,
   Row,
@@ -18,10 +18,8 @@ import {
   InputGroup,
 } from "react-bootstrap";
 
-// 2. Ya no necesitamos los objetos de estilo inline (formStyles, fieldsetStyles, etc.)
-
 const InventarioCreatePage = () => {
-  // --- Estados del Formulario ---
+  // --- Estados del Formulario (Datos de Texto) ---
   const [formData, setFormData] = useState({
     nombre: "",
     sku: "",
@@ -35,12 +33,17 @@ const InventarioCreatePage = () => {
     fecha_emision: new Date().toISOString().split("T")[0],
   });
 
-  // --- Estados de Lógica ---
+  // --- Estados para Imagen y Ubicación (Nuevos) ---
+  const [imagenFile, setImagenFile] = useState(null);
+  const [coordenadas, setCoordenadas] = useState(null);
+
+  // --- Estados de Lógica de UI ---
   const [idDocumentoExistente, setIdDocumentoExistente] = useState(null);
   const [docLoading, setDocLoading] = useState(false);
   const [docReadOnly, setDocReadOnly] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
+  // --- Estados de Datos Maestros ---
   const [categorias, setCategorias] = useState([]);
   const [proveedores, setProveedores] = useState([]);
   const [loadingDropdowns, setLoadingDropdowns] = useState(true);
@@ -62,7 +65,7 @@ const InventarioCreatePage = () => {
         setCategorias(categoriasData);
         setProveedores(proveedoresData);
 
-        // Settear valores por defecto
+        // Settear valores por defecto para evitar selects vacíos
         if (categoriasData.length > 0) {
           setFormData((f) => ({
             ...f,
@@ -85,19 +88,20 @@ const InventarioCreatePage = () => {
       }
     };
     loadDropdowns();
-  }, []); // showNotification
+  }, []);
 
-  // ------------------------------------------------ Handler genérico para inputs
+  // Handler genérico para inputs de texto
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
+    // Si se borra el código, desbloquear los campos de documento
     if (name === "codigo_documento" && value === "") {
       resetDocumento();
     }
   };
 
-  //----------------------------------------------- Lógica para "Buscar o Crear Documento"
+  // Lógica para "Buscar o Crear Documento"
   const handleBuscarDocumento = async () => {
     if (!formData.codigo_documento) {
       showNotification("Ingrese un N° de Documento para buscar", "error");
@@ -146,37 +150,59 @@ const InventarioCreatePage = () => {
     }));
   };
 
-  //----------------------------------------------- Lógica para el Escáner de SKU
   const handleScanSuccess = (skuScaneado) => {
     setFormData((prev) => ({ ...prev, sku: skuScaneado }));
     setShowScanner(false);
   };
 
-  //----------------------------------------------- Lógica de Envío
+  // Lógica de Envío con FormData (Soporte para Imágenes)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const dataParaApi = {
-        nombre: formData.nombre,
-        sku: formData.sku,
-        descripcion: formData.descripcion,
-        stock_inicial: formData.stock_inicial,
-        stock_minimo: formData.stock_minimo,
-        id_categoria: formData.id_categoria,
-        fecha_vencimiento: formData.fecha_vencimiento || null,
-        id_documento_existente: idDocumentoExistente,
-        id_proveedor: formData.id_proveedor,
-        codigo_documento: formData.codigo_documento,
-        fecha_emision: formData.fecha_emision,
-      };
+      // 2. Construcción del objeto FormData para envío multipart
+      const dataToSend = new FormData();
 
-      await insumoService.createInsumo(dataParaApi);
+      // Agregar campos de texto básicos
+      dataToSend.append("nombre", formData.nombre);
+      dataToSend.append("sku", formData.sku);
+      dataToSend.append("descripcion", formData.descripcion);
+      dataToSend.append("stock_inicial", formData.stock_inicial);
+      dataToSend.append("stock_minimo", formData.stock_minimo);
+      dataToSend.append("id_categoria", formData.id_categoria);
+
+      // Manejo de fecha opcional
+      if (formData.fecha_vencimiento) {
+        dataToSend.append("fecha_vencimiento", formData.fecha_vencimiento);
+      }
+
+      // Datos del Documento
+      dataToSend.append("id_proveedor", formData.id_proveedor);
+      dataToSend.append("codigo_documento", formData.codigo_documento);
+      dataToSend.append("fecha_emision", formData.fecha_emision);
+
+      if (idDocumentoExistente) {
+        dataToSend.append("id_documento_existente", idDocumentoExistente);
+      }
+
+      // 3. Agregar Imagen y Coordenadas si existen
+      if (imagenFile) {
+        dataToSend.append("imagen", imagenFile);
+      }
+      if (coordenadas) {
+        dataToSend.append("coordenada_x", coordenadas.x);
+        dataToSend.append("coordenada_y", coordenadas.y);
+      }
+
+      // Llamada al servicio (Axios detectará FormData y ajustará los headers automáticamente)
+      await insumoService.createInsumo(dataToSend);
+
       showNotification(
         "Insumo creado y asociado al documento con éxito",
         "success"
       );
 
+      // Reiniciar formulario de Insumo (Mantener documento si se desea ingreso masivo)
       setFormData((prev) => ({
         ...prev,
         nombre: "",
@@ -184,7 +210,12 @@ const InventarioCreatePage = () => {
         descripcion: "",
         stock_inicial: 0,
         stock_minimo: 1,
+        // No reseteamos el documento para facilitar carga por lotes
       }));
+
+      // Reiniciar estado de imagen
+      setImagenFile(null);
+      setCoordenadas(null);
     } catch (err) {
       showNotification(err.message || "Error al crear el insumo", "error");
     } finally {
@@ -192,7 +223,6 @@ const InventarioCreatePage = () => {
     }
   };
 
-  //----------------------------------------------- Usar un Spinner de Carga de Bootstrap
   if (loadingDropdowns)
     return (
       <Container
@@ -228,9 +258,8 @@ const InventarioCreatePage = () => {
               Ingreso Insumo
             </Card.Header>
             <Card.Body className="p-4 p-md-5">
-              {/* Componentes React-Bootstrap (sin estilos inline) */}
               <Form onSubmit={handleSubmit}>
-                {/* --- SECCIÓN DE DOCUMENTO --- */}
+                {/* --- SECCIÓN 1: DOCUMENTO --- */}
                 <fieldset className="border p-3 rounded mb-4">
                   <legend className="fs-5 fw-semibold text-primary">
                     1. Información de Ingreso (Factura/Guía)
@@ -315,12 +344,34 @@ const InventarioCreatePage = () => {
                   </Row>
                 </fieldset>
 
-                {/* --- SECCIÓN DE INSUMO --- */}
-                <fieldset className="border p-3 rounded">
+                {/* --- SECCIÓN 2: DATOS DEL INSUMO --- */}
+                <fieldset className="border p-3 rounded mb-4">
                   <legend className="fs-5 fw-semibold">
                     2. Información del Insumo
                   </legend>
 
+                  <Form.Group className="mb-3" controlId="formCategoria">
+                    <Form.Label className="filter-label mb-1">
+                      Categoría
+                    </Form.Label>
+                    <Form.Select
+                      name="id_categoria"
+                      onChange={handleChange}
+                      required
+                      value={formData.id_categoria}
+                      disabled={categorias.length === 0}
+                      className="form-control-focus"
+                    >
+                      {categorias.map((cat) => (
+                        <option
+                          key={cat.PK_id_categoria}
+                          value={cat.PK_id_categoria}
+                        >
+                          {cat.nombre_categoria}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
                   <Form.Group className="mb-3" controlId="formNombre">
                     <Form.Label>Nombre:</Form.Label>
                     <Form.Control
@@ -352,29 +403,6 @@ const InventarioCreatePage = () => {
                         <i className="bi bi-upc-scan"></i>
                       </Button>
                     </InputGroup>
-                  </Form.Group>
-
-                  <Form.Group className="mb-3" controlId="formCategoria">
-                    <Form.Label className="filter-label mb-1">
-                      Categoría
-                    </Form.Label>
-                    <Form.Select
-                      name="id_categoria"
-                      onChange={handleChange}
-                      required
-                      value={formData.id_categoria}
-                      disabled={categorias.length === 0}
-                      className="form-control-focus"
-                    >
-                      {categorias.map((cat) => (
-                        <option
-                          key={cat.PK_id_categoria}
-                          value={cat.PK_id_categoria}
-                        >
-                          {cat.nombre_categoria}
-                        </option>
-                      ))}
-                    </Form.Select>
                   </Form.Group>
 
                   <Row>
@@ -430,6 +458,18 @@ const InventarioCreatePage = () => {
                       className="form-control-focus"
                     />
                   </Form.Group>
+                </fieldset>
+
+                {/* --- SECCIÓN 3: UBICACIÓN FÍSICA (NUEVO) --- */}
+                <fieldset className="border p-3 rounded">
+                  <legend className="fs-5 fw-semibold text-success">
+                    3. Ubicación Física (Referencial)
+                  </legend>
+                  {/* Aquí se integra el componente LocationPicker */}
+                  <LocationPicker
+                    onImageSelect={setImagenFile}
+                    onLocationSelect={setCoordenadas}
+                  />
                 </fieldset>
 
                 <div className="d-grid mt-4">
