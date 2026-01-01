@@ -1,61 +1,88 @@
-
-// frontend/src/pages/UsuarioListPage.jsx
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import usuarioService from '../services/usuario.service';
-import { useNotification } from '../context/NotificationContext'; // <-- 1. Importar Notificaciones
-
-// 2. Importar los componentes de Bootstrap necesarios
-import { Container, Row, Col, Card, Button, Alert, Spinner, Table } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import usuarioService from "../services/usuario.service";
+import { useNotification } from "../context/NotificationContext";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Alert,
+  Spinner,
+  Table,
+} from "react-bootstrap";
 
 const UsuarioListPage = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { showNotification } = useNotification(); // <-- 3. Usar el hook de notificación
+  const { showNotification } = useNotification(); // Usar el hook de notificación
 
   useEffect(() => {
     setLoading(true);
-    usuarioService.getAllUsuarios()
-      .then(data => setUsuarios(data))
+    usuarioService
+      .getAllUsuarios()
+      .then((data) => setUsuarios(data))
       .catch((err) => {
-        // 4. Usar notificación global para errores
-        showNotification(err.message || 'Error al cargar usuarios', 'error');
+        // Usar notificación global para errores
+        showNotification(err.message || "Error al cargar usuarios", "error");
       })
       .finally(() => setLoading(false));
   }, [showNotification]); // Añadir showNotification a las dependencias
-  
 
   return (
-    <Container fluid className={`bg-light min-vh-100 py-4`}>
-          <Row className="justify-content-center">
-            <Col xs={12} md={10} lg={8} xl={6}>         
-              <Button variant="outline-primary" size="sm" as={Link} to="/dashboard" className="mb-3">
+    <Container fluid className={`bg-light py-4 min-vh-100 form-container`}>
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8} xl={6}>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            as={Link}
+            to="/dashboard"
+            className="mb-3"
+          >
             <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-              </Button>
-    
-              <Card className="shadow-sm border-0">
-                <Card.Header as="h2" className="text-center fw-bold bg-primary form-header">
-                  Gestión de Usuarios
-                </Card.Header>
-                
+          </Button>
+
+          <Card className="shadow-lg border-20 pb-2 bg-white">
+            {" "}
+            <Card.Header
+              as="h2"
+              className="text-center fw-bold bg-primary form-header"
+            >
+              Gestión de Usuarios
+            </Card.Header>
             <Card.Body className="p-1 p-md-1">
               <br />
-              <Button variant="primary" size="md" as={Link} to="/usuarios/nuevo" className="mb-4 bg-primary px-3">
+              <Button
+                variant="primary"
+                size="md"
+                as={Link}
+                to="/usuarios/nuevo"
+                className="mb-4 bg-primary px-3"
+              >
                 <i className="bi bi-plus-circle me-2"></i> Crear Usuario
               </Button>
               {loading ? (
-                 <div className="text-center p-5">
-                    <Spinner animation="border" role="status" variant="primary">
-                      <span className="visually-hidden">Cargando...</span>
-                    </Spinner>
-                 </div>
+                <div className="text-center p-5">
+                  <Spinner animation="border" role="status" variant="primary">
+                    <span className="visually-hidden">Cargando...</span>
+                  </Spinner>
+                </div>
               ) : (
-                // 5. USAR EL COMPONENTE <Table> CON LA PROP 'responsive="md"'
-                <Table striped bordered hover responsive="md" size="sm" className="usuario-table align-middle mb-0">
-                  <thead className="table-primary">
+                // USAR EL COMPONENTE <Table> CON LA PROP 'responsive="md"'
+                <Table
+                  striped
+                  bordered
+                  hover
+                  responsive="md"
+                  size="sm"
+                  className="usuario-table align-middle mb-0"
+                >
+                  <thead className="table-primary text-center">
                     <tr>
                       <th>Nombre</th>
-                      {/* 6. Ocultar RUT en celulares (pantallas 'sm') */}
+                      {/*Ocultar RUT en celulares (pantallas 'sm') */}
                       <th className="d-none d-md-table-cell">RUT</th>
                       <th>Rol</th>
                       <th>Estado</th>
@@ -64,23 +91,30 @@ const UsuarioListPage = () => {
                   </thead>
                   <tbody>
                     {usuarios.length > 0 ? (
-                      usuarios.map(user => (
-                        <tr key={user.PK_id_usuario} className={!user.activo ? 'table-danger' : ''}>
+                      usuarios.map((user) => (
+                        <tr
+                          key={user.PK_id_usuario}
+                          className={!user.activo ? "table-danger" : ""}
+                        >
                           <td>{user.nombre}</td>
                           <td className="d-none d-md-table-cell">{user.rut}</td>
                           <td>{user.nombre_rol}</td>
                           <td>
                             {/* 7. Usar Badges de Bootstrap para el estado */}
-                            <span className={`badge ${user.activo ? 'bg-success' : 'bg-secondary'}`}>
-                              {user.activo ? 'Activo' : 'Deshabilitado'}
+                            <span
+                              className={`badge ${
+                                user.activo ? "bg-success" : "bg-secondary"
+                              }`}
+                            >
+                              {user.activo ? "Activo" : "Deshabilitado"}
                             </span>
                           </td>
                           <td>
-                            {/* 8. Usar Botón de Bootstrap */}
-                            <Button 
-                              as={Link} 
-                              to={`/usuarios/editar/${user.PK_id_usuario}`} 
-                              variant="warning" 
+                            {/* Usar Botón de Bootstrap */}
+                            <Button
+                              as={Link}
+                              to={`/usuarios/editar/${user.PK_id_usuario}`}
+                              variant="warning"
                               size="sm"
                               title="Editar"
                             >
@@ -98,11 +132,11 @@ const UsuarioListPage = () => {
                     )}
                   </tbody>
                 </Table>
-              )}                  
+              )}
             </Card.Body>
           </Card>
-      </Col>
-  </Row>
+        </Col>
+      </Row>
 
       {/* 9. Estilos autocontenidos */}
       <style>{`
@@ -142,7 +176,6 @@ const UsuarioListPage = () => {
             }
         }
       `}</style>
-
     </Container>
   );
 };

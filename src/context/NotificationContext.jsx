@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 // 1. Crear el Contexto
 const NotificationContext = createContext();
@@ -9,7 +8,7 @@ export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(null); // Ej: { message: 'Hola', type: 'success' }
 
   // Función para MOSTRAR la notificación
-  const showNotification = (message, type = 'error') => {
+  const showNotification = (message, type = "error") => {
     setNotification({ message, type });
   };
 
@@ -19,7 +18,9 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ notification, showNotification, hideNotification }}>
+    <NotificationContext.Provider
+      value={{ notification, showNotification, hideNotification }}
+    >
       {children}
     </NotificationContext.Provider>
   );
@@ -29,7 +30,9 @@ export const NotificationProvider = ({ children }) => {
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error('useNotification debe ser usado dentro de un NotificationProvider');
+    throw new Error(
+      "useNotification debe ser usado dentro de un NotificationProvider"
+    );
   }
   return context;
 };
