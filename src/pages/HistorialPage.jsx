@@ -18,7 +18,7 @@ import {
   InputGroup,
 } from "react-bootstrap"; // Importar Pagination
 
-const ITEMS_PER_PAGE = 10; // Número de ítems por página
+const ITEMS_PER_PAGE = 20; // Número de ítems por página
 
 const HistorialPage = () => {
   const [historial, setHistorial] = useState([]);
