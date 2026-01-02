@@ -68,7 +68,7 @@ const LoginPage = () => {
             <div className="mb-4">
               <i className="bi bi-box-seam display-1"></i>
             </div>
-            <h1 className="display-4 fw-bold mb-3">BodeWeb</h1>
+            <h1 className="display-4 fw-bold mb-3">BodegaWeb</h1>
             <p className="lead fs-3 mb-4">
               Gestión inteligente de inventario y trazabilidad en tiempo real
             </p>
