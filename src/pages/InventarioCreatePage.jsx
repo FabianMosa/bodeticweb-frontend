@@ -185,7 +185,7 @@ const InventarioCreatePage = () => {
         dataToSend.append("id_documento_existente", idDocumentoExistente);
       }
 
-      // 3. Agregar Imagen y Coordenadas si existen
+      //  Agregar Imagen y Coordenadas si existen
       if (imagenFile) {
         dataToSend.append("imagen", imagenFile);
       }
@@ -460,7 +460,7 @@ const InventarioCreatePage = () => {
                   </Form.Group>
                 </fieldset>
 
-                {/* --- SECCIÓN 3: UBICACIÓN FÍSICA (NUEVO) --- */}
+                {/* --- SECCIÓN 3: UBICACIÓN FÍSICA --- */}
                 <fieldset className="border p-3 rounded">
                   <legend className="fs-5 fw-semibold text-success">
                     3. Ubicación Física (Referencial)
