@@ -10,31 +10,11 @@ import {
   Card,
   Form,
   Button,
-  Alert,
   Spinner,
   InputGroup,
 } from "react-bootstrap";
 
-// ----------------------------------------------------------------- Estilos ---
-const formStyles = {
-  display: "flex",
-  flexDirection: "column",
-  maxWidth: "500px",
-  margin: "20px auto",
-  padding: "20px",
-  border: "1px solid #ccc",
-  borderRadius: "8px",
-};
-const inputStyles = { marginBottom: "10px", padding: "8px", fontSize: "16px" };
-const buttonStyles = {
-  padding: "10px",
-  fontSize: "16px",
-  backgroundColor: "#28a745",
-  color: "white",
-  border: "none",
-  cursor: "pointer",
-};
-
+// Componente para Cambiar Contraseña (Separado visualmente)
 const ChangePasswordForm = ({ userId }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -73,50 +53,75 @@ const ChangePasswordForm = ({ userId }) => {
   };
 
   return (
-    <Card className="shadow-sm border-0 mt-4">
-      <Card.Header as="h5" className="fw-bold form-header">
-        <i className="bi bi-key-fill me-2"></i> Cambiar Contraseña
+    <Card className="shadow-sm border-0 mt-4 mb-5">
+      <Card.Header className="bg-secondary text-white fw-bold">
+        <i className="bi bi-shield-lock-fill me-2"></i>Seguridad: Cambiar
+        Contraseña
       </Card.Header>
       <Card.Body className="p-4">
-        <Form noValidate onSubmit={handleSubmitPassword}>
-          <Form.Group className="mb-3" controlId="formNewPassword">
-            <Form.Label>Nueva Contraseña:</Form.Label>
-            <InputGroup>
-              <Form.Control
-                type={showPassword ? "text" : "password"}
-                placeholder="Mínimo 6 caracteres"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="form-control-focus"
-              />
-              <Button
-                variant="outline-secondary"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                <i
-                  className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
-                ></i>
-              </Button>
-            </InputGroup>
-          </Form.Group>
+        <Form onSubmit={handleSubmitPassword}>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="formNewPassword">
+                <Form.Label>Nueva Contraseña</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <Button
+                    variant="outline-secondary"
+                    onClick={() => setShowPassword(!showPassword)}
+                    title={showPassword ? "Ocultar" : "Mostrar"}
+                  >
+                    <i
+                      className={`bi ${
+                        showPassword ? "bi-eye-slash" : "bi-eye"
+                      }`}
+                    ></i>
+                  </Button>
+                </InputGroup>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3" controlId="formConfirmPassword">
+                <Form.Label>Confirmar Contraseña</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Repita la nueva contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-          <Form.Group className="mb-3" controlId="formConfirmPassword">
-            <Form.Label>Confirmar Contraseña:</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Repita la contraseña"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="form-control-focus"
-            />
-          </Form.Group>
-
-          <div className="d-grid">
-            <Button variant="warning" type="submit" disabled={loading}>
+          <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+            <Button
+              variant="warning"
+              type="submit"
+              disabled={loading}
+              className="text-dark fw-bold"
+            >
               {loading ? (
-                <Spinner as="span" size="sm" animation="border" />
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Actualizando...
+                </>
               ) : (
-                "Actualizar Contraseña"
+                <>
+                  <i className="bi bi-check-circle-fill me-2"></i>Actualizar
+                  Contraseña
+                </>
               )}
             </Button>
           </div>
@@ -148,13 +153,13 @@ const UsuarioEditPage = () => {
         setRoles(rolesData);
       } catch (err) {
         showNotification(err.message || "Error al cargar datos", "error");
-        navigate("/usuarios"); // Volver a la lista si hay error
+        navigate("/usuarios");
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [id, navigate, showNotification]); //
+  }, [id, navigate, showNotification]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -166,9 +171,8 @@ const UsuarioEditPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
 
-    // Preparamos los datos (sin password)
     const dataToUpdate = {
       nombre: formData.nombre,
       rut: formData.rut,
@@ -183,7 +187,7 @@ const UsuarioEditPage = () => {
     } catch (err) {
       showNotification(err.message || "Error al actualizar", "error");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -193,105 +197,168 @@ const UsuarioEditPage = () => {
         fluid
         className="d-flex min-vh-100 justify-content-center align-items-center bg-light"
       >
-        <Spinner animation="border" variant="primary" />
+        <div className="text-center">
+          <Spinner
+            animation="border"
+            variant="primary"
+            style={{ width: "3rem", height: "3rem" }}
+          />
+          <p className="mt-3 text-muted">Cargando información del usuario...</p>
+        </div>
       </Container>
     );
 
   return (
-    <Container fluid className={`bg-light min-vh-100 py-4`}>
+    <Container fluid className="bg-light min-vh-100 py-4">
       <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8} xl={6}>
-          <Button
-            variant="outline-primary"
-            size="sm"
-            as={Link}
-            to="/usuarios"
-            className="mb-3"
-          >
-            <i className="bi bi-arrow-left me-1"></i> Volver a Usuarios
-          </Button>
+        <Col xs={12} lg={10} xl={8}>
+          {/* Botón Volver */}
+          <div className="d-flex align-items-center mb-4">
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              as={Link}
+              to="/usuarios"
+              className="me-3"
+            >
+              <i className="bi bi-arrow-left"></i>
+            </Button>
+            <h4 className="mb-0 text-dark fw-bold">Gestión de Cuentas</h4>
+          </div>
 
-          <Card className="shadow-sm border-0">
-            <Card.Header as="h2" className="text-center fw-bold form-header">
-              Editar Usuario
+          {/* Tarjeta Principal: Datos del Usuario */}
+          <Card className="shadow-sm border-0 mb-4">
+            <Card.Header className="bg-primary text-white fw-bold py-3">
+              <i className="bi bi-person-gear me-2"></i>Editar Información
             </Card.Header>
             <Card.Body className="p-4 p-md-5">
-              <Form onSubmit={handleSubmit} style={formStyles}>
-                <label>Nombre:</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleChange}
-                  style={inputStyles}
-                  required
-                />
+              <Form onSubmit={handleSubmit}>
+                <Row className="gy-3">
+                  {/* Nombre */}
+                  <Col md={6}>
+                    <Form.Group controlId="formNombre">
+                      <Form.Label className="fw-semibold">
+                        Nombre Completo
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="nombre"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        required
+                        placeholder="Ej: Juan Pérez"
+                        className="form-control-lg"
+                      />
+                    </Form.Group>
+                  </Col>
 
-                <label>RUT:</label>
-                <input
-                  type="text"
-                  name="rut"
-                  value={formData.rut}
-                  onChange={handleChange}
-                  style={inputStyles}
-                  required
-                />
+                  {/* RUT */}
+                  <Col md={6}>
+                    <Form.Group controlId="formRut">
+                      <Form.Label className="fw-semibold">
+                        RUT (Login)
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="rut"
+                        value={formData.rut}
+                        onChange={handleChange}
+                        required
+                        placeholder="Ej: 12345678-9"
+                        className="form-control-lg"
+                      />
+                    </Form.Group>
+                  </Col>
 
-                <label>Rol:</label>
-                <select
-                  name="FK_id_rol"
-                  value={formData.FK_id_rol}
-                  onChange={handleChange}
-                  style={inputStyles}
-                  required
-                >
-                  {roles.map((rol) => (
-                    <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
-                      {rol.nombre_rol}
-                    </option>
-                  ))}
-                </select>
+                  {/* Rol */}
+                  <Col md={6}>
+                    <Form.Group controlId="formRol">
+                      <Form.Label className="fw-semibold">
+                        Rol de Acceso
+                      </Form.Label>
+                      <Form.Select
+                        name="FK_id_rol"
+                        value={formData.FK_id_rol}
+                        onChange={handleChange}
+                        required
+                        className="form-select-lg"
+                      >
+                        <option value="" disabled>
+                          Seleccione un rol
+                        </option>
+                        {roles.map((rol) => (
+                          <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
+                            {rol.nombre_rol}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
 
-                <label>
-                  <input
-                    type="checkbox"
-                    name="activo"
-                    checked={formData.activo}
-                    onChange={handleChange}
-                  />
-                  Activo (Deshabilitar usuario si se desmarca)
-                </label>
+                  {/* Estado (Switch Moderno) */}
+                  <Col md={6} className="d-flex align-items-center">
+                    <Form.Group
+                      controlId="formActivo"
+                      className="mt-4 p-2 border rounded w-100 bg-light"
+                    >
+                      <Form.Check
+                        type="switch"
+                        id="custom-switch"
+                        name="activo"
+                        label={
+                          formData.activo
+                            ? "Usuario Activo (Habilitado)"
+                            : "Usuario Inactivo (Deshabilitado)"
+                        }
+                        checked={!!formData.activo}
+                        onChange={handleChange}
+                        className={
+                          formData.activo
+                            ? "text-success fw-bold"
+                            : "text-danger fw-bold"
+                        }
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  style={buttonStyles}
-                >
-                  {submitting ? "Actualizando..." : "Actualizar Usuario"}
-                </Button>
+                <hr className="my-4" />
+
+                <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <Button
+                    variant="success"
+                    type="submit"
+                    disabled={submitting}
+                    size="lg"
+                    className="px-5 shadow-sm"
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-save me-2"></i>Guardar Cambios
+                      </>
+                    )}
+                  </Button>
+                </div>
               </Form>
             </Card.Body>
           </Card>
-          {/* Formulario de Contraseña */}
+
+          {/* Tarjeta Secundaria: Cambiar Contraseña */}
           <ChangePasswordForm userId={id} />
         </Col>
       </Row>
-
-      {/* --- Estilos CSS --- */}
-      <style>{`
-                     .form-container {
-                       background-color: #f8f9fa;
-                     }
-                     .form-header {
-                       background-color: #1279e0ff;
-                       color: white;
-                       padding: 1rem;
-                     }
-                     .form-control-focus:focus {
-                       border-color: var(--bs-info);
-                       box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
-                     }
-                   `}</style>
     </Container>
   );
 };
