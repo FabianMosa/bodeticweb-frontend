@@ -13,45 +13,20 @@ import {
   Card,
   ListGroup,
   Spinner,
-  Alert,
+  Badge,
 } from "react-bootstrap";
 
-// --- ESTILOS DE LOS WIDGETS ---
-const widgetContainerStyles = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: "20px",
-  marginTop: "20px",
-};
-const widgetStyles = {
-  flex: "1",
-  minWidth: "300px",
-  backgroundColor: "#f9f9f9",
-  border: "1px solid #ddd",
-  borderRadius: "8px",
-  padding: "15px",
-};
-const listStyles = { listStyleType: "none", paddingLeft: 0 };
-const alertItemStyles = { padding: "5px 0", borderBottom: "1px solid #eee" };
-
-// --- El Componente ---
 const DashboardPage = () => {
   const navigate = useNavigate();
-
-  // ---OBTENER LA UBICACIÓN ---
   const location = useLocation();
 
-  // --- AÑADIR ESTADO PARA EL ROL ---
   const [usuarioRol, setUsuarioRol] = useState(null);
   const [nombreUsuario, setNombreUsuario] = useState("Usuario");
-
-  // --- ESTADOS PARA LOS WIDGETS ---
   const [alertas, setAlertas] = useState(null);
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Obtenemos el rol y nombre del usuario desde el localStorage
     const usuarioInfo = JSON.parse(localStorage.getItem("usuario"));
     let rol = null;
     if (usuarioInfo) {
@@ -60,27 +35,22 @@ const DashboardPage = () => {
       rol = usuarioInfo.usuario.rol;
     }
 
-    // FUNCIÓN PARA CARGAR DATOS ---
     const loadDashboardData = async () => {
       setLoading(true);
       try {
-        // Creamos un array de promesas
         const promesas = [movimientoService.getPrestamosActivos()];
 
-        // Solo pedimos las alertas si es Admin (Rol 1)
         if (rol === 1) {
           promesas.push(dashboardService.getAlertas());
         }
 
         const [prestamosData, alertasData] = await Promise.all(promesas);
 
-        // Solo actualiza el estado si los datos son válidos
         if (Array.isArray(prestamosData)) {
           setPrestamos(prestamosData);
         }
 
         if (alertasData) {
-          // Esta comprobación ya era correcta
           setAlertas(alertasData);
         }
       } catch (error) {
@@ -89,49 +59,46 @@ const DashboardPage = () => {
         setLoading(false);
       }
     };
-    // Se ejecuta solo una vez al cargar la página
     loadDashboardData();
-    // Esto fuerza al useEffect a ejecutarse de nuevo CADA VEZ
-    // que navegas a esta página (el Dashboard).
   }, [location]);
 
   const handleLogout = () => {
-    authService.logout(); // Llama al servicio para borrar el token
-    navigate("/"); // Redirige al login
+    authService.logout();
+    navigate("/");
   };
 
   return (
-    <Container className="min-vh-100">
-      {/* ----------------------------------------------------------------- Navbar Superior --- */}
-      <Navbar
-        bg="primary"
-        variant="primary"
-        expand="md"
-        className="mb-4 shadow-sm main-navbar"
-      >
+    <div className="dashboard-wrapper bg-light min-vh-100">
+      {/* --- Navbar Moderna --- */}
+      <Navbar expand="lg" className="navbar-custom shadow-sm mb-5">
         <Container>
           <Navbar.Brand
             as={Link}
             to="/dashboard"
-            className="align-items-center"
+            className="d-flex align-items-center gap-2"
           >
-            <Card.Header
-              as="h2"
-              className="text-center fw-bold form-header text-white mb-0"
-            >
-              BodeTICWeb
-            </Card.Header>
+            <div className="brand-icon">
+              <i className="bi bi-box-seam-fill"></i>
+            </div>
+            <span className="fw-bold text-dark fs-4">BodeTICWeb</span>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse
             id="basic-navbar-nav"
             className="justify-content-end"
           >
-            <Nav className="align-items-center">
-              <Navbar.Text className="me-3 text-white">
-                Usuario: <strong className="user-name">{nombreUsuario}</strong>
-              </Navbar.Text>
-              <Button variant="danger" size="sm" onClick={handleLogout}>
+            <Nav className="align-items-center gap-3">
+              <div className="user-info d-none d-lg-block text-end">
+                <small className="text-muted d-block">Bienvenido,</small>
+                <span className="fw-bold text-dark">{nombreUsuario}</span>
+              </div>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={handleLogout}
+                className="btn-logout"
+              >
+                <i className="bi bi-box-arrow-right me-2"></i>
                 Cerrar Sesión
               </Button>
             </Nav>
@@ -139,150 +106,316 @@ const DashboardPage = () => {
         </Container>
       </Navbar>
 
-      <Row xs={1} md={2} lg={3} className="g-4 mb-5">
-        {/* Tarjeta Inventario (Todos) */}
-        <Col>
-          <Card className="bg-light h-100 shadow-sm module-card">
-            <Card.Body className="d-flex flex-column align-items-center text-center">
-              <i className="bi bi-box-seam-fill display-4 text-primary mb-3"></i>
-              <Card.Title>Bodega Inventario</Card.Title>
-              <Button
-                variant="primary"
-                as={Link}
-                to="/inventario"
-                className="mt-auto"
-              >
-                Acceder
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-        {usuarioRol === 1 && (
-          <>
-            <Col>
-              <Card className="bg-light h-100 shadow-sm module-card">
-                <Card.Body className="d-flex flex-column align-items-center text-center">
-                  <i className="bi bi-arrow-return-left display-4 text-primary mb-3"></i>
-                  <Card.Title>Registrar Devolución</Card.Title>
-                  <Button
-                    variant="primary"
-                    as={Link}
-                    to="/devoluciones"
-                    className="mt-auto"
-                  >
-                    Acceder
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col>
-              <Card className="bg-light h-100 shadow-sm module-card">
-                <Card.Body className="d-flex flex-column align-items-center text-center">
-                  <i className="bi bi-people-fill display-4 text-primary mb-3"></i>
-                  <Card.Title>Gestionar Usuarios</Card.Title>
-                  <Button
-                    variant="primary"
-                    as={Link}
-                    to="/usuarios"
-                    className="mt-auto"
-                  >
-                    Acceder
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col>
-              <Card className="bg-light h-100 shadow-sm module-card">
-                <Card.Body className="d-flex flex-column align-items-center text-center">
-                  <i className="bi bi-file-earmark-text-fill display-4 text-primary mb-3"></i>
-                  <Card.Title>Historial y Reportes</Card.Title>
-                  <Button
-                    variant="primary"
-                    as={Link}
-                    to="/historial"
-                    className="mt-auto"
-                  >
-                    Acceder
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          </>
-        )}
-      </Row>
+      <Container className="pb-5">
+        {/* --- Sección de Bienvenida / Header --- */}
+        <Row className="mb-4">
+          <Col>
+            <h4 className="text-secondary fw-light mb-1">Panel de Control</h4>
+            <h2 className="fw-bold text-dark">Resumen General</h2>
+          </Col>
+        </Row>
 
-      {/* -------------------------------WIDGETS DE DATOS (ALERTAS Y PRÉSTAMOS) --- */}
-      <Container style={widgetContainerStyles}>
-        {/* Widget de Préstamos - Visible para Todos */}
-        <Card style={widgetStyles}>
-          <h3>Préstamos Pendientes</h3>
-          {loading ? (
-            <p>Cargando...</p>
-          ) : prestamos.length > 0 ? (
-            <ul style={listStyles}>
-              {prestamos.map((p) => (
-                <li
-                  key={`${p.FK_id_insumo}-${p.FK_id_usuario}`}
-                  style={alertItemStyles}
+        {/* --- Tarjetas de Módulos (Accesos Rápidos) --- */}
+        <Row xs={1} md={2} lg={4} className="g-4 mb-5">
+          {/* Módulo: Inventario */}
+          <Col>
+            <Card className="h-100 border-0 shadow-hover card-module">
+              <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+                <div className="icon-circle bg-primary-subtle text-primary mb-3">
+                  <i className="bi bi-box-seam-fill fs-3"></i>
+                </div>
+                <Card.Title className="fw-bold mb-2">Inventario</Card.Title>
+                <Card.Text className="text-muted small mb-4">
+                  Consulta, gestiona stock y registra movimientos.
+                </Card.Text>
+                <Button
+                  variant="primary"
+                  as={Link}
+                  to="/inventario"
+                  className="mt-auto w-100 rounded-pill"
                 >
-                  <strong>{p.cantidad_pendiente}x</strong> {p.nombre_insumo}
-                  {/* Si es Admin, mostramos quién lo tiene */}
-                  {usuarioRol === 1 && ` (Téc: ${p.nombre_usuario})`}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No tienes préstamos pendientes.</p>
+                  Acceder
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          {usuarioRol === 1 && (
+            <>
+              {/* Módulo: Devoluciones */}
+              <Col>
+                <Card className="h-100 border-0 shadow-hover card-module">
+                  <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+                    <div className="icon-circle bg-info-subtle text-info mb-3">
+                      <i className="bi bi-arrow-return-left fs-3"></i>
+                    </div>
+                    <Card.Title className="fw-bold mb-2">
+                      Devoluciones
+                    </Card.Title>
+                    <Card.Text className="text-muted small mb-4">
+                      Reingresa insumos prestados a la bodega.
+                    </Card.Text>
+                    <Button
+                      variant="info"
+                      as={Link}
+                      to="/devoluciones"
+                      className="mt-auto w-100 rounded-pill text-white"
+                    >
+                      Acceder
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              {/* Módulo: Usuarios */}
+              <Col>
+                <Card className="h-100 border-0 shadow-hover card-module">
+                  <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+                    <div className="icon-circle bg-success-subtle text-success mb-3">
+                      <i className="bi bi-people-fill fs-3"></i>
+                    </div>
+                    <Card.Title className="fw-bold mb-2">Usuarios</Card.Title>
+                    <Card.Text className="text-muted small mb-4">
+                      Administra roles y permisos del personal.
+                    </Card.Text>
+                    <Button
+                      variant="success"
+                      as={Link}
+                      to="/usuarios"
+                      className="mt-auto w-100 rounded-pill"
+                    >
+                      Acceder
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              {/* Módulo: Reportes */}
+              <Col>
+                <Card className="h-100 border-0 shadow-hover card-module">
+                  <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+                    <div className="icon-circle bg-secondary-subtle text-secondary mb-3">
+                      <i className="bi bi-file-earmark-text-fill fs-3"></i>
+                    </div>
+                    <Card.Title className="fw-bold mb-2">Reportes</Card.Title>
+                    <Card.Text className="text-muted small mb-4">
+                      Historial completo y exportación a Excel.
+                    </Card.Text>
+                    <Button
+                      variant="secondary"
+                      as={Link}
+                      to="/historial"
+                      className="mt-auto w-100 rounded-pill"
+                    >
+                      Acceder
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </>
           )}
-        </Card>
-        {/* Widget de Alertas - Visible solo para Admin */}
-        {usuarioRol === 1 && alertas && (
-          <>
-            <Card style={widgetStyles}>
-              <h3 style={{ color: "#dc3545" }}>Alerta de Stock</h3>
-              {loading ? (
-                <p>Cargando...</p>
-              ) : alertas.stockBajo.length > 0 ? (
-                <ul style={listStyles}>
-                  {alertas.stockBajo.map((a) => (
-                    <li key={a.PK_id_insumo} style={alertItemStyles}>
-                      <strong>{a.nombre}</strong> (SKU: {a.sku})
-                      <br />
-                      <span style={{ color: "#dc3545" }}>
-                        Quedan: {a.stock_actual} (Mín: {a.stock_minimo})
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No hay alertas de stock bajo.</p>
-              )}
+        </Row>
+
+        {/* --- Widgets de Información (Dashboard Real) --- */}
+        <Row className="g-4">
+          {/* Widget: Préstamos Pendientes */}
+          <Col lg={usuarioRol === 1 ? 4 : 12}>
+            <Card className="border-0 shadow-sm h-100 widget-card">
+              <Card.Header className="bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 className="fw-bold mb-0 text-dark">
+                  <i className="bi bi-clock-history me-2 text-primary"></i>
+                  Préstamos
+                </h5>
+                <Badge bg="primary" pill>
+                  {prestamos.length}
+                </Badge>
+              </Card.Header>
+              <Card.Body className="px-4 pb-4">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <Spinner animation="border" variant="primary" size="sm" />
+                  </div>
+                ) : prestamos.length > 0 ? (
+                  <ListGroup variant="flush">
+                    {prestamos.slice(0, 5).map((p) => (
+                      <ListGroup.Item
+                        key={`${p.FK_id_insumo}-${p.FK_id_usuario}`}
+                        className="px-0 py-3 border-bottom-light"
+                      >
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <div className="fw-semibold text-dark">
+                              {p.nombre_insumo}
+                            </div>
+                            {usuarioRol === 1 && (
+                              <small className="text-muted">
+                                Téc: {p.nombre_usuario}
+                              </small>
+                            )}
+                          </div>
+                          <Badge bg="light" text="dark" className="border">
+                            x{p.cantidad_pendiente}
+                          </Badge>
+                        </div>
+                      </ListGroup.Item>
+                    ))}
+                    {prestamos.length > 5 && (
+                      <div className="text-center mt-2 small text-muted">
+                        Ver más en Reportes...
+                      </div>
+                    )}
+                  </ListGroup>
+                ) : (
+                  <div className="text-center py-5 text-muted">
+                    <i className="bi bi-check-circle fs-1 mb-2 d-block text-success opacity-50"></i>
+                    No hay préstamos pendientes
+                  </div>
+                )}
+              </Card.Body>
             </Card>
-            <Card style={widgetStyles}>
-              <h3 style={{ color: "#ffc107" }}>Alerta de Vencimiento</h3>
-              {loading ? (
-                <p>Cargando...</p>
-              ) : alertas.porVencer.length > 0 ? (
-                <ul style={listStyles}>
-                  {alertas.porVencer.map((a) => (
-                    <li key={a.PK_id_insumo} style={alertItemStyles}>
-                      <strong>{a.nombre}</strong> (SKU: {a.sku})
-                      <br />
-                      <span>
-                        Vence:{" "}
-                        {new Date(a.fecha_vencimiento).toLocaleDateString()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No hay insumos próximos a vencer.</p>
-              )}
-            </Card>
-          </>
-        )}
+          </Col>
+
+          {/* Widgets de Alertas (Solo Admin) */}
+          {usuarioRol === 1 && alertas && (
+            <Col lg={8}>
+              <Row className="g-4 h-100">
+                {/* Alerta Stock */}
+                <Col md={6}>
+                  <Card className="border-0 shadow-sm h-100 widget-card border-start-danger">
+                    <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
+                      <h5 className="fw-bold mb-0 text-danger">
+                        <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                        Stock Crítico
+                      </h5>
+                    </Card.Header>
+                    <Card.Body className="px-4 pb-4">
+                      {loading ? (
+                        <Spinner animation="border" size="sm" />
+                      ) : alertas.stockBajo.length > 0 ? (
+                        <div className="alert-list">
+                          {alertas.stockBajo.slice(0, 4).map((a) => (
+                            <div
+                              key={a.PK_id_insumo}
+                              className="d-flex justify-content-between align-items-center mb-3 p-2 rounded bg-danger-subtle"
+                            >
+                              <span className="fw-medium text-danger-emphasis">
+                                {a.nombre}
+                              </span>
+                              <Badge bg="danger">Stock: {a.stock_actual}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted">
+                          Todo el inventario está saludable.
+                        </p>
+                      )}
+                    </Card.Body>
+                  </Card>
+                </Col>
+
+                {/* Alerta Vencimiento */}
+                <Col md={6}>
+                  <Card className="border-0 shadow-sm h-100 widget-card border-start-warning">
+                    <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
+                      <h5 className="fw-bold mb-0 text-warning">
+                        <i className="bi bi-calendar-event-fill me-2"></i>
+                        Por Vencer
+                      </h5>
+                    </Card.Header>
+                    <Card.Body className="px-4 pb-4">
+                      {loading ? (
+                        <Spinner animation="border" size="sm" />
+                      ) : alertas.porVencer.length > 0 ? (
+                        <div className="alert-list">
+                          {alertas.porVencer.slice(0, 4).map((a) => (
+                            <div
+                              key={a.PK_id_insumo}
+                              className="d-flex justify-content-between align-items-center mb-3 p-2 rounded bg-warning-subtle"
+                            >
+                              <span className="fw-medium text-warning-emphasis">
+                                {a.nombre}
+                              </span>
+                              <small className="text-muted">
+                                {new Date(
+                                  a.fecha_vencimiento
+                                ).toLocaleDateString()}
+                              </small>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted">
+                          No hay insumos próximos a vencer.
+                        </p>
+                      )}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Col>
+          )}
+        </Row>
       </Container>
-    </Container>
+
+      <style>{`
+        /* --- ESTILOS MODERNOS --- */
+        .dashboard-wrapper {
+            background-color: #f3f6f9; /* Gris muy suave, profesional */
+        }
+        
+        .navbar-custom {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .brand-icon {
+            color: #0d6efd;
+            font-size: 1.5rem;
+        }
+
+        /* Tarjetas de Módulos con Efecto Hover */
+        .shadow-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .shadow-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+        }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Widgets Laterales */
+        .widget-card {
+            border-radius: 12px;
+        }
+        
+        .border-start-danger {
+            border-left: 4px solid #dc3545 !important;
+        }
+        
+        .border-start-warning {
+            border-left: 4px solid #ffc107 !important;
+        }
+
+        .border-bottom-light {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .btn-logout {
+            border-radius: 20px;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+      `}</style>
+    </div>
   );
 };
 

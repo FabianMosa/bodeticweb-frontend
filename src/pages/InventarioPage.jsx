@@ -18,7 +18,7 @@ import {
   InputGroup,
 } from "react-bootstrap";
 
-const ITEMS_PER_PAGE = 9; // ¡Debe coincidir con el 'limit' del backend!
+const ITEMS_PER_PAGE = 20; // ¡Debe coincidir con el 'limit' del backend!
 
 const InventarioPage = () => {
   const [insumos, setInsumos] = useState([]); // Almacena los insumos de la PÁGINA ACTUAL
