@@ -32,7 +32,7 @@ const InventarioCreatePage = () => {
     fecha_emision: new Date().toISOString().split("T")[0],
   });
 
-  // --- Estados de Archivos y Coordenadas (NUEVO) ---
+  // --- Estados de Archivos y Coordenadas ---
   const [imagenFile, setImagenFile] = useState(null);
   const [coordenadas, setCoordenadas] = useState(null);
 
@@ -165,6 +165,7 @@ const InventarioCreatePage = () => {
 
       // Agregar campos de texto
       Object.keys(formData).forEach((key) => {
+        // Enviar null si fecha_vencimiento está vacía
         if (key === "fecha_vencimiento" && !formData[key]) return;
         formDataToSend.append(key, formData[key]);
       });
@@ -213,20 +214,25 @@ const InventarioCreatePage = () => {
       <Row className="justify-content-center">
         <Col xs={12} lg={10} xl={8}>
           {/* Header y Botón Volver */}
-          <Button
-            variant="outline-primary"
-            size="sm"
-            as={Link}
-            to="/dashboard"
-            className="mb-3"
-          >
-            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-          </Button>
+          <div className="d-flex align-items-center mb-4">
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              as={Link}
+              to="/inventario"
+              className="me-3"
+            >
+              <i className="bi bi-arrow-left"></i>
+            </Button>
+            <h2 className="h4 mb-0 text-dark fw-bold">
+              Nuevo Ingreso de Material
+            </h2>
+          </div>
 
           <Form onSubmit={handleSubmit}>
             {/* --- SECCIÓN 1: DATOS DE ORIGEN (DOCUMENTO) --- */}
-            <Card className="shadow-sm mb-4 border-0">
-              <Card.Header className="bg-white border-bottom-0 pt-4 pb-0">
+            <Card className="shadow-sm mb-4 border-0 rounded-3">
+              <Card.Header className="bg-white border-bottom pt-4 pb-2">
                 <h5 className="text-primary fw-bold mb-0">
                   <i className="bi bi-file-earmark-text me-2"></i>1. Origen del
                   Insumo
@@ -254,7 +260,9 @@ const InventarioCreatePage = () => {
                         <Button
                           variant={docReadOnly ? "outline-danger" : "primary"}
                           onClick={
-                            docReadOnly ? resetDocumento : handleBuscarDocumento
+                            docReadOnly
+                              ? () => resetDocumento(false)
+                              : handleBuscarDocumento
                           }
                           disabled={docLoading}
                           title={
@@ -290,6 +298,7 @@ const InventarioCreatePage = () => {
                         required
                         value={formData.id_proveedor}
                         disabled={docReadOnly || proveedores.length === 0}
+                        className="form-select"
                       >
                         {proveedores.map((prov) => (
                           <option
@@ -323,8 +332,8 @@ const InventarioCreatePage = () => {
             </Card>
 
             {/* --- SECCIÓN 2: DATOS DEL INSUMO --- */}
-            <Card className="shadow-sm mb-4 border-0">
-              <Card.Header className="bg-white border-bottom-0 pt-4 pb-0">
+            <Card className="shadow-sm mb-4 border-0 rounded-3">
+              <Card.Header className="bg-white border-bottom pt-4 pb-2">
                 <h5 className="text-success fw-bold mb-0">
                   <i className="bi bi-box-seam me-2"></i>2. Detalle del Insumo
                 </h5>
@@ -460,15 +469,14 @@ const InventarioCreatePage = () => {
               </Card.Body>
             </Card>
 
-            {/* --- SECCIÓN 3: UBICACIÓN VISUAL (NUEVO) --- */}
-            <Card className="shadow-sm mb-4 border-0">
-              <Card.Header className="bg-white border-bottom-0 pt-4 pb-0">
+            {/* --- SECCIÓN 3: UBICACIÓN VISUAL --- */}
+            <Card className="shadow-sm mb-4 border-0 rounded-3">
+              <Card.Header className="bg-white border-bottom pt-4 pb-2">
                 <h5 className="text-info fw-bold mb-0">
                   <i className="bi bi-geo-alt-fill me-2"></i>3. Ubicación Física
                 </h5>
               </Card.Header>
               <Card.Body>
-                {/* Aquí integramos el LocationPicker */}
                 <LocationPicker
                   onImageSelect={setImagenFile}
                   onLocationSelect={setCoordenadas}
@@ -483,7 +491,7 @@ const InventarioCreatePage = () => {
                 type="submit"
                 disabled={submitting || docLoading}
                 size="lg"
-                className="shadow"
+                className="shadow-sm py-3 fw-bold"
               >
                 {submitting ? (
                   <>

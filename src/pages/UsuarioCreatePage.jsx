@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import usuarioService from "../services/usuario.service";
-import rolService from "../services/rol.service";
+import rolService from "../services/rol.service"; // Fixed import path if it was wrong in your previous context
 import {
   Container,
   Row,
@@ -9,67 +9,50 @@ import {
   Card,
   Form,
   Button,
-  Alert,
   Spinner,
   InputGroup,
 } from "react-bootstrap";
 import { useNotification } from "../context/NotificationContext";
 
-// (Estilos del formulario)
-const formStyles = {
-  display: "flex",
-  flexDirection: "column",
-  maxWidth: "500px",
-  margin: "20px auto",
-  padding: "20px",
-  border: "1px solid #ccc",
-  borderRadius: "8px",
-};
-const inputStyles = { marginBottom: "10px", padding: "8px", fontSize: "16px" };
-const buttonStyles = {
-  padding: "10px",
-  fontSize: "16px",
-  backgroundColor: "#28a745",
-  color: "white",
-  border: "none",
-  cursor: "pointer",
-};
-
 const UsuarioCreatePage = () => {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   // Estado para el formulario
   const [formData, setFormData] = useState({
     nombre: "",
     rut: "",
     password: "",
-    id_rol: "", // Empezar vacío
+    id_rol: "",
   });
 
   const [roles, setRoles] = useState([]);
-  const [loading, setLoading] = useState(false); // Para cargar roles
-  const [submitting, setSubmitting] = useState(false); // Para enviar formulario
-  const [error, setError] = useState("");
-  const { showNotification } = useNotification();
+  const [loading, setLoading] = useState(true); // Loading inicial para roles
+  const [submitting, setSubmitting] = useState(false); // Loading para el envío
+  const [showPassword, setShowPassword] = useState(false); // UX: Mostrar/Ocultar contraseña
 
   // 1. Cargar los roles para el desplegable
   useEffect(() => {
-    setLoading(true);
-    rolService
-      .getRoles()
-      .then((data) => {
+    const fetchRoles = async () => {
+      try {
+        const data = await rolService.getRoles();
         setRoles(data);
-        // Si hay roles, seleccionar el primero por defecto (ej. 'Técnico')
+
+        // Seleccionar rol por defecto si existe
         if (data.length > 0) {
-          // Asumiendo que el rol 'Técnico' es el más común (ej. ID 2)
           const defaultRole =
             data.find((r) => r.nombre_rol === "Técnico") || data[0];
           setFormData((prev) => ({ ...prev, id_rol: defaultRole.PK_id_rol }));
         }
-      })
-      .catch(() => setError("Error al cargar roles"))
-      .finally(() => setLoading(false));
-  }, []); // El array vacío [] significa "ejecutar solo al montar"
+      } catch (error) {
+        showNotification("Error al cargar los roles del sistema", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoles();
+  }, [showNotification]);
 
   // 2. Manejar cambios en el formulario
   const handleChange = (e) => {
@@ -83,136 +66,257 @@ const UsuarioCreatePage = () => {
   // 3. Manejar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError("");
 
-    // Validación extra
+    // Validación local básica
     if (formData.password.length < 6) {
       showNotification(
         "La contraseña debe tener al menos 6 caracteres",
-        "error"
+        "warning"
       );
-      setSubmitting(false);
       return;
     }
 
+    setSubmitting(true);
+
     try {
-      // Llamamos al servicio de creación
       await usuarioService.createUsuario(formData);
-      showNotification("Usuario creado con éxito", "success");
-      navigate("/usuarios"); // Redirige a la lista de usuarios
+      showNotification("Usuario creado exitosamente", "success");
+      navigate("/usuarios");
     } catch (err) {
-      // El backend nos dirá si el RUT ya existe
       showNotification(err.message || "Error al crear el usuario", "error");
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) return <div>Cargando roles...</div>;
+  if (loading) {
+    return (
+      <Container
+        fluid
+        className="d-flex min-vh-100 justify-content-center align-items-center bg-light"
+      >
+        <Spinner animation="border" variant="primary" />
+      </Container>
+    );
+  }
 
   return (
-    <Container fluid className={`bg-light min-vh-100 py-4`}>
+    <Container fluid className="bg-light min-vh-100 py-4 font-sans">
       <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8} xl={6}>
-          <Button
-            variant="outline-primary"
-            size="sm"
-            as={Link}
-            to="/usuarios"
-            className="mb-3"
-          >
-            <i className="bi bi-arrow-left me-1"></i> Volver a Usuarios
-          </Button>
-
-          <Card className="shadow-sm border-0">
-            <Card.Header
-              as="h2"
-              className="text-center fw-bold bg-primary form-header"
+        <Col xs={12} md={8} lg={6} xl={5}>
+          {/* Header de Navegación */}
+          <div className="d-flex align-items-center mb-4">
+            <Button
+              variant="link"
+              as={Link}
+              to="/usuarios"
+              className="text-decoration-none text-secondary p-0 me-3"
             >
-              Crear Usuario
-            </Card.Header>
+              <i className="bi bi-arrow-left fs-4"></i>
+            </Button>
+            <div>
+              <h2 className="fw-bold text-dark m-0 h4">Nuevo Usuario</h2>
+              <p className="text-muted small mb-0">
+                Registra un nuevo miembro del equipo.
+              </p>
+            </div>
+          </div>
 
-            <Card.Body className="p-0 p-md-3">
-              <Form onSubmit={handleSubmit} style={formStyles}>
-                <label>Nombre Completo:</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleChange}
-                  style={inputStyles}
-                  required
-                />
+          <Card className="shadow-lg border-0 rounded-4 overflow-hidden card-hover">
+            <div className="card-header-gradient p-4 text-center text-white">
+              <div className="icon-circle mb-2 mx-auto bg-white text-primary">
+                <i className="bi bi-person-plus-fill fs-3"></i>
+              </div>
+              <h3 className="h5 fw-bold mb-0">Crear Cuenta</h3>
+            </div>
 
-                <label>RUT (para login):</label>
-                <input
-                  type="text"
-                  name="rut"
-                  value={formData.rut}
-                  onChange={handleChange}
-                  style={inputStyles}
-                  required
-                />
+            <Card.Body className="p-4 p-md-5 bg-white">
+              <Form onSubmit={handleSubmit}>
+                {/* Campo: Nombre */}
+                <Form.Group className="mb-4" controlId="formNombre">
+                  <Form.Label className="small fw-bold text-secondary text-uppercase ls-1">
+                    Nombre Completo
+                  </Form.Label>
+                  <InputGroup className="input-group-modern">
+                    <InputGroup.Text className="bg-light border-end-0 text-muted">
+                      <i className="bi bi-person"></i>
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      name="nombre"
+                      placeholder="Ej: Juan Pérez"
+                      value={formData.nombre}
+                      onChange={handleChange}
+                      required
+                      className="border-start-0 ps-0 bg-light"
+                    />
+                  </InputGroup>
+                </Form.Group>
 
-                <label>Contraseña Temporal:</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  style={inputStyles}
-                  required
-                  minLength="6"
-                />
+                {/* Campo: RUT */}
+                <Form.Group className="mb-4" controlId="formRut">
+                  <Form.Label className="small fw-bold text-secondary text-uppercase ls-1">
+                    RUT (Login)
+                  </Form.Label>
+                  <InputGroup className="input-group-modern">
+                    <InputGroup.Text className="bg-light border-end-0 text-muted">
+                      <i className="bi bi-card-heading"></i>
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      name="rut"
+                      placeholder="Ej: 12345678-9"
+                      value={formData.rut}
+                      onChange={handleChange}
+                      required
+                      className="border-start-0 ps-0 bg-light"
+                    />
+                  </InputGroup>
+                  <Form.Text className="text-muted small">
+                    Sin puntos y con guion.
+                  </Form.Text>
+                </Form.Group>
 
-                <label>Rol:</label>
-                <select
-                  name="id_rol"
-                  value={formData.id_rol}
-                  onChange={handleChange}
-                  style={inputStyles}
-                  required
-                >
-                  <option value="" disabled>
-                    -- Seleccione un rol --
-                  </option>
-                  {roles.map((rol) => (
-                    <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
-                      {rol.nombre_rol}
-                    </option>
-                  ))}
-                </select>
+                {/* Campo: Contraseña */}
+                <Form.Group className="mb-4" controlId="formPassword">
+                  <Form.Label className="small fw-bold text-secondary text-uppercase ls-1">
+                    Contraseña Temporal
+                  </Form.Label>
+                  <InputGroup className="input-group-modern">
+                    <InputGroup.Text className="bg-light border-end-0 text-muted">
+                      <i className="bi bi-lock"></i>
+                    </InputGroup.Text>
+                    <Form.Control
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      minLength="6"
+                      className="border-start-0 ps-0 bg-light"
+                    />
+                    <Button
+                      variant="link"
+                      className="bg-light border border-start-0 text-secondary text-decoration-none"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex="-1"
+                    >
+                      <i
+                        className={`bi ${
+                          showPassword ? "bi-eye-slash" : "bi-eye"
+                        }`}
+                      ></i>
+                    </Button>
+                  </InputGroup>
+                </Form.Group>
 
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  style={buttonStyles}
-                >
-                  {submitting ? "Guardando..." : "Ingresar Usuario"}
-                </Button>
-                {error && (
-                  <p style={{ color: "red", marginTop: "10px" }}>{error}</p>
-                )}
+                {/* Campo: Rol */}
+                <Form.Group className="mb-5" controlId="formRol">
+                  <Form.Label className="small fw-bold text-secondary text-uppercase ls-1">
+                    Rol de Acceso
+                  </Form.Label>
+                  <InputGroup className="input-group-modern">
+                    <InputGroup.Text className="bg-light border-end-0 text-muted">
+                      <i className="bi bi-shield-lock"></i>
+                    </InputGroup.Text>
+                    <Form.Select
+                      name="id_rol"
+                      value={formData.id_rol}
+                      onChange={handleChange}
+                      required
+                      className="border-start-0 ps-0 bg-light cursor-pointer"
+                    >
+                      <option value="" disabled>
+                        -- Seleccione un rol --
+                      </option>
+                      {roles.map((rol) => (
+                        <option key={rol.PK_id_rol} value={rol.PK_id_rol}>
+                          {rol.nombre_rol}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </InputGroup>
+                </Form.Group>
+
+                <div className="d-grid">
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn-lg shadow-sm btn-gradient border-0"
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          className="me-2"
+                        />
+                        Guardando...
+                      </>
+                    ) : (
+                      "Crear Usuario"
+                    )}
+                  </Button>
+                </div>
               </Form>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+
       {/* --- Estilos CSS --- */}
       <style>{`
-                         .form-container {
-                           background-color: #f8f9fa;
-                         }
-                         .form-header {                       
-                           color: white;
-                           padding: 1rem;
-                         }
-                         .form-control-focus:focus {
-                           border-color: var(--bs-info);
-                           box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
-                         }
-                       `}</style>
+        .font-sans { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .ls-1 { letter-spacing: 1px; }
+        
+        .card-header-gradient {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        }
+        
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .input-group-modern .form-control, 
+        .input-group-modern .input-group-text,
+        .input-group-modern .form-select {
+            border-color: #dee2e6;
+            padding: 0.75rem 1rem;
+        }
+
+        .input-group-modern:focus-within .form-control,
+        .input-group-modern:focus-within .input-group-text,
+        .input-group-modern:focus-within .form-select,
+        .input-group-modern:focus-within .btn {
+            border-color: #86b7fe;
+            box-shadow: none; /* Quitamos el shadow default para limpieza */
+            background-color: #fff !important;
+        }
+        
+        /* Efecto de foco en el grupo entero */
+        .input-group-modern:focus-within {
+             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+             border-radius: 0.375rem;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(to right, #28a745, #20c997);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+            background: linear-gradient(to right, #218838, #198754);
+        }
+      `}</style>
     </Container>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-//import insumoService from '../services/insumo.service'; // (Lo mantenemos por si se necesita, aunque no en este flujo)
 import usuarioService from "../services/usuario.service";
 import movimientoService from "../services/movimiento.service";
 import { useNotification } from "../context/NotificationContext";
@@ -11,8 +10,9 @@ import {
   Card,
   Form,
   Button,
-  Alert,
   Spinner,
+  InputGroup,
+  Badge,
 } from "react-bootstrap";
 
 const DevolucionPage = () => {
@@ -56,7 +56,7 @@ const DevolucionPage = () => {
       }
     };
     loadData();
-  }, [showNotification]); // Quitar 'insumos' y 'tecnicos' de las dependencias
+  }, [showNotification]);
 
   // --- Reaccionar al cambio de Técnico (Dropdown en Cascada) ---
   useEffect(() => {
@@ -77,7 +77,7 @@ const DevolucionPage = () => {
       }
       setCantidad(1); // Resetear cantidad
     }
-  }, [selectedTecnico, allPrestamos]); // Este hook depende del técnico seleccionado
+  }, [selectedTecnico, allPrestamos]);
 
   // --- Reaccionar al cambio de Insumo ---
   useEffect(() => {
@@ -118,9 +118,8 @@ const DevolucionPage = () => {
         devolucionData
       );
 
-      // Usar Notificación Global (reemplaza el alert())
       showNotification(response.message, "success");
-      navigate("/dashboard"); // Redirige al dashboard
+      navigate("/dashboard");
     } catch (err) {
       showNotification(
         err.message || "Error al registrar la devolución",
@@ -133,114 +132,177 @@ const DevolucionPage = () => {
 
   if (loading && tecnicos.length === 0) {
     return (
-      <Container fluid className="bg-light min-vh-100 py-4 text-center">
-        <Spinner animation="border" variant="primary" />
-        <p>Cargando datos...</p>
+      <Container
+        fluid
+        className="d-flex min-vh-100 justify-content-center align-items-center bg-light"
+      >
+        <div className="text-center">
+          <Spinner animation="border" variant="primary" />
+          <p className="mt-2 text-muted">Cargando módulo de devoluciones...</p>
+        </div>
       </Container>
     );
   }
 
   return (
-    <Container fluid className={`bg-light min-vh-100 py-4`}>
+    <Container fluid className="page-container min-vh-100 py-4 font-sans">
       <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8} xl={6}>
-          <Button
-            variant="outline-primary"
-            size="sm"
-            as={Link}
-            to="/dashboard"
-            className="mb-3"
-          >
-            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-          </Button>
-
-          <Card className="shadow-lg border-0">
-            <Card.Header
-              as="h2"
-              className="text-center fw-bold bg-primary form-header"
+          {/* Header de Navegación */}
+          <div className="d-flex align-items-center mb-4">
+            <Button
+              variant="link"
+              as={Link}
+              to="/dashboard"
+              className="text-decoration-none text-secondary p-0 me-3"
             >
-              Registrar Devolución
+              <i className="bi bi-arrow-left fs-4"></i>
+            </Button>
+            <div>
+              <h2 className="fw-bold text-dark m-0 h4">Registrar Devolución</h2>
+              <p className="text-muted small mb-0">
+                Gestión de retorno de insumos en préstamo.
+              </p>
+            </div>
+          </div>
+
+          <Card className="shadow-lg border-0 rounded-4 overflow-hidden card-hover-effect">
+            <Card.Header className="bg-white border-bottom-0 pt-4 pb-0">
+              <div className="d-flex align-items-center text-info">
+                <div className="icon-wrapper bg-info-subtle rounded-circle p-2 me-3">
+                  <i className="bi bi-arrow-return-left fs-4 text-info"></i>
+                </div>
+                <h5 className="fw-bold mb-0 text-dark">
+                  Formulario de Reingreso
+                </h5>
+              </div>
             </Card.Header>
-            <Card.Body className="p-4 p-md-5">
+            <Card.Body className="p-4 p-md-5 pt-3">
               <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="formTecnico">
-                  <Form.Label className="fw-bold">
-                    Técnico que Devuelve:
+                {/* Selección de Técnico */}
+                <Form.Group className="mb-4" controlId="formTecnico">
+                  <Form.Label className="small fw-bold text-secondary text-uppercase ls-1">
+                    Técnico Responsable
                   </Form.Label>
-                  <Form.Select
-                    value={selectedTecnico}
-                    onChange={(e) => setSelectedTecnico(e.target.value)}
-                    required
-                    className="form-control-focus"
-                    disabled={loading}
-                  >
-                    {tecnicos.length === 0 && (
-                      <option disabled>No hay técnicos</option>
-                    )}
-                    {tecnicos.map((tec) => (
-                      <option key={tec.PK_id_usuario} value={tec.PK_id_usuario}>
-                        {tec.nombre}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-
-                <Form.Group className="mb-3" controlId="formInsumo">
-                  <Form.Label className="fw-bold">
-                    Insumo Devuelto (Solo pendientes):
-                  </Form.Label>
-                  <Form.Select
-                    value={selectedInsumoId}
-                    onChange={(e) => setSelectedInsumoId(e.target.value)}
-                    required
-                    className="form-control-focus"
-                    disabled={insumosFiltrados.length === 0 || loading}
-                  >
-                    {insumosFiltrados.length === 0 ? (
-                      <option disabled value="">
-                        -- Este técnico no tiene préstamos --
-                      </option>
-                    ) : (
-                      insumosFiltrados.map((prestamo) => (
+                  <InputGroup>
+                    <InputGroup.Text className="bg-light border-end-0 text-muted">
+                      <i className="bi bi-person-badge"></i>
+                    </InputGroup.Text>
+                    <Form.Select
+                      value={selectedTecnico}
+                      onChange={(e) => setSelectedTecnico(e.target.value)}
+                      required
+                      className="form-control-lg border-start-0 ps-0 shadow-none bg-light"
+                      disabled={loading}
+                    >
+                      {tecnicos.length === 0 && (
+                        <option disabled>No hay técnicos registrados</option>
+                      )}
+                      {tecnicos.map((tec) => (
                         <option
-                          key={prestamo.FK_id_insumo}
-                          value={prestamo.FK_id_insumo}
+                          key={tec.PK_id_usuario}
+                          value={tec.PK_id_usuario}
                         >
-                          {prestamo.nombre_insumo} (Pendiente:{" "}
-                          {prestamo.cantidad_pendiente})
+                          {tec.nombre}
                         </option>
-                      ))
-                    )}
-                  </Form.Select>
+                      ))}
+                    </Form.Select>
+                  </InputGroup>
                 </Form.Group>
 
-                <Form.Group className="mb-3" controlId="formCantidad">
-                  <Form.Label className="fw-bold">
-                    Cantidad Devuelta:
+                {/* Selección de Insumo (Dependiente) */}
+                <Form.Group className="mb-4" controlId="formInsumo">
+                  <Form.Label className="small fw-bold text-secondary text-uppercase ls-1 d-flex justify-content-between">
+                    <span>Insumo a Devolver</span>
+                    {insumosFiltrados.length > 0 && (
+                      <Badge bg="warning" text="dark" className="fw-normal">
+                        {insumosFiltrados.length} pendientes
+                      </Badge>
+                    )}
                   </Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={cantidad}
-                    min="1"
-                    max={maxCantidad} // Validación de máximo
-                    onChange={(e) => setCantidad(e.target.value)}
-                    required
-                    className="form-control-focus"
-                    disabled={insumosFiltrados.length === 0 || loading}
-                  />
-                  {insumosFiltrados.length > 0 && (
-                    <Form.Text className="text-muted">
-                      Máximo a devolver: {maxCantidad}
+                  <InputGroup>
+                    <InputGroup.Text
+                      className={`border-end-0 ${
+                        insumosFiltrados.length === 0
+                          ? "bg-light-subtle text-muted"
+                          : "bg-light text-primary"
+                      }`}
+                    >
+                      <i className="bi bi-box-seam"></i>
+                    </InputGroup.Text>
+                    <Form.Select
+                      value={selectedInsumoId}
+                      onChange={(e) => setSelectedInsumoId(e.target.value)}
+                      required
+                      className="form-control-lg border-start-0 ps-0 shadow-none bg-light"
+                      disabled={insumosFiltrados.length === 0 || loading}
+                    >
+                      {insumosFiltrados.length === 0 ? (
+                        <option disabled value="">
+                          -- Este técnico no tiene préstamos pendientes --
+                        </option>
+                      ) : (
+                        insumosFiltrados.map((prestamo) => (
+                          <option
+                            key={prestamo.FK_id_insumo}
+                            value={prestamo.FK_id_insumo}
+                          >
+                            {prestamo.nombre_insumo} (Pendiente:{" "}
+                            {prestamo.cantidad_pendiente})
+                          </option>
+                        ))
+                      )}
+                    </Form.Select>
+                  </InputGroup>
+                  {insumosFiltrados.length === 0 && selectedTecnico && (
+                    <Form.Text className="text-success small mt-1">
+                      <i className="bi bi-check-circle-fill me-1"></i>
+                      Este técnico está al día con sus devoluciones.
                     </Form.Text>
                   )}
                 </Form.Group>
 
-                <div className="d-grid gap-2 mt-4">
+                {/* Cantidad */}
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-4" controlId="formCantidad">
+                      <Form.Label className="small fw-bold text-secondary text-uppercase ls-1">
+                        Cantidad a Devolver
+                      </Form.Label>
+                      <InputGroup hasValidation>
+                        <Form.Control
+                          type="number"
+                          value={cantidad}
+                          min="1"
+                          max={maxCantidad}
+                          onChange={(e) => setCantidad(e.target.value)}
+                          required
+                          className="form-control-lg shadow-none bg-light text-center fw-bold"
+                          disabled={insumosFiltrados.length === 0 || loading}
+                        />
+                        <InputGroup.Text className="bg-light text-muted">
+                          unidades
+                        </InputGroup.Text>
+                      </InputGroup>
+                      {insumosFiltrados.length > 0 && (
+                        <div className="d-flex justify-content-end mt-1">
+                          <small className="text-muted">
+                            Máximo disponible:{" "}
+                            <strong className="text-dark">{maxCantidad}</strong>
+                          </small>
+                        </div>
+                      )}
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <div className="d-grid mt-2">
                   <Button
                     variant="info"
                     type="submit"
+                    size="lg"
                     disabled={loading || insumosFiltrados.length === 0}
-                    className="text-white"
+                    className="text-white shadow-sm btn-gradient-info border-0 py-3 rounded-3"
                   >
                     {loading ? (
                       <>
@@ -250,11 +312,15 @@ const DevolucionPage = () => {
                           size="sm"
                           role="status"
                           aria-hidden="true"
+                          className="me-2"
                         />
-                        <span className="ms-2">Registrando...</span>
+                        Registrando...
                       </>
                     ) : (
-                      "Confirmar Devolución"
+                      <>
+                        <i className="bi bi-check2-circle me-2"></i> Confirmar
+                        Devolución
+                      </>
                     )}
                   </Button>
                 </div>
@@ -264,18 +330,50 @@ const DevolucionPage = () => {
         </Col>
       </Row>
 
-      {/* --- Estilos CSS --- */}
+      {/* --- Estilos CSS Personalizados --- */}
       <style>{`
-        .form-container {
-          background-color: #f8f9fa;
+        .font-sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .ls-1 { letter-spacing: 0.5px; }
+        .page-container { background-color: #f0f2f5; }
+        
+        .card-hover-effect {
+             transition: transform 0.2s ease-in-out;
         }
-        .form-header {       
-          color: white;
-          padding: 1rem;
+        
+        .icon-wrapper {
+            background-color: rgba(13, 202, 240, 0.1);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .form-control-focus:focus {
-          border-color: var(--bs-info);
-          box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
+
+        /* Inputs Modernos */
+        .form-control-lg, .form-select-lg {
+            border: 1px solid #dee2e6;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+        .form-control-lg:focus, .form-select:focus {
+            border-color: #0dcaf0;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(13, 202, 240, 0.15);
+        }
+        
+        /* Botón Gradiente */
+        .btn-gradient-info {
+            background: linear-gradient(45deg, #0dcaf0, #0d6efd);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient-info:hover {
+            background: linear-gradient(45deg, #0bb5d9, #0b5ed7);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 202, 240, 0.4);
+        }
+        .btn-gradient-info:disabled {
+            background: #adb5bd;
+            transform: none;
         }
       `}</style>
     </Container>

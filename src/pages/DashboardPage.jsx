@@ -80,7 +80,7 @@ const DashboardPage = () => {
             <div className="brand-icon">
               <i className="bi bi-box-seam-fill"></i>
             </div>
-            <span className="fw-bold text-dark fs-4">BodeTICWeb</span>
+            <span className="fw-bold text-dark fs-4">BodeWeb</span>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse

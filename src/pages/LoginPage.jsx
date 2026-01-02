@@ -24,6 +24,22 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
+  // Lógica de formateo de RUT
+  const formatRut = (value) => {
+    const cleanValue = value.replace(/[^0-9kK]/g, "").toUpperCase();
+    if (cleanValue.length <= 1) return cleanValue;
+    const cuerpo = cleanValue.slice(0, -1);
+    const dv = cleanValue.slice(-1);
+    const cuerpoFormateado = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${cuerpoFormateado}-${dv}`;
+  };
+
+  const handleRutChange = (e) => {
+    const inputValue = e.target.value;
+    const formattedRut = formatRut(inputValue);
+    setRut(formattedRut);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -52,7 +68,7 @@ const LoginPage = () => {
             <div className="mb-4">
               <i className="bi bi-box-seam display-1"></i>
             </div>
-            <h1 className="display-4 fw-bold mb-3">BodeTICWeb</h1>
+            <h1 className="display-4 fw-bold mb-3">BodeWeb</h1>
             <p className="lead fs-3 mb-4">
               Gestión inteligente de inventario y trazabilidad en tiempo real
             </p>
@@ -97,15 +113,16 @@ const LoginPage = () => {
                 </Form.Label>
                 <InputGroup className="input-group-modern">
                   <InputGroup.Text className="bg-light border-end-0 text-muted">
-                    <i className="bi bi-person"></i>
+                    <i className="bi bi-person-fill"></i>
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
                     placeholder="Ej: 12.345.678-9"
                     value={rut}
-                    onChange={(e) => setRut(e.target.value)}
+                    onChange={handleRutChange}
                     required
-                    className="border-start-0 bg-light ps-1"
+                    maxLength={12}
+                    className="border-start-0 bg-light ps-1 shadow-none"
                   />
                 </InputGroup>
               </Form.Group>
@@ -145,7 +162,7 @@ const LoginPage = () => {
                     className="text-decoration-none small text-primary fw-medium"
                     onClick={(e) => e.preventDefault()}
                   >
-                    Si olvidaste tu contraseña, contacta al administrador.
+                    Si olvidaste tu contraseña, contacta al Administrador
                   </a>
                 </div>
               </Form.Group>
@@ -179,7 +196,8 @@ const LoginPage = () => {
 
             <div className="text-center mt-5">
               <p className="text-muted small">
-                © {new Date().getFullYear()} Ing. Bernardo Morales - Antofagasta
+                © {new Date().getFullYear()} Software Engineer Bernardo Morales
+                - Antofagasta
               </p>
             </div>
           </div>

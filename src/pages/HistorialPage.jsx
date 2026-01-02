@@ -1,4 +1,3 @@
-/* eslint-disable no-irregular-whitespace */
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import movimientoService from "../services/movimiento.service";
@@ -16,43 +15,44 @@ import {
   Form,
   Pagination,
   InputGroup,
-} from "react-bootstrap"; // Importar Pagination
+  Badge,
+} from "react-bootstrap";
 
-const ITEMS_PER_PAGE = 20; // Número de ítems por página
+const ITEMS_PER_PAGE = 20;
 
 const HistorialPage = () => {
   const [historial, setHistorial] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingDropdowns, setLoadingDropdowns] = useState(true); // --- Estados para los filtros ---
+  const [loadingDropdowns, setLoadingDropdowns] = useState(true);
 
+  // --- Estados para los filtros ---
   const [filtros, setFiltros] = useState({
     fecha_inicio: "",
     fecha_fin: "",
     id_categoria: "",
     id_usuario: "",
     tipo_movimiento: "",
-  }); // --- Estados para los desplegables ---
-  const [categoriasList, setCategoriasList] = useState([]);
-  const [tecnicosList, setTecnicosList] = useState([]); // --- Estado para la paginación ---
+  });
 
+  // --- Estados para los desplegables ---
+  const [categoriasList, setCategoriasList] = useState([]);
+  const [tecnicosList, setTecnicosList] = useState([]);
+
+  // --- Estado para la paginación ---
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const { showNotification } = useNotification();
 
-  // 1. Cargar los desplegables (SOLO UNA VEZ)
+  // 1. Cargar desplegables (Categorías y Técnicos)
   useEffect(() => {
     const loadDropdowns = async () => {
       setLoadingDropdowns(true);
       try {
-        // --- 4. CORRECCIÓN: Llamar a getCategorias ---
         const [categoriasData, tecnicosData] = await Promise.all([
-          insumoService.getCategorias(), // <-- ANTES: getInsumos
+          insumoService.getCategorias(),
           usuarioService.getUsuariosTecnicos(),
         ]);
-        // --- FIN CORRECCIÓN ---
-
-        // 'getCategorias' y 'getUsuariosTecnicos' devuelven arrays
         setCategoriasList(categoriasData);
         setTecnicosList(tecnicosData);
       } catch (err) {
@@ -62,10 +62,10 @@ const HistorialPage = () => {
       }
     };
     loadDropdowns();
-  }, []); // Quitar 'showNotification' si causa bucles // 3. Cargar el historial (SE EJECUTA AL CAMBIAR FILTROS O PÁGINA)
+  }, []);
 
+  // 2. Cargar historial (Reactivo a filtros y paginación)
   useEffect(() => {
-    // No cargar historial si los desplegables aún no están listos
     if (loadingDropdowns) return;
 
     const loadHistorial = async () => {
@@ -84,13 +84,16 @@ const HistorialPage = () => {
         setLoading(false);
       }
     };
-    loadHistorial();
-  }, [filtros, currentPage, loadingDropdowns, showNotification]); // Handlers para filtros
 
+    loadHistorial();
+  }, [filtros, currentPage, loadingDropdowns]);
+
+  // --- Handlers ---
   const handleFilterChange = (e) => {
     setFiltros((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setCurrentPage(1); // Resetear a página 1
-  }; // Handler para descargar (Excel)
+    setCurrentPage(1); // Resetear a página 1 al filtrar
+  };
+
   const handleExportar = (e) => {
     e.preventDefault();
     showNotification(
@@ -102,387 +105,443 @@ const HistorialPage = () => {
       .catch((err) =>
         showNotification(err.message || "Error al generar el Excel", "error")
       );
-  }; // Componente de Paginación
+  };
 
+  // --- Renderizado de Badges para Tipos de Movimiento ---
+  const renderTipoBadge = (tipo) => {
+    let variant = "secondary";
+    let icon = "bi-circle";
+
+    switch (tipo) {
+      case "Entrada":
+        variant = "success";
+        icon = "bi-arrow-down-circle-fill";
+        break;
+      case "Salida-Uso":
+        variant = "danger";
+        icon = "bi-arrow-up-circle-fill";
+        break;
+      case "Préstamo":
+        variant = "warning";
+        icon = "bi-clock-history";
+        break;
+      case "Devolución":
+        variant = "info";
+        icon = "bi-arrow-counterclockwise";
+        break;
+      default:
+        variant = "secondary";
+    }
+
+    return (
+      <Badge bg={variant} className="px-3 py-2 rounded-pill fw-normal">
+        <i className={`bi ${icon} me-1`}></i> {tipo}
+      </Badge>
+    );
+  };
+
+  // --- Componente de Paginación ---
   const PaginationComponent = () => {
     if (totalPages <= 1) return null;
     let items = [];
-    for (let number = 1; number <= totalPages; number++) {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let number = startPage; number <= endPage; number++) {
       items.push(
         <Pagination.Item
           key={number}
           active={number === currentPage}
           onClick={() => setCurrentPage(number)}
         >
-                    {number}       
+          {number}
         </Pagination.Item>
       );
     }
     return (
-      <Pagination className="justify-content-center mt-3">
-               
+      <Pagination className="justify-content-center mt-4 custom-pagination">
+        <Pagination.First
+          onClick={() => setCurrentPage(1)}
+          disabled={currentPage === 1}
+        />
         <Pagination.Prev
           onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           disabled={currentPage === 1}
         />
-                {items}
-               
+        {startPage > 1 && <Pagination.Ellipsis />}
+        {items}
+        {endPage < totalPages && <Pagination.Ellipsis />}
         <Pagination.Next
           onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
           disabled={currentPage === totalPages}
         />
-             
+        <Pagination.Last
+          onClick={() => setCurrentPage(totalPages)}
+          disabled={currentPage === totalPages}
+        />
       </Pagination>
     );
   };
 
-  // JSX CORREGIDO Y ORDENADO
   return (
-    <Container fluid className={`bg-light min-vh-100 py-4`}>
+    <Container fluid className="bg-light min-vh-100 py-5 font-sans">
       <Row className="justify-content-center">
-        <Col
-          xs={12}
-          md={10}
-          lg={8}
-          xl={7}
-          className="form-container historial-container"
-        >
-          <Button
-            variant="outline-primary"
-            size="sm"
-            as={Link}
-            to="/dashboard"
-            className="mb-3"
-          >
-            <i className="bi bi-arrow-left me-1"></i> Volver al Inventario
-          </Button>
-          <Card className="shadow-lg border-0">
-            <Card.Header
-              as="h2"
-              className="text-center text-white fw-bold bg-primary form-header"
+        <Col xs={12} xl={10}>
+          {/* --- Encabezado y Navegación --- */}
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <Button
+                variant="link"
+                as={Link}
+                to="/dashboard"
+                className="text-decoration-none text-secondary p-0 mb-2 d-flex align-items-center"
+              >
+                <i className="bi bi-arrow-left me-2"></i>
+              </Button>
+              <h2 className="fw-bold text-dark m-0">
+                Historial de Movimientos
+              </h2>
+              <p className="text-muted small">
+                Consulta la trazabilidad completa del inventario.
+              </p>
+            </div>
+
+            {/* Botón Exportar (Visible en Desktop) */}
+            <Button
+              variant="success"
+              onClick={handleExportar}
+              disabled={loading || loadingDropdowns}
+              className="d-none d-md-flex align-items-center shadow-sm px-4 rounded-pill"
             >
-              Historial de Movimientos
+              <i className="bi bi-file-earmark-excel-fill me-2"></i> Exportar
+              Excel
+            </Button>
+          </div>
+
+          {/* --- Panel de Filtros --- */}
+          <Card className="shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
+            <Card.Header className="bg-white border-bottom py-3 px-4">
+              <h5 className="mb-0 fw-bold text-primary">
+                <i className="bi bi-sliders me-2"></i>Filtros de Búsqueda
+              </h5>
             </Card.Header>
-            <Card.Body className="p-4 shadow-lg border-20 bg-white">
-                       
+            <Card.Body className="p-4 bg-white">
               <Form>
-                           
-                <Row className="mb-3 gy-3">
-                               
-                  <Col xs={12} md={6}>
-                                   
-                    <Form.Group controlId="filtroFechaInicio">
-                                       
-                      <Form.Label className="filter-label mb-1">
-                        Desde
-                      </Form.Label>
-                                       
+                <Row className="g-3">
+                  {/* Rango de Fechas */}
+                  <Col md={12} lg={4}>
+                    <label className="small text-muted fw-bold mb-1">
+                      Rango de Fechas
+                    </label>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text className="bg-light border-end-0">
+                        <i className="bi bi-calendar-event"></i>
+                      </InputGroup.Text>
                       <Form.Control
                         type="date"
                         name="fecha_inicio"
                         value={filtros.fecha_inicio}
                         onChange={handleFilterChange}
-                        size="sm"
+                        className="border-start-0 ps-0 bg-light"
+                        placeholder="Desde"
                       />
-                                     
-                    </Form.Group>
-                                 
-                  </Col>
-                               
-                  <Col xs={12} md={6}>
-                                   
-                    <Form.Group controlId="filtroFechaFin">
-                                       
-                      <Form.Label className="filter-label mb-1">
-                        Hasta:
-                      </Form.Label>
-                                       
+                      <InputGroup.Text className="bg-light border-0">
+                        <i className="bi bi-arrow-right"></i>
+                      </InputGroup.Text>
                       <Form.Control
                         type="date"
                         name="fecha_fin"
                         value={filtros.fecha_fin}
                         onChange={handleFilterChange}
-                        size="sm"
+                        className="bg-light border-start-0"
+                        placeholder="Hasta"
                       />
-                                     
-                    </Form.Group>
-                                 
+                    </InputGroup>
                   </Col>
-                                           
-                  <Col xs={12} md={4}>
-                    <Form.Group controlId="filtroNombre">
-                      <Form.Label className="filter-label mb-1">
-                        Buscar por Nombre
-                      </Form.Label>
-                      <InputGroup size="sm">
-                        <Form.Control
-                          type="text"
-                          placeholder="Ej: Cable HDMI..."
-                        />
-                        <Button variant="outline-secondary" type="submit">
-                          <i className="bi bi-search"></i>
-                        </Button>
-                      </InputGroup>
-                    </Form.Group>
-                  </Col>
-                               
-                  <Col xs={12} md={4}>
-                    <Form.Group controlId="filtroNombre">
-                      <Form.Label className="filter-label mb-1">
-                        Buscar por Nro. fáctura
-                      </Form.Label>
-                      <InputGroup size="sm">
-                        <Form.Control type="text" placeholder="..." />
-                        <Button variant="outline-secondary" type="submit">
-                          <i className="bi bi-search"></i>
-                        </Button>
-                      </InputGroup>
-                    </Form.Group>
-                  </Col>
-                               
-                  <Col xs={12} md={4}>
-                    <Form.Group controlId="filtroCategoria">
-                                       
-                      <Form.Label className="filter-label mb-1">
+
+                  {/* Filtros de Selección */}
+                  <Col md={6} lg={4}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted fw-bold mb-1">
                         Categoría
                       </Form.Label>
-                                       
-                      <Form.Select
-                        size="sm"
-                        name="id_categoria" // <-- Usar el nombre de filtro correcto
-                        value={filtros.id_categoria}
-                        onChange={handleFilterChange}
-                        className="form-control-focus"
-                        disabled={loadingDropdowns}
-                      >
-                                           <option value="">-- Todas --</option>
-                        {/* Mapear 'categoriasList' */}                   
-                        {categoriasList.map((cat) => (
-                          <option
-                            key={cat.PK_id_categoria}
-                            value={cat.PK_id_categoria}
-                          >
-                            {cat.nombre_categoria}
-                          </option>
-                        ))}
-                                         
-                      </Form.Select>
-                                     
+                      <InputGroup>
+                        <InputGroup.Text className="bg-white">
+                          <i className="bi bi-tags"></i>
+                        </InputGroup.Text>
+                        <Form.Select
+                          name="id_categoria"
+                          value={filtros.id_categoria}
+                          onChange={handleFilterChange}
+                          disabled={loadingDropdowns}
+                          className="shadow-none"
+                        >
+                          <option value="">-- Todas las Categorías --</option>
+                          {categoriasList.map((cat) => (
+                            <option
+                              key={cat.PK_id_categoria}
+                              value={cat.PK_id_categoria}
+                            >
+                              {cat.nombre_categoria}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </InputGroup>
                     </Form.Group>
-                                 
                   </Col>
-                               
-                  <Col xs={12} md={4}>
-                                   
-                    <Form.Group controlId="filtroTecnico">
-                                       
-                      <Form.Label className="filter-label mb-1">
-                        Técnico
+
+                  <Col md={6} lg={4}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted fw-bold mb-1">
+                        Tipo de Movimiento
                       </Form.Label>
-                                       
-                      <Form.Select
-                        size="sm"
-                        name="id_usuario"
-                        value={filtros.id_usuario}
-                        onChange={handleFilterChange}
-                        className="form-control-focus"
-                        disabled={loadingDropdowns} // Deshabilitar mientras carga
-                      >
-                                           <option value="">-- Todos --</option>
-                                           
-                        {tecnicosList.map((t) => (
-                          <option key={t.PK_id_usuario} value={t.PK_id_usuario}>
-                            {t.nombre}
-                          </option>
-                        ))}
-                                         
-                      </Form.Select>
-                                     
+                      <InputGroup>
+                        <InputGroup.Text className="bg-white">
+                          <i className="bi bi-arrow-left-right"></i>
+                        </InputGroup.Text>
+                        <Form.Select
+                          name="tipo_movimiento"
+                          value={filtros.tipo_movimiento}
+                          onChange={handleFilterChange}
+                          className="shadow-none"
+                        >
+                          <option value="">-- Todos los Tipos --</option>
+                          <option value="Entrada">Entrada</option>
+                          <option value="Salida-Uso">Salida - Uso</option>
+                          <option value="Préstamo">Préstamo</option>
+                          <option value="Devolución">Devolución</option>
+                        </Form.Select>
+                      </InputGroup>
                     </Form.Group>
-                                 
                   </Col>
-                               
-                  <Col xs={12} md={4}>
-                                   
-                    <Form.Group controlId="filtroTipo">
-                                       
-                      <Form.Label className="filter-label mb-1">
-                        Tipo
+
+                  {/* Filtros Secundarios */}
+                  <Col md={6} lg={8}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted fw-bold mb-1">
+                        Técnico Responsable
                       </Form.Label>
-                                       
-                      <Form.Select
-                        size="sm"
-                        name="tipo_movimiento"
-                        value={filtros.tipo_movimiento}
-                        onChange={handleFilterChange}
-                        className="form-control-focus"
-                      >
-                                           <option value="">-- Todos --</option>
-                                           
-                        <option value="Entrada">Entrada</option>               
-                            <option value="Salida-Uso">Salida-Uso</option>     
-                                      <option value="Préstamo">Préstamo</option>
-                                           
-                        <option value="Devolución">Devolución</option>         
-                               
-                      </Form.Select>
-                                     
+                      <InputGroup>
+                        <InputGroup.Text className="bg-white">
+                          <i className="bi bi-person"></i>
+                        </InputGroup.Text>
+                        <Form.Select
+                          name="id_usuario"
+                          value={filtros.id_usuario}
+                          onChange={handleFilterChange}
+                          disabled={loadingDropdowns}
+                          className="shadow-none"
+                        >
+                          <option value="">-- Todos los Técnicos --</option>
+                          {tecnicosList.map((t) => (
+                            <option
+                              key={t.PK_id_usuario}
+                              value={t.PK_id_usuario}
+                            >
+                              {t.nombre}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </InputGroup>
                     </Form.Group>
-                                 
                   </Col>
-                                           
-                  <Col
-                    className="d-flex justify-content-end gap-2 mt-2"
-                    xs={12}
-                    md={12}
-                  >
-                    {/* 7. Botón "Buscar" eliminado (ahora es automático) */}   
-                             
+
+                  {/* Botón Exportar Móvil (Visible solo en md o menor) */}
+                  <Col xs={12} className="d-md-none mt-4">
                     <Button
                       variant="success"
                       onClick={handleExportar}
                       disabled={loading || loadingDropdowns}
+                      className="w-100 rounded-pill"
                     >
-                      {" "}
-                                       
-                      <i className="bi bi-file-earmark-excel-fill me-1 "></i>
-                      Exportar Excel                
+                      <i className="bi bi-file-earmark-excel-fill me-2"></i>{" "}
+                      Exportar Excel
                     </Button>
-                                 
                   </Col>
-                             
                 </Row>
-                         
               </Form>
-                               
+            </Card.Body>
+          </Card>
+
+          {/* --- Tabla de Resultados --- */}
+          <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
+            <Card.Body className="p-0">
               {loading ? (
-                <div className="text-center p-5">
-                                 
-                  <Spinner animation="border" role="status" variant="primary" />
-                               
+                <div className="text-center py-5">
+                  <Spinner
+                    animation="border"
+                    role="status"
+                    variant="primary"
+                    style={{ width: "3rem", height: "3rem" }}
+                  />
+                  <p className="mt-3 text-muted">Cargando movimientos...</p>
                 </div>
               ) : (
                 <>
-                             
-                  <Table
-                    striped
-                    bordered
-                    hover
-                    responsive="md"
-                    size="sm"
-                    className="historial-table align-middle mb-0"
-                  >
-                                 
-                    <thead className="table-primary text-center align-middle">
-                      <tr>
-                        <th>Fecha y Hora</th>
-                        <th>Tipo</th>
-                        <th>Insumo</th>
-                        <th className="text-center fw-bold">Cantidad</th>
-                        <th className="d-none d-md-table-cell">Técnico</th>
-                        <th className="d-none d-lg-table-cell">OT</th>
-                        <th className="d-none d-lg-table-cell">Descripción</th>
-                      </tr>
-                                   
-                    </thead>
-                                 
-                    <tbody>
-                                     
-                      {historial.length > 0 ? (
-                        historial.map((mov) => (
-                          <tr key={mov.PK_id_movimiento}>
-                                                 
-                            <td>
-                              {new Date(mov.fecha_hora).toLocaleString("es-CL")}
-                            </td>
-                                                 
-                            <td>
-                              {" "}
-                                                     
-                              <span
-                                className={`badge ${
-                                  mov.tipo_movimiento === "Entrada"
-                                    ? "bg-success"
-                                    : mov.tipo_movimiento === "Devolución"
-                                    ? "bg-info"
-                                    : "bg-danger"
-                                }`}
-                              >
-                                                          {mov.tipo_movimiento} 
-                                                     
-                              </span>
-                                                   
-                            </td>
-                            <td>{mov.nombre_insumo}</td>                     
-                            <td className="text-center fw-bold">
-                              {mov.cantidad}
-                            </td>
-                                                 
-                            <td className="d-none d-md-table-cell">
-                              {mov.nombre_usuario}
-                            </td>
-                                                 
-                            <td className="d-none d-lg-table-cell">
-                              {mov.codigo_ot || "N/A"}
-                            </td>
-                                                 
-                            <td className="d-none d-lg-table-cell">
-                              {mov.descripcion || "N/A"}
-                            </td>
-                                               
-                          </tr>
-                        ))
-                      ) : (
+                  <div className="table-responsive">
+                    <Table hover className="align-middle mb-0 custom-table">
+                      <thead className="bg-light">
                         <tr>
-                          <td
-                            colSpan={7}
-                            className="text-center text-muted py-4"
+                          <th
+                            className="py-3 ps-4 text-secondary text-uppercase small fw-bold"
+                            style={{ minWidth: "150px" }}
                           >
-                            No se encontraron movimientos con esos filtros.
-                          </td>
+                            Fecha
+                          </th>
+                          <th className="py-3 text-secondary text-uppercase small fw-bold">
+                            Tipo
+                          </th>
+                          <th className="py-3 text-secondary text-uppercase small fw-bold">
+                            Insumo
+                          </th>
+                          <th className="py-3 text-center text-secondary text-uppercase small fw-bold">
+                            Cant.
+                          </th>
+                          <th
+                            className="py-3 text-secondary text-uppercase small fw-bold"
+                            style={{ minWidth: "140px" }}
+                          >
+                            Usuario
+                          </th>
+                          <th className="py-3 text-secondary text-uppercase small fw-bold">
+                            Detalle / OT
+                          </th>
                         </tr>
-                      )}
-                               
-                    </tbody>
-                               
-                  </Table>
-                              <PaginationComponent />           
+                      </thead>
+                      <tbody>
+                        {historial.length > 0 ? (
+                          historial.map((mov) => (
+                            <tr
+                              key={mov.PK_id_movimiento}
+                              className="border-bottom"
+                            >
+                              <td className="ps-4">
+                                <div className="fw-bold text-dark">
+                                  {new Date(mov.fecha_hora).toLocaleDateString(
+                                    "es-CL"
+                                  )}
+                                </div>
+                                <div className="small text-muted">
+                                  {new Date(mov.fecha_hora).toLocaleTimeString(
+                                    "es-CL",
+                                    { hour: "2-digit", minute: "2-digit" }
+                                  )}
+                                </div>
+                              </td>
+                              <td>{renderTipoBadge(mov.tipo_movimiento)}</td>
+                              <td>
+                                <span className="fw-semibold text-dark">
+                                  {mov.nombre_insumo}
+                                </span>
+                              </td>
+                              <td className="text-center">
+                                <span className="fw-bold fs-6">
+                                  {mov.cantidad}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="d-flex align-items-center">
+                                  <div className="bg-light rounded-circle p-2 me-2 text-secondary">
+                                    <i className="bi bi-person-fill"></i>
+                                  </div>
+                                  <span className="text-secondary">
+                                    {mov.nombre_usuario}
+                                  </span>
+                                </div>
+                              </td>
+                              <td>
+                                {mov.codigo_ot ? (
+                                  <div className="d-flex flex-column">
+                                    <span
+                                      className="badge bg-light text-dark border mb-1"
+                                      style={{ width: "fit-content" }}
+                                    >
+                                      OT: {mov.codigo_ot}
+                                    </span>
+                                    <small className="text-muted fst-italic">
+                                      {mov.descripcion}
+                                    </small>
+                                  </div>
+                                ) : (
+                                  <small className="text-muted">
+                                    {mov.descripcion ||
+                                      mov.codigo_documento ||
+                                      "-"}
+                                  </small>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={6} className="text-center py-5">
+                              <div className="d-flex flex-column align-items-center">
+                                <i className="bi bi-inbox display-4 text-muted mb-3 opacity-50"></i>
+                                <h5 className="text-muted fw-normal">
+                                  No se encontraron movimientos
+                                </h5>
+                                <p className="text-secondary small">
+                                  Intenta ajustar los filtros de búsqueda.
+                                </p>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+
+                  {/* Paginación */}
+                  <div className="p-3 bg-white border-top">
+                    <PaginationComponent />
+                  </div>
                 </>
               )}
-                       
             </Card.Body>
-                     
           </Card>
-                 
         </Col>
-             
       </Row>
-                                             {/* --- Estilos CSS --- */}     
+
+      {/* --- Estilos CSS Personalizados --- */}
       <style>{`
-                    .form-container {
-                      background-color: #f8f9fa;
-                    }
-                    .form-header {
-                      background-color: #0d6efd; /* Azul primario de Bootstrap */
-                      color: white;
-                      padding: 1rem;
-                    }
-                    .form-control-focus:focus {
-                      border-color: var(--bs-info);
-                      box-shadow: 0 0 0 0.25rem rgba(var(--bs-info-rgb), 0.25);
-                    }
-                    /* Añadido de HistorialPage anterior */
-                    .historial-container { padding-bottom: 3rem; }
-                    .section-title { color: #495057; }
-                    .filter-label { font-size: 0.85rem; font-weight: 500; color: #555; }
-                    .historial-table { font-size: 0.9rem; }
-                    .historial-table .badge { font-size: 0.8rem; }
-                    @media (max-width: 767.98px) {
-                        .historial-table { font-size: 0.8rem; }
-                        .historial-table td, .historial-table th { padding: 0.5rem 0.4rem; }
-                    }
-                  `}</style>
-         
+        .font-sans {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .form-control:focus, .form-select:focus {
+          border-color: #86b7fe;
+          box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        .custom-table thead th {
+            border-bottom: 2px solid #f0f0f0;
+            background-color: #f8f9fa;
+        }
+        .custom-pagination .page-link {
+            border: none;
+            color: #6c757d;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+        }
+        .custom-pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
+        }
+        .custom-pagination .page-link:hover {
+            background-color: #e9ecef;
+            color: #0d6efd;
+        }
+      `}</style>
     </Container>
   );
 };
