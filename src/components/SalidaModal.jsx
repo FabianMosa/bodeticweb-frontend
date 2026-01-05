@@ -103,9 +103,6 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
                   Insumo Seleccionado
                 </h6>
                 <h4 className="text-dark fw-bold mb-0">{insumo.nombre}</h4>
-                <div className="text-muted small mt-1">
-                  ID: {insumo.PK_id_insumo}
-                </div>
               </div>
               <div className="text-end">
                 <Badge

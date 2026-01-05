@@ -253,7 +253,7 @@ const InventarioCreatePage = () => {
                           value={formData.codigo_documento}
                           onChange={handleChange}
                           required
-                          placeholder="Ej: F-123456"
+                          placeholder="Ej: 123456"
                           className="form-control-lg"
                           readOnly={docReadOnly}
                         />

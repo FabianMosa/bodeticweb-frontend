@@ -37,12 +37,13 @@ const UsuarioListPage = () => {
           <div className="d-flex align-items-center justify-content-between mb-4">
             <div className="d-flex align-items-center">
               <Button
-                variant="link"
+                variant="outline-secondary"
+                size="lg"
                 as={Link}
                 to="/dashboard"
-                className="text-decoration-none text-secondary p-0 me-3"
+                className="me-3"
               >
-                <i className="bi bi-arrow-left fs-4"></i>
+                <i className="bi bi-arrow-left"></i>
               </Button>
               <div>
                 <h2 className="fw-bold text-dark m-0 h4">
