@@ -189,7 +189,7 @@ const HistorialPage = () => {
   };
 
   return (
-    <Container fluid className="bg-light min-vh-100 py-5 font-sans">
+    <Container fluid className="bg-light min-vh-100 py-4 font-sans">
       <Row className="justify-content-center">
         <Col xs={12} xl={10}>
           {/* --- Encabezado y Navegación --- */}
