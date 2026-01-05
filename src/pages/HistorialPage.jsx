@@ -189,27 +189,30 @@ const HistorialPage = () => {
   };
 
   return (
-    <Container fluid className="bg-light min-vh-100 py-5 font-sans">
+    <Container fluid className="bg-light min-vh-100 py-4 font-sans">
       <Row className="justify-content-center">
         <Col xs={12} xl={10}>
           {/* --- Encabezado y Navegación --- */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <div>
+          <Col className="d-flex justify-content-between align-items-center mb-4">
+            <Col xs="auto">
               <Button
-                variant="link"
+                variant="outline-secondary"
+                size="lg"
                 as={Link}
                 to="/dashboard"
-                className="text-decoration-none text-secondary p-0 mb-2 d-flex align-items-center"
+                className="me-3"
               >
-                <i className="bi bi-arrow-left me-2"></i>
+                <i className="bi bi-arrow-left"></i>
               </Button>
+            </Col>
+            <Col>
               <h2 className="fw-bold text-dark m-0">
-                Historial de Movimientos
+                Historial de Movimientos{" "}
               </h2>
-              <p className="text-muted small">
-                Consulta la trazabilidad completa del inventario.
+              <p className="text-muted small mb-0">
+                Consulta de trazabilidad completa del inventario
               </p>
-            </div>
+            </Col>
 
             {/* Botón Exportar (Visible en Desktop) */}
             <Button
@@ -221,7 +224,7 @@ const HistorialPage = () => {
               <i className="bi bi-file-earmark-excel-fill me-2"></i> Exportar
               Excel
             </Button>
-          </div>
+          </Col>
 
           {/* --- Panel de Filtros --- */}
           <Card className="shadow-sm border-0 mb-4 rounded-4 overflow-hidden">

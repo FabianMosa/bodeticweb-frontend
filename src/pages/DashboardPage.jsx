@@ -126,7 +126,7 @@ const DashboardPage = () => {
                 </div>
                 <Card.Title className="fw-bold mb-2">Inventario</Card.Title>
                 <Card.Text className="text-muted small mb-4">
-                  Consulta, gestiona stock y registra movimientos.
+                  Consulta, gestiona stock y registra movimientos
                 </Card.Text>
                 <Button
                   variant="primary"
@@ -153,7 +153,7 @@ const DashboardPage = () => {
                       Devoluciones
                     </Card.Title>
                     <Card.Text className="text-muted small mb-4">
-                      Reingresa insumos prestados a la bodega.
+                      Reingresa insumos prestados a la bodega
                     </Card.Text>
                     <Button
                       variant="info"
@@ -176,7 +176,7 @@ const DashboardPage = () => {
                     </div>
                     <Card.Title className="fw-bold mb-2">Usuarios</Card.Title>
                     <Card.Text className="text-muted small mb-4">
-                      Administra roles y permisos del personal.
+                      Administra roles y permisos del personal
                     </Card.Text>
                     <Button
                       variant="success"
@@ -199,7 +199,7 @@ const DashboardPage = () => {
                     </div>
                     <Card.Title className="fw-bold mb-2">Reportes</Card.Title>
                     <Card.Text className="text-muted small mb-4">
-                      Historial completo y exportación a Excel.
+                      Historial completo y exportación a Excel
                     </Card.Text>
                     <Button
                       variant="secondary"
@@ -307,7 +307,7 @@ const DashboardPage = () => {
                         </div>
                       ) : (
                         <p className="text-muted">
-                          Todo el inventario está saludable.
+                          Todo el inventario está saludable
                         </p>
                       )}
                     </Card.Body>
@@ -346,7 +346,7 @@ const DashboardPage = () => {
                         </div>
                       ) : (
                         <p className="text-muted">
-                          No hay insumos próximos a vencer.
+                          No hay insumos próximos a vencer
                         </p>
                       )}
                     </Card.Body>
