@@ -329,8 +329,8 @@ const InventarioPage = () => {
                 <thead className="bg-light text-secondary text-uppercase small fw-bold">
                   <tr>
                     <th className="py-3 ps-4">Insumo</th>
-                    <th className="py-3">Categoría</th>
-                    <th className="py-3 text-center">Stock</th>
+                    <th className="py-3">Stock</th>
+                    <th className="py-3 text-center">Categoría</th>
                     <th className="py-3 pe-4 text-end">Acciones</th>
                   </tr>
                 </thead>
@@ -350,6 +350,18 @@ const InventarioPage = () => {
                           <div className="small text-muted font-monospace">
                             SKU: {insumo.sku}
                           </div>
+                        </td>
+                        <td className="text-center">
+                          <h5
+                            className={`m-0 fw-bold ${
+                              insumo.stock_actual <= insumo.stock_minimo &&
+                              insumo.activo
+                                ? "text-danger"
+                                : "text-dark"
+                            }`}
+                          >
+                            {insumo.stock_actual}
+                          </h5>
                         </td>
 
                         <td>
@@ -381,20 +393,7 @@ const InventarioPage = () => {
                               </Button>
                             )}
                           </div>
-                        </td>
-
-                        <td className="text-center">
-                          <h5
-                            className={`m-0 fw-bold ${
-                              insumo.stock_actual <= insumo.stock_minimo &&
-                              insumo.activo
-                                ? "text-danger"
-                                : "text-dark"
-                            }`}
-                          >
-                            {insumo.stock_actual}
-                          </h5>
-                        </td>
+                        </td>                        
 
                         <td className="pe-4 text-end">
                           <div className="d-flex justify-content-end gap-1">
