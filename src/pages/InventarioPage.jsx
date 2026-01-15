@@ -678,7 +678,7 @@ const InventarioPage = () => {
                     <th className="py-3 ps-4">Insumo</th>
                     <th className="py-3 text-center">Stock</th>
                     <th className="py-3">Categoria</th>
-                    <th className="py-3 pe-4 text-center">Acciones</th>
+                    <th className="py-3 pe-4 text-end">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
