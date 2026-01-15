@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Container,
@@ -24,12 +24,12 @@ import {
   Trash2,
   RotateCcw,
   LogOut,
+  Upload,
+  Save,
+  X,
+  Crosshair,
 } from "lucide-react";
 
-/**
- * Servicios y componentes locales.
- * Se asume la existencia de esta estructura de directorios en el entorno de desarrollo.
- */
 import insumoService from "../services/insumo.service";
 import SalidaModal from "../components/SalidaModal";
 import ScannerModal from "../components/ScannerModal";
@@ -59,6 +59,14 @@ const InventarioPage = () => {
   const [scannerModalOpen, setScannerModalOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [selectedInsumo, setSelectedInsumo] = useState(null);
+
+  // --- Estados para EDICIÓN DE UBICACIÓN ---
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [tempCoords, setTempCoords] = useState({ x: 0, y: 0 });
+  const [fileToUpload, setFileToUpload] = useState(null);
+  const [savingLocation, setSavingLocation] = useState(false);
+  const imageRef = useRef(null);
 
   const { showNotification } = useNotification();
 
@@ -107,7 +115,7 @@ const InventarioPage = () => {
     showNotification,
   ]);
 
-  // --- Manejadores de Eventos ---
+  // --- Manejadores de Eventos Generales ---
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setFiltroNombre(searchTerm);
@@ -142,13 +150,10 @@ const InventarioPage = () => {
   };
 
   const handleOpenScanner = () => setScannerModalOpen(true);
+
   const handleOpenSalidaModal = (insumo) => {
     setSelectedInsumo(insumo);
     setSalidaModalOpen(true);
-  };
-  const handleOpenLocationModal = (insumo) => {
-    setSelectedInsumo(insumo);
-    setLocationModalOpen(true);
   };
 
   const handleScanSuccess = async (sku) => {
@@ -178,12 +183,116 @@ const InventarioPage = () => {
     );
   };
 
+  // --- LÓGICA DE GESTIÓN DE UBICACIÓN (MODAL) ---
+
+  const handleOpenLocationModal = (insumo) => {
+    setSelectedInsumo(insumo);
+    // Inicializar estados de edición con los datos actuales
+    setIsEditingLocation(false);
+    setPreviewImage(insumo.imagen_ubicacion);
+    setTempCoords({
+      x: insumo.coordenada_x || 50,
+      y: insumo.coordenada_y || 50,
+    });
+    setFileToUpload(null);
+    setLocationModalOpen(true);
+  };
+
+  const handleCloseLocationModal = () => {
+    setLocationModalOpen(false);
+    setIsEditingLocation(false);
+    setFileToUpload(null);
+    setPreviewImage(null);
+  };
+
+  // Manejar selección de nueva imagen
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFileToUpload(file);
+      // Crear URL temporal para previsualización
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewImage(objectUrl);
+      // Resetear coordenadas al centro por defecto al cambiar imagen
+      setTempCoords({ x: 50, y: 50 });
+    }
+  };
+
+  // Manejar clic en la imagen para obtener coordenadas X/Y en porcentaje
+  const handleImageClick = (e) => {
+    if (!isEditingLocation) return;
+
+    const rect = e.target.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setTempCoords({ x, y });
+  };
+
+  // Guardar cambios de ubicación
+  const handleSaveLocation = async () => {
+    try {
+      setSavingLocation(true);
+
+      const formData = new FormData();
+      formData.append("coordenada_x", tempCoords.x);
+      formData.append("coordenada_y", tempCoords.y);
+      if (fileToUpload) {
+        formData.append("imagen_ubicacion", fileToUpload);
+      }
+
+      // Llamada al servicio (asumiendo que existe el método updateUbicacion)
+      // Si el método tiene otro nombre, ajústalo aquí.
+      const response = await insumoService.updateUbicacion(
+        selectedInsumo.PK_id_insumo,
+        formData
+      );
+
+      // Actualizar estado local optimista o con la respuesta del servidor
+      setInsumos((prev) =>
+        prev.map((i) =>
+          i.PK_id_insumo === selectedInsumo.PK_id_insumo
+            ? {
+                ...i,
+                // Usar la URL devuelta por el servidor o mantener la anterior si no se subió nueva
+                imagen_ubicacion:
+                  response.imagen_ubicacion || i.imagen_ubicacion,
+                coordenada_x: tempCoords.x,
+                coordenada_y: tempCoords.y,
+              }
+            : i
+        )
+      );
+
+      showNotification("Ubicación actualizada correctamente", "success");
+      handleCloseLocationModal();
+    } catch (err) {
+      showNotification(err.message || "Error al guardar ubicación", "error");
+    } finally {
+      setSavingLocation(false);
+    }
+  };
+
   return (
     <Container fluid className="bg-light min-vh-100 py-4 ">
       <style>{`
         .table-hover tbody tr:hover { background-color: rgba(13, 110, 253, 0.04); }
         .btn-icon { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
         .btn-icon:hover { background-color: #e9ecef; transform: translateY(-2px); transition: all 0.2s; }
+        .location-marker {
+            width: 24px;
+            height: 24px;
+            background-color: rgba(220, 53, 69, 0.8);
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 0.2s ease-out;
+            z-index: 10;
+        }
+        .crosshair-cursor { cursor: crosshair; }
       `}</style>
 
       {/* Título y Acciones Globales */}
@@ -197,7 +306,7 @@ const InventarioPage = () => {
               to="/dashboard"
               className="me-3"
             >
-              <i className="bi bi-arrow-left"></i>
+              <ArrowLeft size={24} />
             </Button>
           </Col>
           <Col>
@@ -374,7 +483,6 @@ const InventarioPage = () => {
                               {insumo.nombre_categoria}
                             </Badge>
 
-                            {/* SOLUCIÓN AL ERROR DEL '0': Uso de !! para casteo booleano */}
                             {!!insumo.activo && (
                               <Button
                                 variant="link"
@@ -430,7 +538,6 @@ const InventarioPage = () => {
                               </>
                             )}
 
-                            {/* SOLUCIÓN AL ERROR DEL '0': Ocultar botón de salida en papelera */}
                             {!!insumo.activo && (
                               <Button
                                 variant="primary"
@@ -502,31 +609,191 @@ const InventarioPage = () => {
         />
       )}
 
+      {/* --- MODAL DE UBICACIÓN (VER Y EDITAR) --- */}
       <Modal
         show={locationModalOpen}
-        onHide={() => setLocationModalOpen(false)}
+        onHide={handleCloseLocationModal}
         centered
         size="lg"
+        backdrop="static"
       >
         <Modal.Header closeButton>
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
-            <MapPin size={20} className="text-primary" /> Ubicación en Bodega
+            {isEditingLocation ? (
+              <>
+                <Crosshair size={20} className="text-danger" /> Definir
+                Ubicación
+              </>
+            ) : (
+              <>
+                <MapPin size={20} className="text-primary" /> Ubicación en
+                Bodega
+              </>
+            )}
           </Modal.Title>
         </Modal.Header>
+
         <Modal.Body className="text-center">
           {selectedInsumo && (
             <>
-              <h5 className="mb-3 text-secondary">{selectedInsumo.nombre}</h5>
-              <div className="bg-light border rounded">
-                <LocationViewer
-                  imageUrl={selectedInsumo.imagen_ubicacion}
-                  x={selectedInsumo.coordenada_x}
-                  y={selectedInsumo.coordenada_y}
-                />
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0 text-secondary text-start">
+                  {selectedInsumo.nombre}
+                </h5>
+
+                {/* Botón para cambiar a modo edición */}
+                {!isEditingLocation && usuarioRol === 1 && (
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => setIsEditingLocation(true)}
+                    className="d-flex align-items-center gap-2"
+                  >
+                    <Edit size={16} /> Modificar Ubicación
+                  </Button>
+                )}
+              </div>
+
+              {/* Controles de Edición */}
+              {isEditingLocation && (
+                <Card className="mb-3 bg-light border-0">
+                  <Card.Body className="py-3">
+                    <Form.Group>
+                      <Form.Label className="small fw-bold text-muted w-100 text-start">
+                        1. Subir nueva fotografía (Opcional)
+                      </Form.Label>
+                      <div className="d-flex gap-2">
+                        <Form.Control
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          size="sm"
+                        />
+                        {fileToUpload && (
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={() => {
+                              setFileToUpload(null);
+                              setPreviewImage(selectedInsumo.imagen_ubicacion);
+                            }}
+                          >
+                            <X size={16} />
+                          </Button>
+                        )}
+                      </div>
+                      <Form.Text className="text-muted small text-start d-block mt-1">
+                        Si no subes una imagen, se usará la actual.
+                      </Form.Text>
+                    </Form.Group>
+
+                    <div className="mt-3 text-start">
+                      <span className="small fw-bold text-muted">
+                        2. Marcar posición:{" "}
+                      </span>
+                      <span className="small text-danger">
+                        Haz clic sobre la imagen para mover el indicador.
+                      </span>
+                    </div>
+                  </Card.Body>
+                </Card>
+              )}
+
+              {/* Visor de Imagen / Área de Clic */}
+              <div
+                className={`position-relative bg-dark rounded overflow-hidden border ${
+                  isEditingLocation ? "crosshair-cursor" : ""
+                }`}
+                style={{ minHeight: "300px" }}
+              >
+                {previewImage || selectedInsumo.imagen_ubicacion ? (
+                  <div className="position-relative w-100 h-100">
+                    <img
+                      ref={imageRef}
+                      src={previewImage || selectedInsumo.imagen_ubicacion}
+                      alt="Ubicación"
+                      className="img-fluid w-100"
+                      style={{ maxHeight: "500px", objectFit: "contain" }}
+                      onClick={handleImageClick}
+                    />
+
+                    {/* Marcador Visual (Pin) */}
+                    <div
+                      className="location-marker d-flex align-items-center justify-content-center shadow-lg"
+                      style={{
+                        left: `${
+                          isEditingLocation
+                            ? tempCoords.x
+                            : selectedInsumo.coordenada_x || 50
+                        }%`,
+                        top: `${
+                          isEditingLocation
+                            ? tempCoords.y
+                            : selectedInsumo.coordenada_y || 50
+                        }%`,
+                      }}
+                    >
+                      {isEditingLocation && (
+                        <div
+                          className="bg-white rounded-circle"
+                          style={{ width: "6px", height: "6px" }}
+                        ></div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="d-flex flex-column align-items-center justify-content-center py-5 text-white-50">
+                    <MapPin size={48} className="mb-3 opacity-50" />
+                    <p>No hay imagen de ubicación asignada.</p>
+                    {isEditingLocation && (
+                      <p className="small text-warning">
+                        Sube una imagen para comenzar.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           )}
         </Modal.Body>
+
+        <Modal.Footer>
+          {isEditingLocation ? (
+            <>
+              <Button
+                variant="light"
+                onClick={() => {
+                  setIsEditingLocation(false);
+                  setFileToUpload(null);
+                  setPreviewImage(selectedInsumo.imagen_ubicacion);
+                }}
+                disabled={savingLocation}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSaveLocation}
+                disabled={savingLocation}
+                className="d-flex align-items-center gap-2"
+              >
+                {savingLocation ? (
+                  <>
+                    <Spinner size="sm" animation="border" /> Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} /> Guardar Cambios
+                  </>
+                )}
+              </Button>
+            </>
+          ) : (
+            <Button variant="secondary" onClick={handleCloseLocationModal}>
+              Cerrar
+            </Button>
+          )}
+        </Modal.Footer>
       </Modal>
     </Container>
   );
