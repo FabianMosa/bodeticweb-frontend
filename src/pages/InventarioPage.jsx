@@ -376,7 +376,7 @@ const InventarioPage = () => {
   // --- Paginación ---
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 15;
 
   // --- Control de Modales ---
   const [salidaModalOpen, setSalidaModalOpen] = useState(false);
