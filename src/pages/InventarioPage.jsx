@@ -400,13 +400,6 @@ const InventarioPage = () => {
                       </td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
-                          <Badge
-                            bg="light"
-                            text="dark"
-                            className="border fw-normal px-2 py-1"
-                          >
-                            {insumo.nombre_categoria}
-                          </Badge>
                           {!!insumo.activo && (
                             <Button
                               variant="link"
@@ -424,6 +417,13 @@ const InventarioPage = () => {
                               <MapPin size={14} />
                             </Button>
                           )}
+                          <Badge
+                            bg="light"
+                            text="dark"
+                            className="border fw-normal px-2 py-1"
+                          >
+                            {insumo.nombre_categoria}
+                          </Badge>
                         </div>
                       </td>
 
