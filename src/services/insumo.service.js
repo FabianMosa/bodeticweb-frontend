@@ -2,7 +2,6 @@ import api from "./api";
 
 const getInsumos = async (filtros = {}, page = 1, limit = 9) => {
   try {
-    // 1. Añadir filtros, page y limit a los parámetros
     const params = new URLSearchParams({
       activo: filtros.activo,
       categoria: filtros.categoria,
@@ -11,11 +10,10 @@ const getInsumos = async (filtros = {}, page = 1, limit = 9) => {
       limit: limit,
     }).toString();
 
-    // 2. Limpiar parámetros vacíos (opcional pero limpio)
     const cleanParams = params.replace(/[^&]+=&/g, "").replace(/&[^&]+=$/g, "");
 
     const response = await api.get(`/insumos?${cleanParams}`);
-    return response.data; // Devuelve { data: [...], pagination: {...} }
+    return response.data;
   } catch (error) {
     console.error(
       "Error en el servicio de obtener insumos:",
@@ -53,7 +51,6 @@ const getProveedores = async () => {
 
 const createInsumo = async (insumoData) => {
   try {
-    // insumoData será el objeto con { nombre, sku, stock_inicial, ... }
     const response = await api.post("/insumos", insumoData);
     return response.data;
   } catch (error) {
@@ -108,7 +105,6 @@ const getInsumoBySku = async (sku) => {
     const response = await api.get(`/insumos/sku/${sku}`);
     return response.data;
   } catch (error) {
-    // Si da 404 (no encontrado), no queremos que explote, solo que devuelva null
     if (error.response && error.response.status === 404) {
       return null;
     }
@@ -122,23 +118,20 @@ const getInsumoBySku = async (sku) => {
 
 /**
  * Actualiza la ubicación (coordenadas e imagen) de un insumo.
- * @param {number} id - ID del insumo
- * @param {FormData} formData - Objeto con 'coordenada_x', 'coordenada_y' e 'imagen_ubicacion' (file)
+ * CORRECCIÓN: Se eliminó el header Content-Type manual. 
+ * Axios lo generará automáticamente con el boundary correcto al detectar FormData.
  */
 const updateUbicacion = async (id, formData) => {
   try {
-    const response = await api.put(`/insumos/${id}/ubicacion`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await api.put(`/insumos/${id}/ubicacion`, formData);
     return response.data;
   } catch (error) {
     console.error(
       "Error en el servicio de actualizar ubicación:",
       error.response?.data || error.message
     );
-    throw error.response?.data || error;
+    // Devolvemos un objeto con mensaje para que el frontend pueda mostrarlo
+    throw error.response?.data || { message: error.message || "Error de conexión" };
   }
 };
 
@@ -151,5 +144,5 @@ export default {
   getInsumoById,
   updateInsumo,
   toggleActivo,
-  updateUbicacion, // Exportación de la nueva función
+  updateUbicacion,
 };
