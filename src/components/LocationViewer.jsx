@@ -11,60 +11,21 @@ const LocationViewer = ({ imageUrl, x, y }) => {
     );
   }
 
-  // Estilos para el contenedor relativo
-  const containerStyle = {
-    position: "relative",
-    display: "inline-block",
-    width: "100%",
-    border: "1px solid #dee2e6",
-    borderRadius: "4px",
-    overflow: "hidden",
-    backgroundColor: "#f8f9fa",
-  };
-
-  // Estilos para el marcador (Pin)
-  const pinStyle = {
-    position: "absolute",
-    left: `${x}%`,
-    top: `${y}%`,
-    width: "24px",
-    height: "24px",
-    backgroundColor: "#dc3545", // Rojo Bootstrap
-    border: "2px solid white",
-    borderRadius: "50%",
-    transform: "translate(-50%, -50%)", // Centrar el pin en la coordenada exacta
-    boxShadow: "0 2px 5px rgba(0,0,0,0.5)",
-    zIndex: 10,
-    animation: "pulse 2s infinite", // Animación opcional
-  };
-
-  // Estilos para la imagen
-  const imageStyle = {
-    width: "100%",
-    height: "auto",
-    display: "block",
-  };
-
   return (
-    <div style={containerStyle}>
+    <div className="location-viewer-container position-relative">
       <Image
         src={imageUrl}
         alt="Ubicación en Bodega"
-        style={imageStyle}
         fluid
+        className="w-100 d-block"
       />
 
-      {/* El Pin Rojo */}
-      <div style={pinStyle} title={`Ubicación: ${x}%, ${y}%`} />
-
-      {/* Estilos de animación embebidos */}
-      <style>{`
-        @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-          70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-        }
-      `}</style>
+      {/* Marcador de ubicación con animación de pulso (estilos en global.css) */}
+      <div
+        className="location-marker-pin"
+        style={{ left: `${x}%`, top: `${y}%` }}
+        title={`Ubicación: ${x}%, ${y}%`}
+      />
     </div>
   );
 };

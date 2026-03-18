@@ -223,12 +223,7 @@ const InventarioPage = () => {
   };
 
   return (
-    <Container fluid className="bg-light min-vh-100 py-4">
-      <style>{`
-        .btn-icon { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
-        .btn-icon:hover { background-color: #e9ecef; transform: translateY(-2px); transition: all 0.2s; }
-      `}</style>
-
+    <Container fluid className="page-container min-vh-100 py-4 font-sans">
       {/* Header */}
       <Row className="mb-4 align-items-center">
         <Col xs="auto">
@@ -362,7 +357,7 @@ const InventarioPage = () => {
               <Spinner animation="border" variant="primary" />
             </div>
           ) : (
-            <Table hover responsive="md" className="align-middle mb-0">
+            <Table hover responsive="md" className="align-middle mb-0 custom-table">
               <thead className="bg-light text-secondary text-uppercase small fw-bold">
                 <tr>
                   <th className="py-3 ps-4">Insumo</th>
@@ -403,16 +398,9 @@ const InventarioPage = () => {
                           {!!insumo.activo && (
                             <Button
                               variant="link"
-                              className="p-1 text-primary rounded-circle bg-primary-subtle"
+                              className="btn-icon-sm p-0 text-primary rounded-circle bg-primary-subtle"
                               onClick={() => handleOpenLocationModal(insumo)}
                               title="Ver/Editar ubicación física"
-                              style={{
-                                width: "28px",
-                                height: "28px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
                             >
                               <MapPin size={14} />
                             </Button>
@@ -589,34 +577,23 @@ const InventarioPage = () => {
                   onLocationSelect={setNewCoords}
                 />
               ) : (
-                // MODO VISUALIZACIÓN
-                <div
-                  className="position-relative bg-dark rounded-3 overflow-hidden shadow-inner border"
-                  style={{ minHeight: "300px" }}
-                >
+                // MODO VISUALIZACIÓN (clases en global.css)
+                <div className="position-relative bg-dark rounded-3 overflow-hidden shadow-inner border location-preview-container">
                   {selectedInsumo.imagen_ubicacion ? (
                     <div className="position-relative w-100 h-100">
                       <img
                         src={selectedInsumo.imagen_ubicacion}
                         alt="Ubicación"
                         className="img-fluid w-100"
-                        style={{ maxHeight: "550px", objectFit: "contain" }}
                       />
                       <div
-                        className="position-absolute shadow-lg"
+                        className="location-marker-pin"
                         style={{
                           left: `${selectedInsumo.coordenada_x || 50}%`,
                           top: `${selectedInsumo.coordenada_y || 50}%`,
-                          width: "24px",
-                          height: "24px",
-                          backgroundColor: "#dc3545",
-                          border: "3px solid white",
-                          borderRadius: "50%",
-                          transform: "translate(-50%, -50%)",
                           pointerEvents: "none",
-                          boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
                         }}
-                      ></div>
+                      />
                     </div>
                   ) : (
                     <div className="d-flex flex-column align-items-center justify-content-center py-5 h-100 text-white-50">

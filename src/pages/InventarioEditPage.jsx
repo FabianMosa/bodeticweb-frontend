@@ -271,17 +271,6 @@ const InventarioEditPage = () => {
           </Card>
         </Col>
       </Row>
-
-      {/* Estilos CSS Específicos para mejorar la UX de los inputs */}
-      <style>{`
-        .form-container {
-          background-color: #f8f9fa;
-        }
-        .form-control-focus:focus, .form-select:focus {
-          border-color: #ffc107; /* Borde amarillo al enfocar para coincidir con el tema de edición */
-          box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
-        }
-      `}</style>
     </Container>
   );
 };

@@ -208,7 +208,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 - **Sistema de diseño propio:**
   - **`src/styles/variables.css`**: tokens (variables CSS) para colores, gradientes, sombras, radios y espaciado. Punto único de verdad para temas.
   - **`src/styles/global.css`**: importa las variables y define todas las clases custom reutilizables (navbar-custom, btn-gradient, btn-modern, card-header-gradient, shadow-hover, icon-circle, input-group-modern, badges de estado, etc.). Se importa en `main.jsx` después de Bootstrap.
-- No se usan estilos inline en componentes; toda la personalización está en `global.css` usando las variables.
+- No se usan bloques `<style>` inline; toda la personalización está en `global.css` usando las variables (incluye Inventario, Historial, formularios, modales de escáner/notificación y visor de ubicación).
 - **Bootstrap Icons + Lucide React** para iconografía.
 
 ## Scripts

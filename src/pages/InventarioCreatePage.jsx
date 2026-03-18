@@ -210,7 +210,7 @@ const InventarioCreatePage = () => {
     );
 
   return (
-    <Container className="py-4">
+    <Container className="page-container font-sans min-vh-100 py-4">
       <Row className="justify-content-center">
         <Col xs={12} lg={10} xl={8}>
           {/* Header y Botón Volver */}
@@ -522,14 +522,6 @@ const InventarioCreatePage = () => {
           onScanSuccess={handleScanSuccess}
         />
       )}
-
-      {/* Estilos Adicionales */}
-      <style>{`
-        .form-control:focus, .form-select:focus {
-          border-color: #86b7fe;
-          box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-      `}</style>
     </Container>
   );
 };

@@ -189,7 +189,7 @@ const HistorialPage = () => {
   };
 
   return (
-    <Container fluid className="bg-light min-vh-100 py-4 font-sans">
+    <Container fluid className="page-container min-vh-100 py-4 font-sans">
       <Row className="justify-content-center">
         <Col xs={12} xl={10}>
           {/* --- Encabezado y Navegación --- */}
@@ -509,42 +509,6 @@ const HistorialPage = () => {
           </Card>
         </Col>
       </Row>
-
-      {/* --- Estilos CSS Personalizados --- */}
-      <style>{`
-        .font-sans {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        .form-control:focus, .form-select:focus {
-          border-color: #86b7fe;
-          box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-        }
-        .custom-table thead th {
-            border-bottom: 2px solid #f0f0f0;
-            background-color: #f8f9fa;
-        }
-        .custom-pagination .page-link {
-            border: none;
-            color: #6c757d;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 2px;
-        }
-        .custom-pagination .page-item.active .page-link {
-            background-color: #0d6efd;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
-        }
-        .custom-pagination .page-link:hover {
-            background-color: #e9ecef;
-            color: #0d6efd;
-        }
-      `}</style>
     </Container>
   );
 };

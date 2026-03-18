@@ -188,6 +188,17 @@
   transform: translateY(-2px);
 }
 
+/* Botón icono pequeño (ej. botón de ubicación en tabla) */
+.btn-icon-sm {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
 /* ========== Badges de estado ========== */
 .badge-status {
   padding: 0.35em 0.8em;
@@ -311,4 +322,123 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ========== Formularios - contenedor y foco ========== */
+.form-container {
+  background-color: var(--bg-page);
+}
+
+/* Foco tipo edición (warning) para páginas de edición de insumo */
+.form-control-focus:focus {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+}
+
+/* ========== Paginación custom (Historial, listados) ========== */
+.custom-pagination .page-link {
+  border: none;
+  color: var(--color-secondary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
+}
+
+.custom-pagination .page-item.active .page-link {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
+}
+
+.custom-pagination .page-link:hover {
+  background-color: var(--border-light);
+  color: var(--color-primary);
+}
+
+/* ========== Scanner (vídeo de cámara) ========== */
+.scanner-video {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-input);
+  background: #333;
+}
+
+/* ========== Notificación modal - icono animado ========== */
+.icon-animate {
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  display: inline-block;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Fallbacks para fondos sutiles (compatibilidad) */
+.bg-danger-subtle {
+  background-color: #fceceb;
+}
+
+.bg-success-subtle {
+  background-color: #eafbf2;
+}
+
+/* ========== LocationViewer - marcador con pulso ========== */
+/* Vista previa de ubicación en modal (altura mínima) */
+.location-preview-container {
+  min-height: 300px;
+}
+
+.location-preview-container img {
+  max-height: 550px;
+  object-fit: contain;
+}
+
+/* Contenedor del visor de ubicación (imagen + marcador) */
+.location-viewer-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--bg-thead);
+}
+
+.location-marker-pin {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-danger);
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  animation: locationPulse 2s infinite;
+}
+
+@keyframes locationPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
 }

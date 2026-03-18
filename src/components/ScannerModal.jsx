@@ -111,18 +111,6 @@ const ScannerModal = ({ onClose, onScanSuccess }) => {
           Cancelar
         </Button>
       </Modal.Footer>
-
-      {/* Estilos */}
-      <style>{`
-        .scanner-video {
-          width: 100%;
-          max-width: 600px;
-          height: auto;
-          border-radius: 8px;
-          border: 1px solid #dee2e6;
-          background: #333;
-        }
-      `}</style>
     </Modal>
   );
 };

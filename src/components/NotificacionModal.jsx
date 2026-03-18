@@ -78,29 +78,6 @@ const NotificationModal = () => {
           </div>
         </div>
       </Modal.Body>
-
-      {/* Estilos CSS encapsulados para la animación */}
-      <style>{`
-        .icon-animate {
-          animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-          display: inline-block;
-        }
-
-        @keyframes popIn {
-          0% {
-            opacity: 0;
-            transform: scale(0.5);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        
-        /* Ajuste para fondo sutil en versiones antiguas de Bootstrap si no soportan bg-subtle */
-        .bg-danger-subtle { background-color: #fceceb; }
-        .bg-success-subtle { background-color: #eafbf2; }
-      `}</style>
     </Modal>
   );
 };
