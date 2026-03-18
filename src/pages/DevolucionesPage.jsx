@@ -330,53 +330,6 @@ const DevolucionPage = () => {
           </Card>
         </Col>
       </Row>
-
-      {/* --- Estilos CSS Personalizados --- */}
-      <style>{`
-        .font-sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .ls-1 { letter-spacing: 0.5px; }
-        .page-container { background-color: #f0f2f5; }
-        
-        .card-hover-effect {
-             transition: transform 0.2s ease-in-out;
-        }
-        
-        .icon-wrapper {
-            background-color: rgba(13, 202, 240, 0.1);
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Inputs Modernos */
-        .form-control-lg, .form-select-lg {
-            border: 1px solid #dee2e6;
-            font-size: 1rem;
-            padding: 0.75rem 1rem;
-        }
-        .form-control-lg:focus, .form-select:focus {
-            border-color: #0dcaf0;
-            background-color: #fff;
-            box-shadow: 0 0 0 4px rgba(13, 202, 240, 0.15);
-        }
-        
-        /* Botón Gradiente */
-        .btn-gradient-info {
-            background: linear-gradient(45deg, #0dcaf0, #0d6efd);
-            transition: all 0.3s ease;
-        }
-        .btn-gradient-info:hover {
-            background: linear-gradient(45deg, #0bb5d9, #0b5ed7);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(13, 202, 240, 0.4);
-        }
-        .btn-gradient-info:disabled {
-            background: #adb5bd;
-            transform: none;
-        }
-      `}</style>
     </Container>
   );
 };

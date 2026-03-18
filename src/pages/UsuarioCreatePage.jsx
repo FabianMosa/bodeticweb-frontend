@@ -243,7 +243,7 @@ const UsuarioCreatePage = () => {
                   <Button
                     type="submit"
                     disabled={submitting}
-                    className="btn-lg shadow-sm btn-gradient border-0"
+                    className="btn-lg shadow-sm btn-gradient-success border-0"
                   >
                     {submitting ? (
                       <>
@@ -265,58 +265,6 @@ const UsuarioCreatePage = () => {
           </Card>
         </Col>
       </Row>
-
-      {/* --- Estilos CSS --- */}
-      <style>{`
-        .font-sans { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .ls-1 { letter-spacing: 1px; }
-        
-        .card-header-gradient {
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-        }
-        
-        .icon-circle {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .input-group-modern .form-control, 
-        .input-group-modern .input-group-text,
-        .input-group-modern .form-select {
-            border-color: #dee2e6;
-            padding: 0.75rem 1rem;
-        }
-
-        .input-group-modern:focus-within .form-control,
-        .input-group-modern:focus-within .input-group-text,
-        .input-group-modern:focus-within .form-select,
-        .input-group-modern:focus-within .btn {
-            border-color: #86b7fe;
-            box-shadow: none; /* Quitamos el shadow default para limpieza */
-            background-color: #fff !important;
-        }
-        
-        /* Efecto de foco en el grupo entero */
-        .input-group-modern:focus-within {
-             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-             border-radius: 0.375rem;
-        }
-
-        .btn-gradient {
-            background: linear-gradient(to right, #28a745, #20c997);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
-            background: linear-gradient(to right, #218838, #198754);
-        }
-      `}</style>
     </Container>
   );
 };

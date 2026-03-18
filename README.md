@@ -55,7 +55,8 @@ bodeticweb-frontend/
 │   │   ├── proveedor.service.js    # Listado de proveedores
 │   │   └── rol.service.js          # Listado de roles
 │   ├── styles/
-│   │   └── LoginPage.module.css    # CSS Module para login
+│   │   ├── variables.css           # Tokens de diseño (colores, sombras, radios)
+│   │   └── global.css              # Estilos globales (importa variables + clases custom)
 │   ├── App.jsx                     # Componente raíz (definición de rutas)
 │   └── main.jsx                    # Punto de entrada (BrowserRouter + Provider)
 ├── index.html
@@ -202,11 +203,13 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 
 ## Estilos
 
-- **Bootstrap 5** como framework principal (grid, utilidades, componentes)
+- **Bootstrap 5** como framework principal (grid, utilidades, componentes). Criterio **mobile-first** con breakpoints estándar de Bootstrap.
 - **React-Bootstrap** para componentes interactivos (Modal, Form, Button, etc.)
-- **CSS Modules** para estilos encapsulados (`LoginPage.module.css`)
-- **Estilos inline/embebidos** en componentes con gradientes y animaciones personalizadas
-- **Bootstrap Icons + Lucide React** para iconografía
+- **Sistema de diseño propio:**
+  - **`src/styles/variables.css`**: tokens (variables CSS) para colores, gradientes, sombras, radios y espaciado. Punto único de verdad para temas.
+  - **`src/styles/global.css`**: importa las variables y define todas las clases custom reutilizables (navbar-custom, btn-gradient, btn-modern, card-header-gradient, shadow-hover, icon-circle, input-group-modern, badges de estado, etc.). Se importa en `main.jsx` después de Bootstrap.
+- No se usan estilos inline en componentes; toda la personalización está en `global.css` usando las variables.
+- **Bootstrap Icons + Lucide React** para iconografía.
 
 ## Scripts
 

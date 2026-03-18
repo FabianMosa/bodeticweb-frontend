@@ -357,64 +357,6 @@ const DashboardPage = () => {
           )}
         </Row>
       </Container>
-
-      <style>{`
-        /* --- ESTILOS MODERNOS --- */
-        .dashboard-wrapper {
-            background-color: #f3f6f9; /* Gris muy suave, profesional */
-        }
-        
-        .navbar-custom {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .brand-icon {
-            color: #0d6efd;
-            font-size: 1.5rem;
-        }
-
-        /* Tarjetas de Módulos con Efecto Hover */
-        .shadow-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .shadow-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
-        }
-
-        .icon-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Widgets Laterales */
-        .widget-card {
-            border-radius: 12px;
-        }
-        
-        .border-start-danger {
-            border-left: 4px solid #dc3545 !important;
-        }
-        
-        .border-start-warning {
-            border-left: 4px solid #ffc107 !important;
-        }
-
-        .border-bottom-light {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .btn-logout {
-            border-radius: 20px;
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
-        }
-      `}</style>
     </div>
   );
 };

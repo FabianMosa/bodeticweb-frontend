@@ -1,0 +1,65 @@
+/**
+ * Tokens de diseño - BodegaWeb Frontend
+ * Punto único de verdad para colores, sombras, radios y espaciado.
+ * Uso: var(--nombre-variable) en global.css o en componentes.
+ */
+
+:root {
+  /* --- Colores primarios y secundarios --- */
+  --color-primary: #0d6efd;
+  --color-primary-dark: #0a58ca;
+  --color-primary-light: #86b7fe;
+  --color-info: #0dcaf0;
+  --color-info-dark: #0bb5d9;
+  --color-success: #198754;
+  --color-success-dark: #218838;
+  --color-success-light: #20c997;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-secondary: #6c757d;
+
+  /* --- Gradientes (valores para linear-gradient) --- */
+  --gradient-primary: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  --gradient-primary-hover: linear-gradient(to right, #218838, #198754);
+  --gradient-success: linear-gradient(to right, #28a745, #20c997);
+  --gradient-info: linear-gradient(45deg, #0dcaf0, #0d6efd);
+  --gradient-info-hover: linear-gradient(45deg, #0bb5d9, #0b5ed7);
+
+  /* --- Fondos y superficies --- */
+  --bg-dashboard: #f3f6f9;
+  --bg-page: #f0f2f5;
+  --bg-white: #ffffff;
+  --border-light: #e9ecef;
+  --border-input: #dee2e6;
+  --border-table: #f0f0f0;
+  --bg-thead: #f8f9fa;
+
+  /* --- Sombras --- */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(13, 110, 253, 0.3);
+  --shadow-md-success: 0 4px 12px rgba(40, 167, 69, 0.3);
+  --shadow-md-info: 0 4px 12px rgba(13, 202, 240, 0.4);
+  --shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.08);
+  --shadow-focus: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  --shadow-focus-info: 0 0 0 4px rgba(13, 202, 240, 0.15);
+  --shadow-icon: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  /* --- Radios (border-radius) --- */
+  --radius-sm: 0.375rem;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 15px;
+  --radius-pill: 50rem;
+  --radius-pill-btn: 20px;
+
+  /* --- Espaciado --- */
+  --spacing-input-x: 1rem;
+  --spacing-input-y: 0.75rem;
+  --spacing-btn-logout-x: 1.5rem;
+
+  /* --- Tipografía --- */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --letter-spacing-1: 0.5px;
+  --letter-spacing-2: 1px;
+}
