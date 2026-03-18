@@ -23,16 +23,17 @@ const App = () => {
       <NotificationModal />
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route element={<ProtectedRoute />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/inventario" element={<InventarioPage />} />
-        <Route path="/inventario/nuevo" element={<InventarioCreatePage />} />
-        <Route path="/inventario/editar/:id" element={<InventarioEditPage />} />
-        <Route path="/devoluciones" element={<DevolucionPage />} />
-        <Route path="/usuarios" element={<UsuarioListPage />} />
-        <Route path="/usuarios/nuevo" element={<UsuarioCreatePage />} />
-        <Route path="/usuarios/editar/:id" element={<UsuarioEditPage />} />
-        <Route path="/historial" element={<HistorialPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/inventario" element={<InventarioPage />} />
+          <Route path="/inventario/nuevo" element={<InventarioCreatePage />} />
+          <Route path="/inventario/editar/:id" element={<InventarioEditPage />} />
+          <Route path="/devoluciones" element={<DevolucionPage />} />
+          <Route path="/usuarios" element={<UsuarioListPage />} />
+          <Route path="/usuarios/nuevo" element={<UsuarioCreatePage />} />
+          <Route path="/usuarios/editar/:id" element={<UsuarioEditPage />} />
+          <Route path="/historial" element={<HistorialPage />} />
+        </Route>
         {/* (Opcional: Ruta para "No encontrado") */}
         <Route path="*" element={<h2>404 - Página No Encontrada</h2>} />
       </Routes>
