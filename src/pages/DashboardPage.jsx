@@ -221,7 +221,7 @@ const DashboardPage = () => {
           {/* Widget: Préstamos Pendientes */}
           <Col lg={usuarioRol === 1 ? 4 : 12}>
             <Card className="border-0 shadow-sm h-100 widget-card">
-              <Card.Header className="bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+              <Card.Header className="bg-transparent border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                 <h5 className="fw-bold mb-0 text-dark">
                   <i className="bi bi-clock-history me-2 text-primary"></i>
                   Préstamos
@@ -282,7 +282,7 @@ const DashboardPage = () => {
                 {/* Alerta Stock */}
                 <Col md={6}>
                   <Card className="border-0 shadow-sm h-100 widget-card border-start-danger">
-                    <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
+                    <Card.Header className="bg-transparent border-bottom-0 pt-4 px-4">
                       <h5 className="fw-bold mb-0 text-danger">
                         <i className="bi bi-exclamation-triangle-fill me-2"></i>
                         Stock Crítico
@@ -317,7 +317,7 @@ const DashboardPage = () => {
                 {/* Alerta Vencimiento */}
                 <Col md={6}>
                   <Card className="border-0 shadow-sm h-100 widget-card border-start-warning">
-                    <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
+                    <Card.Header className="bg-transparent border-bottom-0 pt-4 px-4">
                       <h5 className="fw-bold mb-0 text-warning">
                         <i className="bi bi-calendar-event-fill me-2"></i>
                         Por Vencer

@@ -201,14 +201,16 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 | `getProveedores()` | GET `/proveedores` | Listar proveedores |
 | `getRoles()` | GET `/roles` | Listar roles |
 
-## Estilos
+## Estilos y Estética Premium
 
-- **Bootstrap 5** como framework principal (grid, utilidades, componentes). Criterio **mobile-first** con breakpoints estándar de Bootstrap.
-- **React-Bootstrap** para componentes interactivos (Modal, Form, Button, etc.)
-- **Sistema de diseño propio:**
-  - **`src/styles/variables.css`**: tokens (variables CSS) para colores, gradientes, sombras, radios y espaciado. Punto único de verdad para temas.
-  - **`src/styles/global.css`**: importa las variables y define todas las clases custom reutilizables (navbar-custom, btn-gradient, btn-modern, card-header-gradient, shadow-hover, icon-circle, input-group-modern, badges de estado, etc.). Se importa en `main.jsx` después de Bootstrap.
-- No se usan bloques `<style>` inline; toda la personalización está en `global.css` usando las variables (incluye Inventario, Historial, formularios, modales de escáner/notificación y visor de ubicación).
+- **Bootstrap 5** como framework principal (grid, utilidades, componentes). Criterio **mobile-first**.
+- **React-Bootstrap** para componentes interactivos (Modal, Form, Button, etc.).
+- **Sistema de diseño premium y Tipografía:**
+  - Tipografía principal unificada a la fuente **Outfit** (vía Google Fonts).
+  - Efectos visuales de tipo **Glassmorphism** (fondos semitransparentes con desenfoque) y micro-animaciones fluidas.
+  - **`src/styles/variables.css`**: tokens de diseño que mantienen la paleta de colores oficial original (`#0d6efd`, etc) junto con las variables para transparencias, cajas con sombra premium y gradientes suaves.
+  - **`src/styles/global.css`**: clases customizadas (navbar-custom cristalina, modales transparentes, botones y animaciones). Importado de manera estricta y global tras la carga de Bootstrap.
+- **Sin estilos acoplados**: Está estrictamente prohibido usar bloques `<style>` inline. Toda nueva estilización debe ajustarse a las clases del global y al paradigma de las variables base.
 - **Bootstrap Icons + Lucide React** para iconografía.
 
 ## Scripts
