@@ -74,6 +74,12 @@ VITE_API_URL=http://localhost:3000/api
 
 > Las variables de Vite deben comenzar con `VITE_` para ser accesibles en el código.
 
+### Producción (Vercel) y uso en móvil
+
+- Define en Vercel `VITE_API_URL` con la URL **HTTPS** de tu API (p. ej. Railway: `https://<tu-servicio>.up.railway.app/api`). Si el frontend está en HTTPS y la API en HTTP, el navegador puede bloquear las peticiones (contenido mixto); en escritorio a veces se percibe menos que en móvil.
+- El backend debe enviar cabeceras CORS que incluyan el dominio exacto del frontend desplegado.
+- El layout del login evita `100vh` rígido con `overflow: hidden` en móvil; los estilos `login-page-shell` / `login-form-col` en `src/styles/global.css` usan `dvh`/`svh` y scroll para Safari/iOS.
+
 ## Sistema de Rutas
 
 ### Rutas públicas

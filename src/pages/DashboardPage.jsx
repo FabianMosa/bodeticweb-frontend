@@ -27,10 +27,16 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const usuarioInfo = JSON.parse(localStorage.getItem("usuario"));
+    let usuarioInfo = null;
+    try {
+      const raw = localStorage.getItem("usuario");
+      usuarioInfo = raw ? JSON.parse(raw) : null;
+    } catch {
+      localStorage.removeItem("usuario");
+    }
     let rol = null;
-    if (usuarioInfo) {
-      setNombreUsuario(usuarioInfo.usuario.nombre);
+    if (usuarioInfo?.usuario) {
+      setNombreUsuario(usuarioInfo.usuario.nombre ?? "Usuario");
       setUsuarioRol(usuarioInfo.usuario.rol);
       rol = usuarioInfo.usuario.rol;
     }
@@ -291,9 +297,9 @@ const DashboardPage = () => {
                     <Card.Body className="px-4 pb-4">
                       {loading ? (
                         <Spinner animation="border" size="sm" />
-                      ) : alertas.stockBajo.length > 0 ? (
+                      ) : (alertas.stockBajo?.length ?? 0) > 0 ? (
                         <div className="alert-list">
-                          {alertas.stockBajo.slice(0, 4).map((a) => (
+                          {(alertas.stockBajo ?? []).slice(0, 4).map((a) => (
                             <div
                               key={a.PK_id_insumo}
                               className="d-flex justify-content-between align-items-center mb-3 p-2 rounded bg-danger-subtle"
@@ -326,9 +332,9 @@ const DashboardPage = () => {
                     <Card.Body className="px-4 pb-4">
                       {loading ? (
                         <Spinner animation="border" size="sm" />
-                      ) : alertas.porVencer.length > 0 ? (
+                      ) : (alertas.porVencer?.length ?? 0) > 0 ? (
                         <div className="alert-list">
-                          {alertas.porVencer.slice(0, 4).map((a) => (
+                          {(alertas.porVencer ?? []).slice(0, 4).map((a) => (
                             <div
                               key={a.PK_id_insumo}
                               className="d-flex justify-content-between align-items-center mb-3 p-2 rounded bg-warning-subtle"

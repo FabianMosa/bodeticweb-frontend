@@ -4,10 +4,22 @@
 @import "./variables.css";
 
 /* ========== Layout y contenedores ========== */
+/* Cadena de altura + viewport dinámico: evita “pantalla en blanco” en login móvil (Safari/iOS con 100vh) */
+html {
+  height: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   color: #1e293b;
   -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+#root {
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 .dashboard-wrapper {
@@ -361,6 +373,47 @@ body {
 }
 
 /* ========== Login Login Login ========== */
+/* Contenedor login: sin overflow-hidden fijo; scroll suave en móvil si el teclado o la barra de URL reducen el viewport */
+.login-page-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+.login-page-row {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 0;
+}
+
+.login-form-col {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.login-form-inner {
+  max-width: 450px;
+}
+
+@media (max-width: 767.98px) {
+  .login-page-shell {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* svh: altura mínima visible con barra de direcciones abierta (mejor que vh solo en móvil) */
+    min-height: 100svh;
+  }
+
+  .login-form-col {
+    min-height: min(100%, 100svh);
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+}
+
 .left-panel {
   background: var(--gradient-login);
   position: relative;
