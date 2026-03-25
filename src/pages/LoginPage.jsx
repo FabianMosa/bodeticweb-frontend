@@ -45,10 +45,7 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const data = await authService.login(rut, password);
-      // Evita crash si el backend devuelve payload sin usuario anidado (móviles mostrarían pantalla en blanco)
-      const nombre =
-        data?.usuario?.nombre ?? data?.usuario?.name ?? "Usuario";
-      showNotification(`Bienvenido, ${nombre}`, "success");
+      showNotification(`Bienvenido, ${data.usuario.nombre}`, "success");
       navigate("/dashboard");
     } catch (err) {
       showNotification(err.message || "Error al iniciar sesión", "error");
@@ -58,9 +55,9 @@ const LoginPage = () => {
   };
 
   return (
-    // login-page-shell: min-height dinámico y scroll en móvil (vh-100+overflow-hidden rompe Safari/iOS)
-    <Container fluid className="login-page-shell p-0">
-      <Row className="login-page-row g-0">
+    // min-vh-100 + sin overflow-hidden: en iOS/Android evita colapso de altura y recortes con teclado virtual
+    <Container fluid className="min-vh-100 p-0 overflow-x-hidden login-page-root">
+      <Row className="min-vh-100 g-0 flex-column flex-md-row">
         {/* --- PANEL IZQUIERDO (Visual / Branding) --- */}
         {/* d-none d-md-flex: Se oculta en móviles, se muestra flex en tablets+ */}
         <Col
@@ -98,11 +95,12 @@ const LoginPage = () => {
 
         {/* --- PANEL DERECHO (Formulario) --- */}
         <Col
+          xs={12}
           md={6}
           lg={5}
-          className="d-flex align-items-center justify-content-center bg-white right-panel login-form-col"
+          className="d-flex align-items-center justify-content-center bg-white right-panel min-vh-100 py-4 py-md-0"
         >
-          <div className="w-100 p-4 login-form-inner">
+          <div className="w-100 p-4" style={{ maxWidth: "450px" }}>
             <div className="text-center mb-5">
               <h2 className="fw-bold text-dark mb-2">Iniciar Sesión</h2>
               <p className="text-muted">
@@ -148,7 +146,6 @@ const LoginPage = () => {
                     className="border-start-0 border-end-0 bg-light ps-1"
                   />
                   <Button
-                    type="button"
                     variant="light"
                     className="border border-start-0 bg-light text-muted"
                     onClick={() => setShowPassword(!showPassword)}

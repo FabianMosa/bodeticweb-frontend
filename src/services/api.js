@@ -2,7 +2,10 @@ import axios from "axios";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-// Instancia Axios con la URL base de la API (en Vercel definir VITE_API_URL apuntando al backend HTTPS de Railway)
+// Creamos una instancia de Axios con la URL base de nuestra API
+if (import.meta.env.DEV) {
+  console.log("API Base URL:", API_BASE_URL);
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,6 +17,7 @@ const api = axios.create({
 // con el formato 'Bearer <token>'
 api.interceptors.request.use(
   (config) => {
+    // Obtenemos el token del localStorage; JSON corrupto no debe tumbar la app
     const usuarioStorage = localStorage.getItem("usuario");
     if (usuarioStorage) {
       try {
@@ -23,7 +27,6 @@ api.interceptors.request.use(
           config.headers["Authorization"] = "Bearer " + token;
         }
       } catch {
-        // JSON corrupto en localStorage rompía todas las peticiones (pantalla en blanco tras login)
         localStorage.removeItem("usuario");
       }
     }

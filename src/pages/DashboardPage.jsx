@@ -30,15 +30,17 @@ const DashboardPage = () => {
     let usuarioInfo = null;
     try {
       const raw = localStorage.getItem("usuario");
-      usuarioInfo = raw ? JSON.parse(raw) : null;
+      if (raw) usuarioInfo = JSON.parse(raw);
     } catch {
       localStorage.removeItem("usuario");
     }
+
     let rol = null;
-    if (usuarioInfo?.usuario) {
-      setNombreUsuario(usuarioInfo.usuario.nombre ?? "Usuario");
-      setUsuarioRol(usuarioInfo.usuario.rol);
-      rol = usuarioInfo.usuario.rol;
+    const u = usuarioInfo?.usuario;
+    if (u) {
+      setNombreUsuario(u.nombre ?? "Usuario");
+      setUsuarioRol(u.rol ?? null);
+      rol = u.rol;
     }
 
     const loadDashboardData = async () => {
@@ -297,7 +299,7 @@ const DashboardPage = () => {
                     <Card.Body className="px-4 pb-4">
                       {loading ? (
                         <Spinner animation="border" size="sm" />
-                      ) : (alertas.stockBajo?.length ?? 0) > 0 ? (
+                      ) : (alertas.stockBajo ?? []).length > 0 ? (
                         <div className="alert-list">
                           {(alertas.stockBajo ?? []).slice(0, 4).map((a) => (
                             <div
@@ -332,7 +334,7 @@ const DashboardPage = () => {
                     <Card.Body className="px-4 pb-4">
                       {loading ? (
                         <Spinner animation="border" size="sm" />
-                      ) : (alertas.porVencer?.length ?? 0) > 0 ? (
+                      ) : (alertas.porVencer ?? []).length > 0 ? (
                         <div className="alert-list">
                           {(alertas.porVencer ?? []).slice(0, 4).map((a) => (
                             <div
