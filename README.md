@@ -127,6 +127,9 @@ Modal para registrar salidas de stock. Tipos: "Salida-Uso" (requiere código OT)
 ### ScannerModal
 Escáner de códigos de barras usando la **BarcodeDetector API** del navegador. Utiliza cámara trasera en dispositivos móviles.
 
+### ErrorBoundary
+Componente clase que captura errores de render en producción (evita pantalla en blanco). Muestra un mensaje de error con opción de recarga.
+
 ## Gestión de Estado
 
 ### Context API — NotificationContext
@@ -180,7 +183,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 |---------|----------|-------------|
 | `registrarSalida(data)` | POST `/movimientos/salida` | Registrar salida |
 | `registrarDevolucion(data)` | POST `/movimientos/devolucion` | Registrar devolución |
-| `getPrestamosActivos()` | GET `/movimientos/prestamos` | Préstamos pendientes |
+| `getPrestamosActivos()` | GET `/movimientos/prestamos` | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo) |
 | `getHistorial(filtros, page, limit)` | GET `/movimientos/historial` | Historial filtrado |
 | `getHistorialExcel(filtros)` | GET `/movimientos/historial?formato=excel` | Descarga Excel |
 

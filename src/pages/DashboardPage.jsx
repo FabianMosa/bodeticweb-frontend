@@ -14,6 +14,7 @@ import {
   ListGroup,
   Spinner,
   Badge,
+  Modal,
 } from "react-bootstrap";
 
 const DashboardPage = () => {
@@ -25,6 +26,20 @@ const DashboardPage = () => {
   const [alertas, setAlertas] = useState(null);
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Estado para el modal de detalle de préstamo
+  const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
+  const [showDetalle, setShowDetalle] = useState(false);
+
+  const handleVerDetalle = (prestamo) => {
+    setPrestamoSeleccionado(prestamo);
+    setShowDetalle(true);
+  };
+
+  const handleCerrarDetalle = () => {
+    setShowDetalle(false);
+    setPrestamoSeleccionado(null);
+  };
 
   useEffect(() => {
     let usuarioInfo = null;
@@ -248,7 +263,9 @@ const DashboardPage = () => {
                     {prestamos.slice(0, 5).map((p) => (
                       <ListGroup.Item
                         key={`${p.FK_id_insumo}-${p.FK_id_usuario}`}
-                        className="px-0 py-3 border-bottom-light"
+                        className="px-0 py-3 border-bottom-light prestamo-item"
+                        action
+                        onClick={() => handleVerDetalle(p)}
                       >
                         <div className="d-flex justify-content-between align-items-start">
                           <div>
@@ -261,9 +278,12 @@ const DashboardPage = () => {
                               </small>
                             )}
                           </div>
-                          <Badge bg="light" text="dark" className="border">
-                            x{p.cantidad_pendiente}
-                          </Badge>
+                          <div className="d-flex align-items-center gap-2">
+                            <Badge bg="light" text="dark" className="border">
+                              x{p.cantidad_pendiente}
+                            </Badge>
+                            <i className="bi bi-chevron-right text-muted small"></i>
+                          </div>
                         </div>
                       </ListGroup.Item>
                     ))}
@@ -365,6 +385,97 @@ const DashboardPage = () => {
           )}
         </Row>
       </Container>
+
+      {/* Modal de detalle del préstamo seleccionado */}
+      <Modal show={showDetalle} onHide={handleCerrarDetalle} centered>
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold fs-5">
+            <i className="bi bi-info-circle-fill text-primary me-2"></i>
+            Detalle del Préstamo
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="pt-2">
+          {prestamoSeleccionado && (
+            <>
+              {/* Encabezado con nombre e ícono */}
+              <div className="text-center mb-4">
+                <div className="icon-circle bg-primary-subtle text-primary mx-auto mb-3" style={{ width: 56, height: 56 }}>
+                  <i className="bi bi-box-seam fs-4"></i>
+                </div>
+                <h5 className="fw-bold mb-1">{prestamoSeleccionado.nombre_insumo}</h5>
+                {prestamoSeleccionado.descripcion_insumo && (
+                  <p className="text-muted small mb-0">{prestamoSeleccionado.descripcion_insumo}</p>
+                )}
+              </div>
+
+              {/* Filas de información */}
+              <div className="bg-light rounded-3 p-3 mb-3">
+                <Row className="g-3">
+                  <Col xs={6}>
+                    <small className="text-muted d-block">SKU</small>
+                    <span className="fw-semibold">{prestamoSeleccionado.sku}</span>
+                  </Col>
+                  <Col xs={6}>
+                    <small className="text-muted d-block">Categoría</small>
+                    <span className="fw-semibold">{prestamoSeleccionado.categoria ?? "Sin categoría"}</span>
+                  </Col>
+                  <Col xs={6}>
+                    <small className="text-muted d-block">Stock actual</small>
+                    <span className="fw-semibold">{prestamoSeleccionado.stock_actual ?? "—"}</span>
+                  </Col>
+                  <Col xs={6}>
+                    <small className="text-muted d-block">Cant. pendiente</small>
+                    <Badge bg="warning" text="dark" className="fs-6">
+                      {prestamoSeleccionado.cantidad_pendiente}
+                    </Badge>
+                  </Col>
+                </Row>
+              </div>
+
+              {/* Información del técnico */}
+              <div className="bg-light rounded-3 p-3 mb-3">
+                <Row className="g-3">
+                  <Col xs={12} sm={6}>
+                    <small className="text-muted d-block">Técnico</small>
+                    <span className="fw-semibold">
+                      <i className="bi bi-person-fill me-1 text-secondary"></i>
+                      {prestamoSeleccionado.nombre_usuario}
+                    </span>
+                    {prestamoSeleccionado.rut_usuario && (
+                      <small className="text-muted d-block">{prestamoSeleccionado.rut_usuario}</small>
+                    )}
+                  </Col>
+                  <Col xs={12} sm={6}>
+                    <small className="text-muted d-block">Último préstamo</small>
+                    <span className="fw-semibold">
+                      <i className="bi bi-calendar3 me-1 text-secondary"></i>
+                      {prestamoSeleccionado.fecha_ultimo_prestamo
+                        ? new Date(prestamoSeleccionado.fecha_ultimo_prestamo).toLocaleString("es-CL")
+                        : "—"}
+                    </span>
+                  </Col>
+                </Row>
+              </div>
+
+              {/* Descripción ingresada por el técnico al momento del préstamo */}
+              <div className="bg-light rounded-3 p-3 mt-3">
+                <small className="text-muted d-block mb-1">
+                  Descripción del técnico (último préstamo)
+                </small>
+                <p className="mb-0">
+                  {prestamoSeleccionado.descripcion_ultimo_prestamo ||
+                    "Sin descripción registrada"}
+                </p>
+              </div>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="border-0 pt-0">
+          <Button variant="outline-secondary" className="rounded-pill" onClick={handleCerrarDetalle}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

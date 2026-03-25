@@ -13,7 +13,6 @@ const login = async (rut, password) => {
     if (response.data.token) {
       localStorage.setItem("usuario", JSON.stringify(response.data));
     }
-
     return response.data;
   } catch (error) {
     let errorMessage = "Error desconocido";

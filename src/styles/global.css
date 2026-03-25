@@ -445,6 +445,18 @@ body {
   box-shadow: inset 0 2px 4px rgba(255,255,255,0.5);
 }
 
+/* ========== Préstamos clickeables (Dashboard) ========== */
+.prestamo-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  border-radius: var(--radius-sm);
+}
+
+.prestamo-item:hover {
+  background-color: var(--bg-glass-heavy, rgba(255, 255, 255, 0.85));
+  transform: translateX(4px);
+}
+
 /* ========== Paginación custom ========== */
 .custom-pagination .page-link {
   border: none;
