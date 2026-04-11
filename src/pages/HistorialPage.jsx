@@ -74,7 +74,7 @@ const HistorialPage = () => {
         const response = await movimientoService.getHistorial(
           filtros,
           currentPage,
-          ITEMS_PER_PAGE
+          ITEMS_PER_PAGE,
         );
         setHistorial(response.data);
         setTotalPages(response.pagination.totalPages);
@@ -98,12 +98,12 @@ const HistorialPage = () => {
     e.preventDefault();
     showNotification(
       "Generando reporte Excel... esto puede tardar unos segundos.",
-      "success"
+      "success",
     );
     movimientoService
       .getHistorialExcel(filtros)
       .catch((err) =>
-        showNotification(err.message || "Error al generar el Excel", "error")
+        showNotification(err.message || "Error al generar el Excel", "error"),
       );
   };
 
@@ -160,7 +160,7 @@ const HistorialPage = () => {
           onClick={() => setCurrentPage(number)}
         >
           {number}
-        </Pagination.Item>
+        </Pagination.Item>,
       );
     }
     return (
@@ -236,7 +236,7 @@ const HistorialPage = () => {
             <Card.Body className="p-4 bg-white">
               <Form>
                 <Row className="g-3">
-                  {/* Rango de Fechas */}
+                  {/* Rango de fechas: placeholder MM-DD-YYYY solo como guía visual (input nativo sigue en formato ISO al enviar) */}
                   <Col md={12} lg={4}>
                     <label className="small text-muted fw-bold mb-1">
                       Rango de Fechas
@@ -251,7 +251,7 @@ const HistorialPage = () => {
                         value={filtros.fecha_inicio}
                         onChange={handleFilterChange}
                         className="border-start-0 ps-0 bg-light"
-                        placeholder="Desde"
+                        placeholder="MM-DD-YYYY"
                       />
                       <InputGroup.Text className="bg-light border-0">
                         <i className="bi bi-arrow-right"></i>
@@ -262,7 +262,7 @@ const HistorialPage = () => {
                         value={filtros.fecha_fin}
                         onChange={handleFilterChange}
                         className="bg-light border-start-0"
-                        placeholder="Hasta"
+                        placeholder="MM-DD-YYYY"
                       />
                     </InputGroup>
                   </Col>
@@ -426,13 +426,13 @@ const HistorialPage = () => {
                               <td className="ps-4">
                                 <div className="fw-bold text-dark">
                                   {new Date(mov.fecha_hora).toLocaleDateString(
-                                    "es-CL"
+                                    "es-CL",
                                   )}
                                 </div>
                                 <div className="small text-muted">
                                   {new Date(mov.fecha_hora).toLocaleTimeString(
                                     "es-CL",
-                                    { hour: "2-digit", minute: "2-digit" }
+                                    { hour: "2-digit", minute: "2-digit" },
                                   )}
                                 </div>
                               </td>

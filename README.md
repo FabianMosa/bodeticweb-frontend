@@ -4,17 +4,17 @@ Aplicación web **SPA** desarrollada con **React 19** y **Vite 7** para la gesti
 
 ## Stack Tecnológico
 
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| React | ^19.1.1 | Framework UI |
-| Vite | ^7.1.7 | Build tool y dev server (HMR) |
-| React Router DOM | ^7.9.5 | Enrutamiento SPA |
-| Axios | ^1.13.1 | Cliente HTTP con interceptores |
-| Bootstrap | ^5.3.8 | Framework CSS responsive |
-| React-Bootstrap | ^2.10.10 | Componentes Bootstrap para React |
-| Lucide React | ^0.562.0 | Iconos SVG |
-| Bootstrap Icons | ^1.13.1 | Iconos adicionales |
-| serve | ^14.2.5 | Servidor estático para producción |
+| Tecnología       | Versión  | Propósito                         |
+| ---------------- | -------- | --------------------------------- |
+| React            | ^19.1.1  | Framework UI                      |
+| Vite             | ^7.1.7   | Build tool y dev server (HMR)     |
+| React Router DOM | ^7.9.5   | Enrutamiento SPA                  |
+| Axios            | ^1.13.1  | Cliente HTTP con interceptores    |
+| Bootstrap        | ^5.3.8   | Framework CSS responsive          |
+| React-Bootstrap  | ^2.10.10 | Componentes Bootstrap para React  |
+| Lucide React     | ^0.562.0 | Iconos SVG                        |
+| Bootstrap Icons  | ^1.13.1  | Iconos adicionales                |
+| serve            | ^14.2.5  | Servidor estático para producción |
 
 > Proyecto configurado con **ES Modules** y **JavaScript puro** (sin TypeScript).
 
@@ -36,7 +36,7 @@ bodeticweb-frontend/
 │   ├── pages/                      # Páginas/Vistas
 │   │   ├── LoginPage.jsx           # Inicio de sesión (RUT + contraseña)
 │   │   ├── DashboardPage.jsx       # Panel con alertas y estadísticas
-│   │   ├── InventarioPage.jsx      # Tabla de insumos (paginada + filtros)
+│   │   ├── InventarioPage.jsx      # Tabla de insumos (paginada + filtros; clic en fila → modal detalle)
 │   │   ├── InventarioCreatePage.jsx# Formulario de creación de insumo
 │   │   ├── InventarioEditPage.jsx  # Formulario de edición de insumo
 │   │   ├── DevolucionesPage.jsx    # Gestión de devoluciones
@@ -87,52 +87,60 @@ En el hosting del frontend, configura `VITE_API_URL` apuntando a la API pública
 
 ### Rutas públicas
 
-| Ruta | Página | Descripción |
-|------|--------|-------------|
-| `/` | LoginPage | Inicio de sesión |
+| Ruta | Página    | Descripción      |
+| ---- | --------- | ---------------- |
+| `/`  | LoginPage | Inicio de sesión |
 
 ### Rutas protegidas (requieren JWT)
 
-| Ruta | Página | Descripción |
-|------|--------|-------------|
-| `/dashboard` | DashboardPage | Panel principal con alertas |
-| `/inventario` | InventarioPage | Listado de insumos (paginado, filtros) |
-| `/inventario/nuevo` | InventarioCreatePage | Crear insumo |
-| `/inventario/editar/:id` | InventarioEditPage | Editar insumo |
-| `/devoluciones` | DevolucionesPage | Gestión de devoluciones |
-| `/historial` | HistorialPage | Historial de movimientos |
-| `/usuarios` | UsuarioListPage | Listado de usuarios |
-| `/usuarios/nuevo` | UsuarioCreatePage | Crear usuario |
-| `/usuarios/editar/:id` | UsuarioEditPage | Editar usuario |
+| Ruta                     | Página               | Descripción                            |
+| ------------------------ | -------------------- | -------------------------------------- |
+| `/dashboard`             | DashboardPage        | Panel principal con alertas            |
+| `/inventario`            | InventarioPage       | Listado de insumos (paginado, filtros) |
+| `/inventario/nuevo`      | InventarioCreatePage | Crear insumo                           |
+| `/inventario/editar/:id` | InventarioEditPage   | Editar insumo                          |
+| `/devoluciones`          | DevolucionesPage     | Gestión de devoluciones                |
+| `/historial`             | HistorialPage        | Historial de movimientos (filtros; fechas con placeholder `MM-DD-YYYY` en UI) |
+| `/usuarios`              | UsuarioListPage      | Listado de usuarios                    |
+| `/usuarios/nuevo`        | UsuarioCreatePage    | Crear usuario                          |
+| `/usuarios/editar/:id`   | UsuarioEditPage      | Editar usuario                         |
 
 Cualquier ruta no definida muestra **"404 - Página No Encontrada"**.
 
 ## Componentes
 
 ### ProtectedRoute
+
 HOC que verifica la existencia de datos de usuario en `localStorage`. Redirige a `/` si no hay sesión activa. Usa `Outlet` de React Router para renderizar rutas hijas.
 
 ### NotificacionModal
+
 Modal global con animaciones CSS. Tipos soportados: `success` y `error`. Integrado con el `NotificationContext`.
 
 ### LocationPicker
+
 Selector interactivo de coordenadas (x, y) sobre una imagen. Soporta subida de archivo y captura desde cámara. Calcula posiciones en porcentajes relativos.
 
 ### LocationViewer
+
 Visualiza la ubicación de un insumo sobre su imagen con un marcador animado (efecto pulso).
 
 ### SalidaModal
+
 Modal para registrar salidas de stock. Tipos: "Salida-Uso" (requiere código OT) y "Préstamo". Valida cantidad contra stock disponible.
 
 ### ScannerModal
+
 Escáner de códigos de barras usando la **BarcodeDetector API** del navegador. Utiliza cámara trasera en dispositivos móviles.
 
 ### ErrorBoundary
+
 Componente clase que captura errores de render en producción (evita pantalla en blanco). Muestra un mensaje de error con opción de recarga.
 
 ## Gestión de Estado
 
 ### Context API — NotificationContext
+
 Sistema global de notificaciones que evita prop drilling.
 
 ```jsx
@@ -142,6 +150,7 @@ showNotification("Error al guardar", "error");
 ```
 
 ### LocalStorage
+
 Almacena la sesión del usuario autenticado bajo la key `"usuario"`:
 
 ```json
@@ -152,66 +161,76 @@ Almacena la sesión del usuario autenticado bajo la key `"usuario"`:
 ```
 
 ### Estado local
+
 Cada componente gestiona su propio estado con `useState`. No se usa Redux ni Zustand.
 
 ## Servicios (Capa API)
 
 ### Configuración base — `api.js`
+
 Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático que inyecta el token JWT en el header `Authorization: Bearer <token>`.
 
 ### auth.services.js
-| Función | Endpoint | Descripción |
-|---------|----------|-------------|
-| `login(rut, password)` | POST `/auth/login` | Autenticación |
-| `logout()` | — | Limpia localStorage |
+
+| Función                | Endpoint           | Descripción         |
+| ---------------------- | ------------------ | ------------------- |
+| `login(rut, password)` | POST `/auth/login` | Autenticación       |
+| `logout()`             | —                  | Limpia localStorage |
 
 ### insumo.service.js
-| Función | Endpoint | Descripción |
-|---------|----------|-------------|
-| `getInsumos(filtros, page, limit)` | GET `/insumos` | Listado paginado con filtros |
-| `getCategorias()` | GET `/categorias` | Categorías disponibles |
-| `getProveedores()` | GET `/proveedores` | Proveedores disponibles |
-| `getInsumoById(id)` | GET `/insumos/:id` | Detalle de insumo |
-| `getInsumoBySku(sku)` | GET `/insumos/sku/:sku` | Búsqueda por SKU |
-| `createInsumo(data)` | POST `/insumos` | Crear insumo (FormData) |
-| `updateInsumo(id, data)` | PUT `/insumos/:id` | Actualizar insumo |
-| `toggleActivo(id, estado)` | PUT `/insumos/:id/toggle-activo` | Activar/Desactivar |
-| `updateUbicacion(id, formData)` | PUT `/insumos/:id/ubicacion` | Actualizar ubicación visual |
+
+| Función                            | Endpoint                         | Descripción                  |
+| ---------------------------------- | -------------------------------- | ---------------------------- |
+| `getInsumos(filtros, page, limit)` | GET `/insumos`                   | Listado paginado con filtros |
+| `getCategorias()`                  | GET `/categorias`                | Categorías disponibles       |
+| `getProveedores()`                 | GET `/proveedores`               | Proveedores disponibles      |
+| `getInsumoById(id)`                | GET `/insumos/:id`               | Detalle de insumo            |
+| `getInsumoBySku(sku)`              | GET `/insumos/sku/:sku`          | Búsqueda por SKU             |
+| `createInsumo(data)`               | POST `/insumos`                  | Crear insumo (FormData)      |
+| `updateInsumo(id, data)`           | PUT `/insumos/:id`               | Actualizar insumo            |
+| `toggleActivo(id, estado)`         | PUT `/insumos/:id/toggle-activo` | Activar/Desactivar           |
+| `ocultarDeApp(id)`                 | PUT `/insumos/:id/ocultar-app`   | Retirar de la app (papelera); conserva fila e historial en BD |
+| `updateUbicacion(id, formData)`    | PUT `/insumos/:id/ubicacion`     | Actualizar ubicación visual  |
 
 ### movimiento.service.js
-| Función | Endpoint | Descripción |
-|---------|----------|-------------|
-| `registrarSalida(data)` | POST `/movimientos/salida` | Registrar salida |
-| `registrarDevolucion(data)` | POST `/movimientos/devolucion` | Registrar devolución |
-| `getPrestamosActivos()` | GET `/movimientos/prestamos` | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo) |
-| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial` | Historial filtrado |
-| `getHistorialExcel(filtros)` | GET `/movimientos/historial?formato=excel` | Descarga Excel |
+
+| Función                              | Endpoint                                   | Descripción                                                                                     |
+| ------------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `registrarSalida(data)`              | POST `/movimientos/salida`                 | Registrar salida                                                                                |
+| `registrarDevolucion(data)`          | POST `/movimientos/devolucion`             | Registrar devolución                                                                            |
+| `getPrestamosActivos()`              | GET `/movimientos/prestamos`               | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo) |
+| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado                                                                              |
+| `getHistorialExcel(filtros)`         | GET `/movimientos/historial?formato=excel` | Descarga Excel                                                                                  |
 
 ### usuario.service.js
-| Función | Endpoint | Descripción |
-|---------|----------|-------------|
-| `getUsuariosTecnicos()` | GET `/usuarios/tecnicos` | Técnicos activos |
-| `getAllUsuarios()` | GET `/usuarios` | Todos los usuarios |
-| `getUsuarioById(id)` | GET `/usuarios/:id` | Usuario por ID |
-| `createUsuario(data)` | POST `/usuarios` | Crear usuario |
-| `updateUsuario(id, data)` | PUT `/usuarios/:id` | Actualizar usuario |
+
+| Función                                | Endpoint                            | Descripción        |
+| -------------------------------------- | ----------------------------------- | ------------------ |
+| `getUsuariosTecnicos()`                | GET `/usuarios/tecnicos`            | Técnicos activos   |
+| `getAllUsuarios()`                     | GET `/usuarios`                     | Todos los usuarios |
+| `getUsuarioById(id)`                   | GET `/usuarios/:id`                 | Usuario por ID     |
+| `createUsuario(data)`                  | POST `/usuarios`                    | Crear usuario      |
+| `updateUsuario(id, data)`              | PUT `/usuarios/:id`                 | Actualizar usuario |
 | `changePasswordAdmin(id, newPassword)` | PUT `/usuarios/:id/change-password` | Cambiar contraseña |
 
 ### dashboard.service.js
-| Función | Endpoint | Descripción |
-|---------|----------|-------------|
+
+| Función        | Endpoint                 | Descripción                         |
+| -------------- | ------------------------ | ----------------------------------- |
 | `getAlertas()` | GET `/dashboard/alertas` | Alertas de stock bajo y vencimiento |
 
 ### documento.service.js
-| Función | Endpoint | Descripción |
-|---------|----------|-------------|
+
+| Función                        | Endpoint                         | Descripción      |
+| ------------------------------ | -------------------------------- | ---------------- |
 | `getDocumentoByCodigo(codigo)` | GET `/documentos/buscar/:codigo` | Buscar documento |
 
 ### proveedor.service.js / rol.service.js
-| Función | Endpoint | Descripción |
-|---------|----------|-------------|
+
+| Función            | Endpoint           | Descripción        |
+| ------------------ | ------------------ | ------------------ |
 | `getProveedores()` | GET `/proveedores` | Listar proveedores |
-| `getRoles()` | GET `/roles` | Listar roles |
+| `getRoles()`       | GET `/roles`       | Listar roles       |
 
 ## Estilos y Estética Premium
 

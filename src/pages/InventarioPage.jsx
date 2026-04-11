@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Container,
@@ -26,6 +26,8 @@ import {
   ArrowLeft,
   Save,
   Crosshair,
+  EyeOff,
+  Package,
 } from "lucide-react";
 
 import insumoService from "../services/insumo.service";
@@ -33,6 +35,27 @@ import SalidaModal from "../components/SalidaModal";
 import ScannerModal from "../components/ScannerModal";
 import LocationPicker from "../components/LocationPicker"; // Importamos el componente reutilizable
 import { useNotification } from "../context/NotificationContext";
+
+/** Formatea fecha de insumo (API: Date MySQL, string o ISO) para lectura en UI. */
+const formatearFechaInsumo = (valor) => {
+  if (valor == null || valor === "") return null;
+  try {
+    let d;
+    if (valor instanceof Date) d = valor;
+    else {
+      const s = String(valor);
+      d = new Date(s.includes("T") ? s : `${s.slice(0, 10)}T12:00:00`);
+    }
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString("es-CL", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return null;
+  }
+};
 
 const InventarioPage = () => {
   // --- Estados de Aplicación ---
@@ -63,6 +86,12 @@ const InventarioPage = () => {
   const [newImageFile, setNewImageFile] = useState(null);
   const [newCoords, setNewCoords] = useState(null);
   const [savingLocation, setSavingLocation] = useState(false);
+
+  // Detalle rápido al hacer clic en la fila (GET /insumos/:id para descripción y más campos)
+  const [detalleModalOpen, setDetalleModalOpen] = useState(false);
+  const [detalleInsumo, setDetalleInsumo] = useState(null);
+  const [detalleLoading, setDetalleLoading] = useState(false);
+  const detalleFetchId = useRef(0);
 
   const { showNotification } = useNotification();
 
@@ -140,6 +169,37 @@ const InventarioPage = () => {
     }
   };
 
+  /**
+   * Retira el insumo de la aplicación (ya no aparece en papelera ni escáner).
+   * La fila y los movimientos siguen en la base de datos para trazabilidad.
+   */
+  const handleRetirarDeApp = async (insumo) => {
+    if (
+      !window.confirm(
+        `«${insumo.nombre}» dejará de mostrarse en la aplicación (inventario, escáner y alertas). ` +
+          "Los registros en base de datos y el historial de movimientos se conservan. ¿Continuar?"
+      )
+    ) {
+      return;
+    }
+    try {
+      await insumoService.ocultarDeApp(insumo.PK_id_insumo);
+      setInsumos((prev) =>
+        prev.filter((i) => i.PK_id_insumo !== insumo.PK_id_insumo)
+      );
+      showNotification(
+        "Insumo retirado de la aplicación. Los datos permanecen para trazabilidad.",
+        "success"
+      );
+    } catch (err) {
+      const msg =
+        typeof err === "string"
+          ? err
+          : err?.message || "No se pudo retirar el insumo de la aplicación";
+      showNotification(msg, "error");
+    }
+  };
+
   // --- Lógica Modal Ubicación ---
   const handleOpenLocationModal = (insumo) => {
     setSelectedInsumo(insumo);
@@ -205,6 +265,49 @@ const InventarioPage = () => {
     } finally {
       setSavingLocation(false);
     }
+  };
+
+  /**
+   * Abre el modal de detalle y completa datos con la API (descripción, vencimiento, etc.).
+   * La fila de la tabla sigue mostrando categoría; se fusiona aquí para no perder el nombre.
+   */
+  const handleOpenDetalle = async (filaLista) => {
+    const reqId = ++detalleFetchId.current;
+    setDetalleModalOpen(true);
+    setDetalleLoading(true);
+    setDetalleInsumo(null);
+    try {
+      const full = await insumoService.getInsumoById(filaLista.PK_id_insumo);
+      if (reqId !== detalleFetchId.current) return;
+      setDetalleInsumo({
+        ...full,
+        nombre_categoria: filaLista.nombre_categoria,
+      });
+    } catch (err) {
+      if (reqId !== detalleFetchId.current) return;
+      const msg =
+        typeof err === "string"
+          ? err
+          : err?.message || "No se pudo cargar el detalle del insumo";
+      showNotification(msg, "error");
+      setDetalleModalOpen(false);
+    } finally {
+      if (reqId === detalleFetchId.current) setDetalleLoading(false);
+    }
+  };
+
+  const handleCerrarDetalle = () => {
+    setDetalleModalOpen(false);
+    setDetalleInsumo(null);
+    setDetalleLoading(false);
+  };
+
+  /** Cierra el detalle y abre el modal de ubicación con el mismo insumo (evita dos modales superpuestos). */
+  const abrirUbicacionDesdeDetalle = () => {
+    if (!detalleInsumo) return;
+    const insumoParaMapa = { ...detalleInsumo };
+    handleCerrarDetalle();
+    handleOpenLocationModal(insumoParaMapa);
   };
 
   const handleScanSuccess = async (sku) => {
@@ -371,9 +474,11 @@ const InventarioPage = () => {
                   insumos.map((insumo) => (
                     <tr
                       key={insumo.PK_id_insumo}
-                      className={`border-bottom ${
+                      className={`border-bottom cursor-pointer ${
                         !insumo.activo ? "bg-light opacity-50" : ""
                       }`}
+                      onClick={() => handleOpenDetalle(insumo)}
+                      title="Ver detalle del insumo"
                     >
                       <td className="ps-4">
                         <div className="fw-bold text-dark">{insumo.nombre}</div>
@@ -399,7 +504,10 @@ const InventarioPage = () => {
                             <Button
                               variant="link"
                               className="btn-icon-sm p-0 text-primary rounded-circle bg-primary-subtle"
-                              onClick={() => handleOpenLocationModal(insumo)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenLocationModal(insumo);
+                              }}
                               title="Ver/Editar ubicación física"
                             >
                               <MapPin size={14} />
@@ -415,8 +523,11 @@ const InventarioPage = () => {
                         </div>
                       </td>
 
-                      <td className="pe-4 text-end">
-                        <div className="d-flex justify-content-end gap-1">
+                      <td
+                        className="pe-4 text-end"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="d-flex justify-content-end align-items-center gap-1 flex-wrap">
                           {usuarioRol === 1 && (
                             <>
                               <Button
@@ -443,6 +554,18 @@ const InventarioPage = () => {
                                   />
                                 )}
                               </Button>
+                              {/* Solo en papelera: quitar de la UI sin borrar en BD */}
+                              {!insumo.activo && (
+                                <Button
+                                  variant="light"
+                                  size="sm"
+                                  className="btn-icon border text-secondary"
+                                  title="Retirar de la aplicación (conserva historial en BD)"
+                                  onClick={() => handleRetirarDeApp(insumo)}
+                                >
+                                  <EyeOff size={16} />
+                                </Button>
+                              )}
                             </>
                           )}
                           {!!insumo.activo && (
@@ -450,7 +573,8 @@ const InventarioPage = () => {
                               variant="primary"
                               size="sm"
                               className="d-flex align-items-center ms-2 px-3 gap-1"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setSelectedInsumo(insumo);
                                 setSalidaModalOpen(true);
                               }}
@@ -522,6 +646,156 @@ const InventarioPage = () => {
           onScanSuccess={handleScanSuccess}
         />
       )}
+
+      {/* Modal flotante: detalle del insumo al hacer clic en la fila (datos completos vía API) */}
+      <Modal
+        show={detalleModalOpen}
+        onHide={handleCerrarDetalle}
+        centered
+        scrollable
+        size="lg"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="fw-bold fs-5 d-flex align-items-center gap-2">
+            <Package className="text-primary" size={22} aria-hidden />
+            Detalle del insumo
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="pt-2">
+          {detalleLoading && (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="primary" />
+              <p className="text-muted small mt-2 mb-0">Cargando información…</p>
+            </div>
+          )}
+          {!detalleLoading && detalleInsumo && (
+            <>
+              <div className="text-center mb-4 px-1">
+                <div className="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary mb-3 insumo-detalle-icon-wrap">
+                  <Package size={28} strokeWidth={1.75} aria-hidden />
+                </div>
+                <h5 className="fw-bold mb-1">{detalleInsumo.nombre}</h5>
+                {detalleInsumo.descripcion ? (
+                  <p className="text-muted small mb-0 text-start">
+                    {detalleInsumo.descripcion}
+                  </p>
+                ) : (
+                  <p className="text-muted small mb-0 fst-italic">
+                    Sin descripción registrada
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-light rounded-3 p-3 mb-3">
+                <Row className="g-3">
+                  <Col xs={12} sm={6}>
+                    <small className="text-muted d-block text-uppercase fw-semibold ls-1">
+                      SKU
+                    </small>
+                    <span className="font-monospace fw-semibold">
+                      {detalleInsumo.sku}
+                    </span>
+                  </Col>
+                  <Col xs={12} sm={6}>
+                    <small className="text-muted d-block text-uppercase fw-semibold ls-1">
+                      Categoría
+                    </small>
+                    <span className="fw-semibold">
+                      {detalleInsumo.nombre_categoria ?? "—"}
+                    </span>
+                  </Col>
+                  <Col xs={6}>
+                    <small className="text-muted d-block text-uppercase fw-semibold ls-1">
+                      Stock actual
+                    </small>
+                    <span
+                      className={`fs-5 fw-bold ${
+                        detalleInsumo.activo &&
+                        detalleInsumo.stock_actual <=
+                          detalleInsumo.stock_minimo
+                          ? "text-danger"
+                          : "text-dark"
+                      }`}
+                    >
+                      {detalleInsumo.stock_actual}
+                    </span>
+                  </Col>
+                  <Col xs={6}>
+                    <small className="text-muted d-block text-uppercase fw-semibold ls-1">
+                      Stock mínimo
+                    </small>
+                    <span className="fs-6 fw-semibold">
+                      {detalleInsumo.stock_minimo}
+                    </span>
+                  </Col>
+                  <Col xs={12} sm={6}>
+                    <small className="text-muted d-block text-uppercase fw-semibold ls-1">
+                      Vencimiento
+                    </small>
+                    <span className="fw-semibold">
+                      {formatearFechaInsumo(detalleInsumo.fecha_vencimiento) ??
+                        "Sin fecha"}
+                    </span>
+                  </Col>
+                  <Col xs={12} sm={6}>
+                    <small className="text-muted d-block text-uppercase fw-semibold ls-1">
+                      Estado
+                    </small>
+                    {detalleInsumo.activo ? (
+                      <Badge bg="success">Activo</Badge>
+                    ) : (
+                      <Badge bg="secondary">En papelera</Badge>
+                    )}
+                  </Col>
+                </Row>
+              </div>
+
+              {detalleInsumo.imagen_ubicacion && (
+                <div className="rounded-3 overflow-hidden border bg-dark mb-3 insumo-detalle-thumb">
+                  <img
+                    src={detalleInsumo.imagen_ubicacion}
+                    alt=""
+                    className="insumo-detalle-thumb-img"
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="border-0 pt-0 flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
+          <div className="d-flex flex-wrap gap-2">
+            {!detalleLoading && detalleInsumo?.activo && (
+              <Button
+                variant="outline-primary"
+                className="rounded-pill d-flex align-items-center gap-2"
+                onClick={abrirUbicacionDesdeDetalle}
+              >
+                <MapPin size={18} />
+                Ubicación en bodega
+              </Button>
+            )}
+            {usuarioRol === 1 && detalleInsumo && !detalleLoading && (
+              <Button
+                variant="outline-warning"
+                className="rounded-pill"
+                as={Link}
+                to={`/inventario/editar/${detalleInsumo.PK_id_insumo}`}
+                onClick={handleCerrarDetalle}
+              >
+                <Edit size={16} className="me-1" />
+                Editar
+              </Button>
+            )}
+          </div>
+          <Button
+            variant="secondary"
+            className="rounded-pill ms-sm-auto"
+            onClick={handleCerrarDetalle}
+          >
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* MODAL DE UBICACIÓN (Usando LocationPicker) */}
       <Modal

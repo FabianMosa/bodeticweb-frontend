@@ -550,3 +550,20 @@ body {
   70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); transform: translate(-50%, -50%) scale(1); }
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); transform: translate(-50%, -50%) scale(0.95); }
 }
+
+/* Modal de detalle de insumo (InventarioPage): icono y miniatura de mapa sin estilos inline */
+.insumo-detalle-icon-wrap {
+  width: 56px;
+  height: 56px;
+}
+
+.insumo-detalle-thumb {
+  max-height: 220px;
+}
+
+.insumo-detalle-thumb-img {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}

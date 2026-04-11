@@ -100,6 +100,20 @@ const toggleActivo = async (id, nuevoEstado) => {
   }
 };
 
+/** Retira el insumo de la app (papelera); la fila y el historial permanecen en BD. */
+const ocultarDeApp = async (id) => {
+  try {
+    const response = await api.put(`/insumos/${id}/ocultar-app`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error al retirar insumo de la aplicación:",
+      error.response?.data || error.message
+    );
+    throw error.response?.data || error;
+  }
+};
+
 const getInsumoBySku = async (sku) => {
   try {
     const response = await api.get(`/insumos/sku/${sku}`);
@@ -144,5 +158,6 @@ export default {
   getInsumoById,
   updateInsumo,
   toggleActivo,
+  ocultarDeApp,
   updateUbicacion,
 };

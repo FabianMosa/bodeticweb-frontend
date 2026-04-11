@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 
 // 1. Crear el Contexto
 const NotificationContext = createContext();
@@ -7,20 +13,22 @@ const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(null); // Ej: { message: 'Hola', type: 'success' }
 
-  // Función para MOSTRAR la notificación
-  const showNotification = (message, type = "error") => {
+  // Referencias estables: evitan que useEffect en páginas (p. ej. Inventario) se dispare en bucle
+  const showNotification = useCallback((message, type = "error") => {
     setNotification({ message, type });
-  };
+  }, []);
 
-  // Función para OCULTAR la notificación
-  const hideNotification = () => {
+  const hideNotification = useCallback(() => {
     setNotification(null);
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({ notification, showNotification, hideNotification }),
+    [notification, showNotification, hideNotification],
+  );
 
   return (
-    <NotificationContext.Provider
-      value={{ notification, showNotification, hideNotification }}
-    >
+    <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
   );
