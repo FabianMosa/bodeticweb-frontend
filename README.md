@@ -69,10 +69,11 @@ bodeticweb-frontend/
 ## Variables de Entorno
 
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3001/api
 ```
 
 > Las variables de Vite deben comenzar con `VITE_` para ser accesibles en el código.
+> En local se recomienda `3001` para la API porque `3000` suele estar ocupado por otros proyectos (ej. Next.js), lo que provoca errores de login por endpoint incorrecto/CORS.
 
 ### Producción (p. ej. Vercel)
 
