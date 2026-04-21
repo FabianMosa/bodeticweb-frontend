@@ -412,6 +412,9 @@ const HistorialPage = () => {
                             Usuario
                           </th>
                           <th className="py-3 text-secondary text-uppercase small fw-bold">
+                            Nro. documento
+                          </th>
+                          <th className="py-3 text-secondary text-uppercase small fw-bold">
                             Detalle / OT
                           </th>
                         </tr>
@@ -458,6 +461,11 @@ const HistorialPage = () => {
                                 </div>
                               </td>
                               <td>
+                                <small className="text-muted fw-semibold">
+                                  {mov.codigo_documento || "-"}
+                                </small>
+                              </td>
+                              <td>
                                 {mov.codigo_ot ? (
                                   <div className="d-flex flex-column">
                                     <span
@@ -482,7 +490,7 @@ const HistorialPage = () => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={6} className="text-center py-5">
+                            <td colSpan={7} className="text-center py-5">
                               <div className="d-flex flex-column align-items-center">
                                 <i className="bi bi-inbox display-4 text-muted mb-3 opacity-50"></i>
                                 <h5 className="text-muted fw-normal">

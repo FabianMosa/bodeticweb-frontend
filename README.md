@@ -97,11 +97,11 @@ En el hosting del frontend, configura `VITE_API_URL` apuntando a la API pública
 | Ruta                     | Página               | Descripción                            |
 | ------------------------ | -------------------- | -------------------------------------- |
 | `/dashboard`             | DashboardPage        | Panel principal con alertas            |
-| `/inventario`            | InventarioPage       | Listado de insumos (paginado, filtros) |
+| `/inventario`            | InventarioPage       | Listado de insumos (paginado, filtros, detalle por clic con Nro. documento Factura/guía) |
 | `/inventario/nuevo`      | InventarioCreatePage | Crear insumo                           |
 | `/inventario/editar/:id` | InventarioEditPage   | Editar insumo                          |
 | `/devoluciones`          | DevolucionesPage     | Gestión de devoluciones                |
-| `/historial`             | HistorialPage        | Historial de movimientos (filtros; fechas con placeholder `MM-DD-YYYY` en UI) |
+| `/historial`             | HistorialPage        | Historial de movimientos (filtros; columna `Nro. documento`; fechas con placeholder `MM-DD-YYYY` en UI) |
 | `/usuarios`              | UsuarioListPage      | Listado de usuarios                    |
 | `/usuarios/nuevo`        | UsuarioCreatePage    | Crear usuario                          |
 | `/usuarios/editar/:id`   | UsuarioEditPage      | Editar usuario                         |
@@ -185,7 +185,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 | `getInsumos(filtros, page, limit)` | GET `/insumos`                   | Listado paginado con filtros |
 | `getCategorias()`                  | GET `/categorias`                | Categorías disponibles       |
 | `getProveedores()`                 | GET `/proveedores`               | Proveedores disponibles      |
-| `getInsumoById(id)`                | GET `/insumos/:id`               | Detalle de insumo            |
+| `getInsumoById(id)`                | GET `/insumos/:id`               | Detalle de insumo + último `codigo_documento` asociado |
 | `getInsumoBySku(sku)`              | GET `/insumos/sku/:sku`          | Búsqueda por SKU             |
 | `createInsumo(data)`               | POST `/insumos`                  | Crear insumo (FormData)      |
 | `updateInsumo(id, data)`           | PUT `/insumos/:id`               | Actualizar insumo            |
@@ -200,7 +200,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 | `registrarSalida(data)`              | POST `/movimientos/salida`                 | Registrar salida                                                                                |
 | `registrarDevolucion(data)`          | POST `/movimientos/devolucion`             | Registrar devolución                                                                            |
 | `getPrestamosActivos()`              | GET `/movimientos/prestamos`               | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo) |
-| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado                                                                              |
+| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye `codigo_documento`)                                                 |
 | `getHistorialExcel(filtros)`         | GET `/movimientos/historial?formato=excel` | Descarga Excel                                                                                  |
 
 ### usuario.service.js

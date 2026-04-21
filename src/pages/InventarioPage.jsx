@@ -704,6 +704,14 @@ const InventarioPage = () => {
                       {detalleInsumo.nombre_categoria ?? "—"}
                     </span>
                   </Col>
+                  <Col xs={12} sm={6}>
+                    <small className="text-muted d-block text-uppercase fw-semibold ls-1">
+                      Nro. documento (Factura/guía)
+                    </small>
+                    <span className="fw-semibold">
+                      {detalleInsumo.codigo_documento ?? "Sin documento"}
+                    </span>
+                  </Col>
                   <Col xs={6}>
                     <small className="text-muted d-block text-uppercase fw-semibold ls-1">
                       Stock actual
