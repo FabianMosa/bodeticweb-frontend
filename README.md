@@ -200,7 +200,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 | `registrarSalida(data)`              | POST `/movimientos/salida`                 | Registrar salida                                                                                |
 | `registrarDevolucion(data)`          | POST `/movimientos/devolucion`             | Registrar devolución                                                                            |
 | `getPrestamosActivos()`              | GET `/movimientos/prestamos`               | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo) |
-| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye `codigo_documento`)                                                 |
+| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye `codigo_documento`; en salidas se hereda del documento de entrada) |
 | `getHistorialExcel(filtros)`         | GET `/movimientos/historial?formato=excel` | Descarga Excel                                                                                  |
 
 ### usuario.service.js
