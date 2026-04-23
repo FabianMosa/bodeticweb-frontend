@@ -32,7 +32,9 @@ const HistorialPage = () => {
     id_categoria: "",
     id_usuario: "",
     tipo_movimiento: "",
+    codigo_documento: "",
   });
+  const [filtrosAplicados, setFiltrosAplicados] = useState(filtros);
 
   // --- Estados para los desplegables ---
   const [categoriasList, setCategoriasList] = useState([]);
@@ -66,13 +68,25 @@ const HistorialPage = () => {
 
   // 2. Cargar historial (Reactivo a filtros y paginación)
   useEffect(() => {
+    // Aplicamos debounce para la búsqueda por documento y evitar consultas por cada tecla.
+    const debounceMs = filtros.codigo_documento ? 300 : 0;
+    const debounceId = window.setTimeout(
+      () => setFiltrosAplicados(filtros),
+      debounceMs,
+    );
+
+    return () => window.clearTimeout(debounceId);
+  }, [filtros]);
+
+  // 3. Cargar historial (Reactivo a filtros aplicados y paginación)
+  useEffect(() => {
     if (loadingDropdowns) return;
 
     const loadHistorial = async () => {
       setLoading(true);
       try {
         const response = await movimientoService.getHistorial(
-          filtros,
+          filtrosAplicados,
           currentPage,
           ITEMS_PER_PAGE,
         );
@@ -86,12 +100,25 @@ const HistorialPage = () => {
     };
 
     loadHistorial();
-  }, [filtros, currentPage, loadingDropdowns]);
+  }, [filtrosAplicados, currentPage, loadingDropdowns]);
 
   // --- Handlers ---
   const handleFilterChange = (e) => {
     setFiltros((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setCurrentPage(1); // Resetear a página 1 al filtrar
+  };
+
+  const handleLimpiarFiltros = () => {
+    // Restauramos el estado inicial para reiniciar la búsqueda completa.
+    setFiltros({
+      fecha_inicio: "",
+      fecha_fin: "",
+      id_categoria: "",
+      id_usuario: "",
+      tipo_movimiento: "",
+      codigo_documento: "",
+    });
+    setCurrentPage(1);
   };
 
   const handleExportar = (e) => {
@@ -229,9 +256,21 @@ const HistorialPage = () => {
           {/* --- Panel de Filtros --- */}
           <Card className="shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
             <Card.Header className="bg-white border-bottom py-3 px-4">
-              <h5 className="mb-0 fw-bold text-primary">
-                <i className="bi bi-sliders me-2"></i>Filtros de Búsqueda
-              </h5>
+              <div className="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                <h5 className="mb-0 fw-bold text-primary">
+                  <i className="bi bi-sliders me-2"></i>Filtros de Búsqueda
+                </h5>
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={handleLimpiarFiltros}
+                  className="rounded-pill"
+                >
+                  <i className="bi bi-eraser me-1"></i>
+                  Limpiar filtros
+                </Button>
+              </div>
             </Card.Header>
             <Card.Body className="p-4 bg-white">
               <Form>
@@ -324,7 +363,7 @@ const HistorialPage = () => {
                   </Col>
 
                   {/* Filtros Secundarios */}
-                  <Col md={6} lg={8}>
+                  <Col md={6} lg={4}>
                     <Form.Group>
                       <Form.Label className="small text-muted fw-bold mb-1">
                         Técnico Responsable
@@ -350,6 +389,27 @@ const HistorialPage = () => {
                             </option>
                           ))}
                         </Form.Select>
+                      </InputGroup>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6} lg={4}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted fw-bold mb-1">
+                        Nro. documento
+                      </Form.Label>
+                      <InputGroup>
+                        <InputGroup.Text className="bg-white">
+                          <i className="bi bi-receipt"></i>
+                        </InputGroup.Text>
+                        <Form.Control
+                          type="text"
+                          name="codigo_documento"
+                          value={filtros.codigo_documento}
+                          onChange={handleFilterChange}
+                          className="shadow-none"
+                          placeholder="Factura o guía"
+                        />
                       </InputGroup>
                     </Form.Group>
                   </Col>

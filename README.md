@@ -101,7 +101,7 @@ En el hosting del frontend, configura `VITE_API_URL` apuntando a la API pública
 | `/inventario/nuevo`      | InventarioCreatePage | Crear insumo                           |
 | `/inventario/editar/:id` | InventarioEditPage   | Editar insumo                          |
 | `/devoluciones`          | DevolucionesPage     | Gestión de devoluciones                |
-| `/historial`             | HistorialPage        | Historial de movimientos (filtros; columna `Nro. documento`; fechas con placeholder `MM-DD-YYYY` en UI) |
+| `/historial`             | HistorialPage        | Historial de movimientos (filtros, incluido `Nro. documento` con búsqueda parcial; columna `Nro. documento`; fechas con placeholder `MM-DD-YYYY` en UI) |
 | `/usuarios`              | UsuarioListPage      | Listado de usuarios                    |
 | `/usuarios/nuevo`        | UsuarioCreatePage    | Crear usuario                          |
 | `/usuarios/editar/:id`   | UsuarioEditPage      | Editar usuario                         |
@@ -200,7 +200,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 | `registrarSalida(data)`              | POST `/movimientos/salida`                 | Registrar salida                                                                                |
 | `registrarDevolucion(data)`          | POST `/movimientos/devolucion`             | Registrar devolución                                                                            |
 | `getPrestamosActivos()`              | GET `/movimientos/prestamos`               | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo) |
-| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye `codigo_documento`; en salidas se hereda del documento de entrada) |
+| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye filtro `codigo_documento`; en salidas se hereda el documento de entrada) |
 | `getHistorialExcel(filtros)`         | GET `/movimientos/historial?formato=excel` | Descarga Excel                                                                                  |
 
 ### usuario.service.js
@@ -255,6 +255,18 @@ npm run preview    # Preview del build local
 npm run lint       # Linting con ESLint
 npm start          # Servir build en producción (serve)
 ```
+
+### Desarrollo fullstack (backend + frontend)
+
+Si quieres levantar ambos proyectos desde la carpeta raíz `bodegaweb` en una sola terminal, usa:
+
+```bash
+npm run dev
+```
+
+Este script arranca en paralelo:
+- backend (`bodeticweb-backend`) en desarrollo
+- frontend (`bodeticweb-frontend`) en desarrollo
 
 ## Despliegue
 

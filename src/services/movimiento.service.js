@@ -53,9 +53,17 @@ const getPrestamosActivos = async () => {
  */
 const getHistorial = async (filtros = {}, page = 1, limit = 10) => {
   try {
+    // Normalizamos strings para evitar filtros con espacios al inicio/fin.
+    const filtrosNormalizados = Object.fromEntries(
+      Object.entries(filtros).map(([key, value]) => [
+        key,
+        typeof value === "string" ? value.trim() : value,
+      ])
+    );
+
     // -------------------------------------Añadir page y limit a los filtros
     const params = new URLSearchParams({
-      ...filtros,
+      ...filtrosNormalizados,
       page: page,
       limit: limit,
     }).toString();
