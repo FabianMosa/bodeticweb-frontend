@@ -2,6 +2,12 @@
 
 Aplicación web **SPA** desarrollada con **React 19** y **Vite 7** para la gestión de inventario BodeTIC. Interfaz responsive con Bootstrap 5 que permite administrar insumos, usuarios, movimientos de stock y visualizar alertas del dashboard.
 
+## Acceso rápido
+
+- Backend complementario (API): [`../bodeticweb-backend/README.md`](../bodeticweb-backend/README.md)
+- Requisitos mínimos: Node.js LTS + npm
+- URL local por defecto: `http://localhost:5173`
+
 ## Stack Tecnológico
 
 | Tecnología       | Versión  | Propósito                         |
@@ -256,17 +262,16 @@ npm run lint       # Linting con ESLint
 npm start          # Servir build en producción (serve)
 ```
 
-### Desarrollo fullstack (backend + frontend)
+### Ejecución local independiente
 
-Si quieres levantar ambos proyectos desde la carpeta raíz `bodegaweb` en una sola terminal, usa:
+Este frontend está documentado para ejecutarse de forma independiente dentro de su propio repositorio/directorio:
 
 ```bash
+npm install
 npm run dev
 ```
 
-Este script arranca en paralelo:
-- backend (`bodeticweb-backend`) en desarrollo
-- frontend (`bodeticweb-frontend`) en desarrollo
+> Para evitar errores de CORS o autenticación, confirma que `VITE_API_URL` apunte al backend activo.
 
 ## Despliegue
 
