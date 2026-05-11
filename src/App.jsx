@@ -14,6 +14,9 @@ import HistorialPage from "./pages/HistorialPage.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import NotificationModal from "./components/NotificacionModal.jsx";
 
+// Fix for useLayoutEffect warning in SSR (if applicable)
+React.useLayoutEffect = React.useEffect;
+
 const App = () => {
   return (
     <div>
