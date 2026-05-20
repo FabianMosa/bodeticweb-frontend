@@ -56,7 +56,10 @@ const LoginPage = () => {
 
   return (
     // min-vh-100 + sin overflow-hidden: en iOS/Android evita colapso de altura y recortes con teclado virtual
-    <Container fluid className="min-vh-100 p-0 overflow-x-hidden login-page-root">
+    <Container
+      fluid
+      className="min-vh-100 p-0 overflow-x-hidden login-page-root"
+    >
       <Row className="min-vh-100 g-0 flex-column flex-md-row">
         {/* --- PANEL IZQUIERDO (Visual / Branding) --- */}
         {/* d-none d-md-flex: Se oculta en móviles, se muestra flex en tablets+ */}
@@ -196,9 +199,19 @@ const LoginPage = () => {
               </div>
             </Form>
 
-            <div className="text-center mt-5">
-              <p className="text-muted small">
-                © {new Date().getFullYear()} Derechos Reservados. Antofagasta.
+            <div className="mt-5 border-t border-border-hotel/80 pt-8">
+              <p className="text-center text-[11px] leading-relaxed text-muted-hotel sm:text-left">
+                © {new Date().getFullYear()}. Bodega. Dev{" "}
+                {/* Enlace destacado del autor para dar mayor visibilidad en el pie. */}
+                <a
+                  href="https://www.linkedin.com/in/bernardo-morales-848517310/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-sm font-semibold text-gold-500 underline decoration-gold-500/60 underline-offset-4 transition-colors duration-200 hover:text-gold-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                  Bernardo Morales
+                </a>
+                . Todos los derechos reservados.
               </p>
             </div>
           </div>
