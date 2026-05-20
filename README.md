@@ -13,16 +13,16 @@ Aplicación web **SPA** desarrollada con **React 19** y **Vite 7** para la gesti
 | Tecnología       | Versión  | Propósito                         |
 | ---------------- | -------- | --------------------------------- |
 | React            | ^19.1.1  | Framework UI                      |
-| Vite             | ^7.1.7   | Build tool y dev server (HMR)     |
+| Vite             | ^7.3.3   | Build tool y dev server (HMR)     |
 | React Router DOM | ^7.9.5   | Enrutamiento SPA                  |
-| Axios            | ^1.13.1  | Cliente HTTP con interceptores    |
+| Axios            | ^1.16.1  | Cliente HTTP con interceptores    |
 | Bootstrap        | ^5.3.8   | Framework CSS responsive          |
 | React-Bootstrap  | ^2.10.10 | Componentes Bootstrap para React  |
 | Lucide React     | ^0.562.0 | Iconos SVG                        |
 | Bootstrap Icons  | ^1.13.1  | Iconos adicionales                |
-| serve            | ^14.2.5  | Servidor estático para producción |
 
 > Proyecto configurado con **ES Modules** y **JavaScript puro** (sin TypeScript).
+> El paquete `serve` fue removido el 2026-05-20: el deploy es estático en Vercel y no requiere servidor Node propio (ver sección **Despliegue**).
 
 ## Estructura del Proyecto
 
@@ -259,8 +259,10 @@ npm run dev        # Desarrollo (Vite, puerto 5173)
 npm run build      # Build de producción (dist/)
 npm run preview    # Preview del build local
 npm run lint       # Linting con ESLint
-npm start          # Servir build en producción (serve)
+npm test           # Tests con Vitest
 ```
+
+> El frontend se despliega como **sitio estático** (p. ej. Vercel). No requiere proceso `node` propio; Vercel sirve `dist/` directamente. Si necesitas servir el build en otro entorno, usa nginx, Caddy o sírvelo desde el backend Express.
 
 ### Ejecución local independiente
 
@@ -275,7 +277,11 @@ npm run dev
 
 ## Despliegue
 
-El build de producción (`npm run build`) genera la carpeta `dist/` que puede servirse con cualquier servidor estático. El script `npm start` utiliza `serve` para este propósito, leyendo el puerto desde la variable de entorno `$PORT`.
+El build de producción (`npm run build`) genera la carpeta `dist/`. En **Vercel** (recomendado) la plataforma sirve los archivos estáticos directamente; no se requiere `node` ni script `start`.
+
+## Seguridad de dependencias
+
+- **2026-05-20**: cerradas vulnerabilidades reportadas por Snyk/`npm audit`. Cambios: `axios ^1.13.1 → ^1.16.1` (15 CVEs), `vite ^7.1.7 → ^7.3.3` (3 CVEs de dev server). Se eliminó `serve` (era innecesario al desplegar en Vercel). Estado actual: `npm audit` reporta **0 vulnerabilidades**.
 
 ## Patrones del Proyecto
 
