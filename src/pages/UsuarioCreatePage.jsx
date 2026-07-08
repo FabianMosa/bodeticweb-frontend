@@ -12,7 +12,7 @@ import {
   Spinner,
   InputGroup,
 } from "react-bootstrap";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 
 const UsuarioCreatePage = () => {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ const UsuarioCreatePage = () => {
             data.find((r) => r.nombre_rol === "Técnico") || data[0];
           setFormData((prev) => ({ ...prev, id_rol: defaultRole.PK_id_rol }));
         }
-      } catch (error) {
+      } catch {
         showNotification("Error al cargar los roles del sistema", "error");
       } finally {
         setLoading(false);

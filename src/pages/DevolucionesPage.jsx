@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import usuarioService from "../services/usuario.service";
 import movimientoService from "../services/movimiento.service";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 import {
   Container,
   Row,

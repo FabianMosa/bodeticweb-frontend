@@ -1,15 +1,12 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useCallback, useMemo } from "react";
+import { NotificationContext } from "./notification-context";
 
-// 1. Crear el Contexto
-const NotificationContext = createContext();
-
-// 2. Crear el "Proveedor" que manejará el estado
+/**
+ * Proveedor de notificaciones globales. Expone el estado de la notificación
+ * activa y las funciones para mostrarla/ocultarla a toda la aplicación.
+ * @param {{ children: React.ReactNode }} props Componentes hijos envueltos por el proveedor.
+ * @returns {JSX.Element} Proveedor de contexto de notificaciones.
+ */
 export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(null); // Ej: { message: 'Hola', type: 'success' }
 
@@ -32,15 +29,4 @@ export const NotificationProvider = ({ children }) => {
       {children}
     </NotificationContext.Provider>
   );
-};
-
-// 3. Crear un "Hook" personalizado para que sea fácil de usar
-export const useNotification = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error(
-      "useNotification debe ser usado dentro de un NotificationProvider"
-    );
-  }
-  return context;
 };

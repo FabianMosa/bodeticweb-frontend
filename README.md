@@ -10,16 +10,16 @@ Aplicación web **SPA** desarrollada con **React 19** y **Vite 7** para la gesti
 
 ## Stack Tecnológico
 
-| Tecnología       | Versión  | Propósito                         |
-| ---------------- | -------- | --------------------------------- |
-| React            | ^19.1.1  | Framework UI                      |
-| Vite             | ^7.3.3   | Build tool y dev server (HMR)     |
-| React Router DOM | ^7.9.5   | Enrutamiento SPA                  |
-| Axios            | ^1.16.1  | Cliente HTTP con interceptores    |
-| Bootstrap        | ^5.3.8   | Framework CSS responsive          |
-| React-Bootstrap  | ^2.10.10 | Componentes Bootstrap para React  |
-| Lucide React     | ^0.562.0 | Iconos SVG                        |
-| Bootstrap Icons  | ^1.13.1  | Iconos adicionales                |
+| Tecnología       | Versión  | Propósito                        |
+| ---------------- | -------- | -------------------------------- |
+| React            | ^19.1.1  | Framework UI                     |
+| Vite             | ^7.3.3   | Build tool y dev server (HMR)    |
+| React Router DOM | ^7.9.5   | Enrutamiento SPA                 |
+| Axios            | ^1.16.1  | Cliente HTTP con interceptores   |
+| Bootstrap        | ^5.3.8   | Framework CSS responsive         |
+| React-Bootstrap  | ^2.10.10 | Componentes Bootstrap para React |
+| Lucide React     | ^0.562.0 | Iconos SVG                       |
+| Bootstrap Icons  | ^1.13.1  | Iconos adicionales               |
 
 > Proyecto configurado con **ES Modules** y **JavaScript puro** (sin TypeScript).
 > El paquete `serve` fue removido el 2026-05-20: el deploy es estático en Vercel y no requiere servidor Node propio (ver sección **Despliegue**).
@@ -38,12 +38,13 @@ bodeticweb-frontend/
 │   │   ├── SalidaModal.jsx         # Modal de salida de stock
 │   │   └── ScannerModal.jsx        # Escáner de códigos de barras
 │   ├── context/
-│   │   └── NotificationContext.jsx # Context API para notificaciones
+│   │   ├── NotificationContext.jsx # Provider del Context API de notificaciones
+│   │   └── notification-context.js # Contexto + hook useNotification (separado para Fast Refresh)
 │   ├── pages/                      # Páginas/Vistas
 │   │   ├── LoginPage.jsx           # Inicio de sesión (RUT + contraseña)
 │   │   ├── DashboardPage.jsx       # Panel con alertas y estadísticas
 │   │   ├── InventarioPage.jsx      # Tabla de insumos (paginada + filtros; clic en fila → modal detalle)
-│   │   ├── InventarioCreatePage.jsx# Formulario de creación de insumo
+│   │   ├── InventarioCreatePage.jsx# Formulario de creación de insumo (ingreso en serie: mantiene el documento y limpia el detalle)
 │   │   ├── InventarioEditPage.jsx  # Formulario de edición de insumo
 │   │   ├── DevolucionesPage.jsx    # Gestión de devoluciones
 │   │   ├── HistorialPage.jsx       # Historial de movimientos + export
@@ -100,17 +101,17 @@ En el hosting del frontend, configura `VITE_API_URL` apuntando a la API pública
 
 ### Rutas protegidas (requieren JWT)
 
-| Ruta                     | Página               | Descripción                            |
-| ------------------------ | -------------------- | -------------------------------------- |
-| `/dashboard`             | DashboardPage        | Panel principal con alertas            |
-| `/inventario`            | InventarioPage       | Listado de insumos (paginado, filtros, detalle por clic con Nro. documento Factura/guía) |
-| `/inventario/nuevo`      | InventarioCreatePage | Crear insumo                           |
-| `/inventario/editar/:id` | InventarioEditPage   | Editar insumo                          |
-| `/devoluciones`          | DevolucionesPage     | Gestión de devoluciones                |
-| `/historial`             | HistorialPage        | Historial de movimientos (filtros, incluido `Nro. documento` con búsqueda parcial; columna `Nro. documento`; fechas con placeholder `MM-DD-YYYY` en UI) |
-| `/usuarios`              | UsuarioListPage      | Listado de usuarios                    |
-| `/usuarios/nuevo`        | UsuarioCreatePage    | Crear usuario                          |
-| `/usuarios/editar/:id`   | UsuarioEditPage      | Editar usuario                         |
+| Ruta                     | Página               | Descripción                                                                                                                                                       |
+| ------------------------ | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/dashboard`             | DashboardPage        | Panel principal con alertas                                                                                                                                       |
+| `/inventario`            | InventarioPage       | Listado de insumos (paginado, filtros, detalle por clic con Nro. documento Factura/guía; botón **Descargar Excel** que exporta el inventario respetando los filtros) |
+| `/inventario/nuevo`      | InventarioCreatePage | Crear insumo (ingreso continuo: al registrar mantiene el formulario y el documento de origen para cargar varios insumos seguidos; el switch permite desactivarlo) |
+| `/inventario/editar/:id` | InventarioEditPage   | Editar insumo                                                                                                                                                     |
+| `/devoluciones`          | DevolucionesPage     | Gestión de devoluciones                                                                                                                                           |
+| `/historial`             | HistorialPage        | Historial de movimientos (filtros, incluido `Nro. documento` con búsqueda parcial; columna `Nro. documento`; fechas con placeholder `MM-DD-YYYY` en UI)           |
+| `/usuarios`              | UsuarioListPage      | Listado de usuarios                                                                                                                                               |
+| `/usuarios/nuevo`        | UsuarioCreatePage    | Crear usuario                                                                                                                                                     |
+| `/usuarios/editar/:id`   | UsuarioEditPage      | Editar usuario                                                                                                                                                    |
 
 Cualquier ruta no definida muestra **"404 - Página No Encontrada"**.
 
@@ -186,28 +187,29 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 
 ### insumo.service.js
 
-| Función                            | Endpoint                         | Descripción                  |
-| ---------------------------------- | -------------------------------- | ---------------------------- |
-| `getInsumos(filtros, page, limit)` | GET `/insumos`                   | Listado paginado con filtros |
-| `getCategorias()`                  | GET `/categorias`                | Categorías disponibles       |
-| `getProveedores()`                 | GET `/proveedores`               | Proveedores disponibles      |
-| `getInsumoById(id)`                | GET `/insumos/:id`               | Detalle de insumo + último `codigo_documento` asociado |
-| `getInsumoBySku(sku)`              | GET `/insumos/sku/:sku`          | Búsqueda por SKU             |
-| `createInsumo(data)`               | POST `/insumos`                  | Crear insumo (FormData)      |
-| `updateInsumo(id, data)`           | PUT `/insumos/:id`               | Actualizar insumo            |
-| `toggleActivo(id, estado)`         | PUT `/insumos/:id/toggle-activo` | Activar/Desactivar           |
+| Función                            | Endpoint                         | Descripción                                                   |
+| ---------------------------------- | -------------------------------- | ------------------------------------------------------------- |
+| `getInsumos(filtros, page, limit)` | GET `/insumos`                   | Listado paginado con filtros                                  |
+| `getInsumosExcel(filtros)`         | GET `/insumos/export`            | Descarga el inventario en Excel respetando los filtros aplicados |
+| `getCategorias()`                  | GET `/categorias`                | Categorías disponibles                                        |
+| `getProveedores()`                 | GET `/proveedores`               | Proveedores disponibles                                       |
+| `getInsumoById(id)`                | GET `/insumos/:id`               | Detalle de insumo + último `codigo_documento` asociado        |
+| `getInsumoBySku(sku)`              | GET `/insumos/sku/:sku`          | Búsqueda por SKU                                              |
+| `createInsumo(data)`               | POST `/insumos`                  | Crear insumo (FormData)                                       |
+| `updateInsumo(id, data)`           | PUT `/insumos/:id`               | Actualizar insumo                                             |
+| `toggleActivo(id, estado)`         | PUT `/insumos/:id/toggle-activo` | Activar/Desactivar                                            |
 | `ocultarDeApp(id)`                 | PUT `/insumos/:id/ocultar-app`   | Retirar de la app (papelera); conserva fila e historial en BD |
-| `updateUbicacion(id, formData)`    | PUT `/insumos/:id/ubicacion`     | Actualizar ubicación visual  |
+| `updateUbicacion(id, formData)`    | PUT `/insumos/:id/ubicacion`     | Actualizar ubicación visual                                   |
 
 ### movimiento.service.js
 
-| Función                              | Endpoint                                   | Descripción                                                                                     |
-| ------------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| `registrarSalida(data)`              | POST `/movimientos/salida`                 | Registrar salida                                                                                |
-| `registrarDevolucion(data)`          | POST `/movimientos/devolucion`             | Registrar devolución                                                                            |
-| `getPrestamosActivos()`              | GET `/movimientos/prestamos`               | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo) |
+| Función                              | Endpoint                                   | Descripción                                                                                          |
+| ------------------------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `registrarSalida(data)`              | POST `/movimientos/salida`                 | Registrar salida                                                                                     |
+| `registrarDevolucion(data)`          | POST `/movimientos/devolucion`             | Registrar devolución                                                                                 |
+| `getPrestamosActivos()`              | GET `/movimientos/prestamos`               | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo)      |
 | `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye filtro `codigo_documento`; en salidas se hereda el documento de entrada) |
-| `getHistorialExcel(filtros)`         | GET `/movimientos/historial?formato=excel` | Descarga Excel                                                                                  |
+| `getHistorialExcel(filtros)`         | GET `/movimientos/historial?formato=excel` | Descarga Excel                                                                                       |
 
 ### usuario.service.js
 

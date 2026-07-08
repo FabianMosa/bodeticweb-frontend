@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 
 const NotificationModal = () => {
   const { notification, hideNotification } = useNotification();

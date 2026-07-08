@@ -13,7 +13,7 @@ import {
 } from "react-bootstrap";
 // Asegúrate de que los iconos estén instalados: npm install bootstrap-icons
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 
 const LoginPage = () => {
   const [rut, setRut] = useState("");
