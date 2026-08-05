@@ -23,6 +23,58 @@ const getInsumos = async (filtros = {}, page = 1, limit = 9) => {
   }
 };
 
+/**
+ * Descarga el inventario actual en formato Excel respetando los filtros aplicados
+ * (estado activo, categoría y búsqueda por nombre). Genera y dispara la descarga del archivo.
+ * @param {object} filtros - { activo, categoria, search } filtros actuales del listado.
+ * @returns {Promise<void>} Resuelve cuando la descarga fue disparada.
+ */
+const getInsumosExcel = async (filtros = {}) => {
+  try {
+    const params = new URLSearchParams({
+      activo: filtros.activo,
+      categoria: filtros.categoria,
+      search: filtros.search,
+    }).toString();
+
+    const clean_params = params
+      .replace(/[^&]+=&/g, "")
+      .replace(/&[^&]+=$/g, "");
+
+    const response = await api.get(`/insumos/export?${clean_params}`, {
+      responseType: "blob",
+    });
+
+    // El backend puede responder un JSON de error aún pidiendo blob; lo detectamos.
+    if (response.data.type === "application/json") {
+      const error_text = await response.data.text();
+      const error_json = JSON.parse(error_text);
+      throw new Error(
+        error_json.message || "Error en el servidor al generar el Excel"
+      );
+    }
+
+    const url = window.URL.createObjectURL(
+      new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      })
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Inventario_BodeTIC.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error(
+      "Error en el servicio de exportar inventario:",
+      error.response?.data || error.message
+    );
+    throw error.response?.data || error;
+  }
+};
+
 const getCategorias = async () => {
   try {
     const response = await api.get("/categorias");
@@ -151,6 +203,7 @@ const updateUbicacion = async (id, formData) => {
 
 export default {
   getInsumos,
+  getInsumosExcel,
   getCategorias,
   createInsumo,
   getProveedores,

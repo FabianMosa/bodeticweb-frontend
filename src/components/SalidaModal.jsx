@@ -11,12 +11,9 @@ import {
   Spinner,
 } from "react-bootstrap";
 import movimientoService from "../services/movimiento.service";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 
 const SalidaModal = ({ insumo, onClose, onSuccess }) => {
-  // Guardia: Patrón Early Return para evitar renderizados con props nulas
-  if (!insumo) return null;
-
   const [cantidad, setCantidad] = useState(1);
   const [codigo_ot, setCodigo_ot] = useState("");
   const [tipo_movimiento, setTipo_movimiento] = useState("Salida-Uso");
@@ -25,6 +22,9 @@ const SalidaModal = ({ insumo, onClose, onSuccess }) => {
   const [validated, setValidated] = useState(false); // Para feedback visual de validación nativa
 
   const { showNotification } = useNotification();
+
+  // Guardia: los Hooks deben ejecutarse siempre, por eso el early return va después de ellos
+  if (!insumo) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

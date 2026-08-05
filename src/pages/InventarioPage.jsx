@@ -28,13 +28,14 @@ import {
   Crosshair,
   EyeOff,
   Package,
+  FileSpreadsheet,
 } from "lucide-react";
 
 import insumoService from "../services/insumo.service";
 import SalidaModal from "../components/SalidaModal";
 import ScannerModal from "../components/ScannerModal";
 import LocationPicker from "../components/LocationPicker"; // Importamos el componente reutilizable
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 
 /** Formatea fecha de insumo (API: Date MySQL, string o ISO) para lectura en UI. */
 const formatearFechaInsumo = (valor) => {
@@ -63,6 +64,7 @@ const InventarioPage = () => {
   const [loading, setLoading] = useState(true);
   const [usuarioRol, setUsuarioRol] = useState(null);
   const [categorias, setCategorias] = useState([]);
+  const [descargando, setDescargando] = useState(false);
 
   // --- Estados de Filtros ---
   const [filtroActivo, setFiltroActivo] = useState(true);
@@ -139,6 +141,30 @@ const InventarioPage = () => {
     e.preventDefault();
     setFiltroNombre(searchTerm);
     setCurrentPage(1);
+  };
+
+  /**
+   * Descarga el inventario actual en Excel respetando los filtros vigentes
+   * (estado activo/papelera, categoría y búsqueda por nombre).
+   */
+  const handleDescargarExcel = async () => {
+    try {
+      setDescargando(true);
+      await insumoService.getInsumosExcel({
+        activo: filtroActivo,
+        categoria: filtroCategoria,
+        search: filtroNombre,
+      });
+      showNotification("Inventario descargado correctamente", "success");
+    } catch (err) {
+      const msg =
+        typeof err === "string"
+          ? err
+          : err?.message || "Error al descargar el inventario";
+      showNotification(msg, "error");
+    } finally {
+      setDescargando(false);
+    }
   };
 
   const handleToggleActivo = async (insumo) => {
@@ -346,7 +372,7 @@ const InventarioPage = () => {
             Control de insumos y materiales
           </p>
         </Col>
-        <Col xs="auto" className="d-flex gap-2">
+        <Col xs="auto" className="d-flex flex-wrap gap-2">
           {usuarioRol === 1 && (
             <Button
               variant="success"
@@ -358,6 +384,20 @@ const InventarioPage = () => {
               <span className="d-none d-md-inline">Nuevo Insumo</span>
             </Button>
           )}
+          <Button
+            variant="outline-success"
+            onClick={handleDescargarExcel}
+            disabled={descargando}
+            className="shadow-sm rounded-pill px-3 d-flex align-items-center gap-2"
+            title="Descargar inventario en Excel (respeta los filtros aplicados)"
+          >
+            {descargando ? (
+              <Spinner size="sm" animation="border" />
+            ) : (
+              <FileSpreadsheet size={18} />
+            )}{" "}
+            <span className="d-none d-md-inline">Descargar Excel</span>
+          </Button>
           <Button
             variant="primary"
             onClick={() => setScannerModalOpen(true)}

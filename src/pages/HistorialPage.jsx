@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import movimientoService from "../services/movimiento.service";
 import insumoService from "../services/insumo.service";
 import usuarioService from "../services/usuario.service";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 import {
   Container,
   Row,
@@ -64,7 +64,7 @@ const HistorialPage = () => {
       }
     };
     loadDropdowns();
-  }, []);
+  }, [showNotification]);
 
   // 2. Cargar historial (Reactivo a filtros y paginación)
   useEffect(() => {
@@ -100,7 +100,7 @@ const HistorialPage = () => {
     };
 
     loadHistorial();
-  }, [filtrosAplicados, currentPage, loadingDropdowns]);
+  }, [filtrosAplicados, currentPage, loadingDropdowns, showNotification]);
 
   // --- Handlers ---
   const handleFilterChange = (e) => {

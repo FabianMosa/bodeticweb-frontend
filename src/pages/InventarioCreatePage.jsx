@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import insumoService from "../services/insumo.service";
 import proveedorService from "../services/proveedor.service";
 import documentoService from "../services/documento.service";
 import ScannerModal from "../components/ScannerModal";
 import LocationPicker from "../components/LocationPicker";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 import {
   Container,
   Row,
@@ -48,6 +48,13 @@ const InventarioCreatePage = () => {
   const [loadingDropdowns, setLoadingDropdowns] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  // --- Estados de Continuidad (ingreso en serie) ---
+  const [seguir_agregando, set_seguir_agregando] = useState(true);
+  const [insumos_registrados, set_insumos_registrados] = useState(0);
+  const [reset_ubicacion_key, set_reset_ubicacion_key] = useState(0);
+
+  const nombre_input_ref = useRef(null);
+
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -87,7 +94,7 @@ const InventarioCreatePage = () => {
       }
     };
     loadDropdowns();
-  }, []);
+  }, [showNotification]);
 
   // Handler de inputs de texto
   const handleChange = (e) => {
@@ -154,6 +161,30 @@ const InventarioCreatePage = () => {
     showNotification("Código escaneado correctamente", "success");
   };
 
+  /**
+   * Limpia únicamente los campos del detalle del insumo (Sección 2 y 3),
+   * conservando los datos de origen (documento, proveedor y fecha) para
+   * permitir el ingreso continuo de varios insumos del mismo documento.
+   */
+  const reset_detalle_insumo = () => {
+    setFormData((prev) => ({
+      ...prev,
+      nombre: "",
+      sku: "",
+      descripcion: "",
+      stock_inicial: 0,
+      stock_minimo: 1,
+      id_categoria: categorias.length > 0 ? categorias[0].PK_id_categoria : "",
+      fecha_vencimiento: "",
+    }));
+    setImagenFile(null);
+    setCoordenadas(null);
+    set_reset_ubicacion_key((k) => k + 1);
+    if (nombre_input_ref.current) {
+      nombre_input_ref.current.focus();
+    }
+  };
+
   // 2. Envío del Formulario (Usando FormData para la imagen)
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -185,10 +216,28 @@ const InventarioCreatePage = () => {
         formDataToSend.append("coordenada_y", coordenadas.y);
       }
 
-      await insumoService.createInsumo(formDataToSend);
+      const respuesta = await insumoService.createInsumo(formDataToSend);
 
-      showNotification("Insumo registrado exitosamente.", "success");
-      navigate("/inventario");
+      if (seguir_agregando) {
+        // Modo continuo: mantenemos el formulario y bloqueamos el documento
+        // usado para que los siguientes insumos se asocien al mismo.
+        const total = insumos_registrados + 1;
+        set_insumos_registrados(total);
+
+        if (respuesta?.documentoId) {
+          setIdDocumentoExistente(respuesta.documentoId);
+          setDocReadOnly(true);
+        }
+
+        reset_detalle_insumo();
+        showNotification(
+          `Insumo registrado (${total}). Continúe con el siguiente.`,
+          "success"
+        );
+      } else {
+        showNotification("Insumo registrado exitosamente.", "success");
+        navigate("/inventario");
+      }
     } catch (err) {
       showNotification(err.message || "Error al crear el insumo", "error");
     } finally {
@@ -227,6 +276,13 @@ const InventarioCreatePage = () => {
             <h2 className="h4 mb-0 text-dark fw-bold">
               Nuevo Ingreso de Material
             </h2>
+            {insumos_registrados > 0 && (
+              <span className="badge bg-success ms-3 fs-6">
+                <i className="bi bi-check2-circle me-1"></i>
+                {insumos_registrados} registrado
+                {insumos_registrados !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
 
           <Form onSubmit={handleSubmit}>
@@ -347,6 +403,7 @@ const InventarioCreatePage = () => {
                         <span className="text-danger">*</span>
                       </Form.Label>
                       <Form.Control
+                        ref={nombre_input_ref}
                         type="text"
                         name="nombre"
                         value={formData.nombre}
@@ -478,6 +535,7 @@ const InventarioCreatePage = () => {
               </Card.Header>
               <Card.Body>
                 <LocationPicker
+                  key={reset_ubicacion_key}
                   onImageSelect={setImagenFile}
                   onLocationSelect={setCoordenadas}
                 />
@@ -485,7 +543,15 @@ const InventarioCreatePage = () => {
             </Card>
 
             {/* --- BOTÓN FINAL --- */}
-            <div className="d-grid gap-2 mb-5">
+            <div className="d-grid gap-2 mb-3">
+              <Form.Check
+                type="switch"
+                id="switch-seguir-agregando"
+                className="mb-2"
+                label="Seguir agregando insumos del mismo documento (mantener el formulario)"
+                checked={seguir_agregando}
+                onChange={(e) => set_seguir_agregando(e.target.checked)}
+              />
               <Button
                 variant="success"
                 type="submit"
@@ -503,6 +569,11 @@ const InventarioCreatePage = () => {
                     />
                     Registrando Insumo...
                   </>
+                ) : seguir_agregando ? (
+                  <>
+                    <i className="bi bi-plus-circle-fill me-2"></i>Registrar y
+                    agregar otro
+                  </>
                 ) : (
                   <>
                     <i className="bi bi-check-circle-fill me-2"></i>Confirmar
@@ -510,6 +581,17 @@ const InventarioCreatePage = () => {
                   </>
                 )}
               </Button>
+              {insumos_registrados > 0 && (
+                <Button
+                  variant="outline-secondary"
+                  type="button"
+                  onClick={() => navigate("/inventario")}
+                  className="mb-5"
+                >
+                  <i className="bi bi-box-arrow-left me-2"></i>Finalizar e ir al
+                  inventario
+                </Button>
+              )}
             </div>
           </Form>
         </Col>

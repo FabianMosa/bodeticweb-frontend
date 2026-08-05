@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import insumoService from "../services/insumo.service";
-import { useNotification } from "../context/NotificationContext";
+import { useNotification } from "../context/notification-context";
 import {
   Container,
   Row,

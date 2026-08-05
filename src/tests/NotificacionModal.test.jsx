@@ -11,7 +11,7 @@ import { describe, test, expect, vi } from 'vitest';
 import NotificationModal from '../components/NotificacionModal';
 
 // Mock del hook useNotification para forzar los estados locales de éxito y error
-import * as NotificationContext from '../context/NotificationContext';
+import * as NotificationContext from '../context/notification-context';
 
 describe('NotificationModal Crítico (Comportamiento UX Medio)', () => {
   test('No debe renderizar nada (devuelve null) si no hay notificaciones activas', () => {

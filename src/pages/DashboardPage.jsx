@@ -366,7 +366,7 @@ const DashboardPage = () => {
                               </span>
                               <small className="text-muted">
                                 {new Date(
-                                  a.fecha_vencimiento
+                                  a.fecha_vencimiento,
                                 ).toLocaleDateString()}
                               </small>
                             </div>
@@ -399,12 +399,19 @@ const DashboardPage = () => {
             <>
               {/* Encabezado con nombre e ícono */}
               <div className="text-center mb-4">
-                <div className="icon-circle bg-primary-subtle text-primary mx-auto mb-3" style={{ width: 56, height: 56 }}>
+                <div
+                  className="icon-circle bg-primary-subtle text-primary mx-auto mb-3"
+                  style={{ width: 56, height: 56 }}
+                >
                   <i className="bi bi-box-seam fs-4"></i>
                 </div>
-                <h5 className="fw-bold mb-1">{prestamoSeleccionado.nombre_insumo}</h5>
+                <h5 className="fw-bold mb-1">
+                  {prestamoSeleccionado.nombre_insumo}
+                </h5>
                 {prestamoSeleccionado.descripcion_insumo && (
-                  <p className="text-muted small mb-0">{prestamoSeleccionado.descripcion_insumo}</p>
+                  <p className="text-muted small mb-0">
+                    {prestamoSeleccionado.descripcion_insumo}
+                  </p>
                 )}
               </div>
 
@@ -413,18 +420,26 @@ const DashboardPage = () => {
                 <Row className="g-3">
                   <Col xs={6}>
                     <small className="text-muted d-block">SKU</small>
-                    <span className="fw-semibold">{prestamoSeleccionado.sku}</span>
+                    <span className="fw-semibold">
+                      {prestamoSeleccionado.sku}
+                    </span>
                   </Col>
                   <Col xs={6}>
                     <small className="text-muted d-block">Categoría</small>
-                    <span className="fw-semibold">{prestamoSeleccionado.categoria ?? "Sin categoría"}</span>
+                    <span className="fw-semibold">
+                      {prestamoSeleccionado.categoria ?? "Sin categoría"}
+                    </span>
                   </Col>
                   <Col xs={6}>
                     <small className="text-muted d-block">Stock actual</small>
-                    <span className="fw-semibold">{prestamoSeleccionado.stock_actual ?? "—"}</span>
+                    <span className="fw-semibold">
+                      {prestamoSeleccionado.stock_actual ?? "—"}
+                    </span>
                   </Col>
                   <Col xs={6}>
-                    <small className="text-muted d-block">Cant. pendiente</small>
+                    <small className="text-muted d-block">
+                      Cant. pendiente
+                    </small>
                     <Badge bg="warning" text="dark" className="fs-6">
                       {prestamoSeleccionado.cantidad_pendiente}
                     </Badge>
@@ -442,15 +457,21 @@ const DashboardPage = () => {
                       {prestamoSeleccionado.nombre_usuario}
                     </span>
                     {prestamoSeleccionado.rut_usuario && (
-                      <small className="text-muted d-block">{prestamoSeleccionado.rut_usuario}</small>
+                      <small className="text-muted d-block">
+                        {prestamoSeleccionado.rut_usuario}
+                      </small>
                     )}
                   </Col>
                   <Col xs={12} sm={6}>
-                    <small className="text-muted d-block">Último préstamo</small>
+                    <small className="text-muted d-block">
+                      Último préstamo
+                    </small>
                     <span className="fw-semibold">
                       <i className="bi bi-calendar3 me-1 text-secondary"></i>
                       {prestamoSeleccionado.fecha_ultimo_prestamo
-                        ? new Date(prestamoSeleccionado.fecha_ultimo_prestamo).toLocaleString("es-CL")
+                        ? new Date(
+                            prestamoSeleccionado.fecha_ultimo_prestamo,
+                          ).toLocaleString("es-CL")
                         : "—"}
                     </span>
                   </Col>
@@ -471,7 +492,11 @@ const DashboardPage = () => {
           )}
         </Modal.Body>
         <Modal.Footer className="border-0 pt-0">
-          <Button variant="outline-secondary" className="rounded-pill" onClick={handleCerrarDetalle}>
+          <Button
+            variant="outline-secondary"
+            className="rounded-pill"
+            onClick={handleCerrarDetalle}
+          >
             Cerrar
           </Button>
         </Modal.Footer>
