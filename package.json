@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "axios": "^1.15.2",
+    "axios": "^1.16.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "lucide-react": "^0.562.0",
