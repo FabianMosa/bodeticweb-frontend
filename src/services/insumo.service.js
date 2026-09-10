@@ -25,7 +25,7 @@ const getInsumos = async (filtros = {}, page = 1, limit = 9) => {
 
 /**
  * Descarga el inventario actual en formato Excel respetando los filtros aplicados
- * (estado activo, categoría y búsqueda por nombre). Genera y dispara la descarga del archivo.
+ * (estado activo, categoría y búsqueda por nombre o nro. de documento). Genera y dispara la descarga del archivo.
  * @param {object} filtros - { activo, categoria, search } filtros actuales del listado.
  * @returns {Promise<void>} Resuelve cuando la descarga fue disparada.
  */

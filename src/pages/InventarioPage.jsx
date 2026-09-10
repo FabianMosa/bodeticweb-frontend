@@ -145,7 +145,7 @@ const InventarioPage = () => {
 
   /**
    * Descarga el inventario actual en Excel respetando los filtros vigentes
-   * (estado activo/papelera, categoría y búsqueda por nombre).
+   * (estado activo/papelera, categoría y búsqueda por nombre o nro. de documento).
    */
   const handleDescargarExcel = async () => {
     try {
@@ -424,7 +424,7 @@ const InventarioPage = () => {
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
-                    placeholder="Nombre o SKU..."
+                    placeholder="Nombre o nro. documento (factura/guía)..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="border-start-0 shadow-none"
@@ -525,6 +525,11 @@ const InventarioPage = () => {
                         <div className="small text-muted font-monospace">
                           SKU: {insumo.sku}
                         </div>
+                        {insumo.codigo_documento ? (
+                          <div className="small text-muted">
+                            Doc.: {insumo.codigo_documento}
+                          </div>
+                        ) : null}
                       </td>
                       <td className="text-center">
                         <h5

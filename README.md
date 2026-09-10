@@ -43,7 +43,7 @@ bodeticweb-frontend/
 │   ├── pages/                      # Páginas/Vistas
 │   │   ├── LoginPage.jsx           # Inicio de sesión (RUT + contraseña)
 │   │   ├── DashboardPage.jsx       # Panel con alertas y estadísticas
-│   │   ├── InventarioPage.jsx      # Tabla de insumos (paginada + filtros; clic en fila → modal detalle)
+│   │   ├── InventarioPage.jsx      # Tabla de insumos (paginada + filtros; buscador nombre/nro. documento; clic en fila → modal detalle)
 │   │   ├── InventarioCreatePage.jsx# Formulario de creación de insumo (ingreso en serie: mantiene el documento y limpia el detalle)
 │   │   ├── InventarioEditPage.jsx  # Formulario de edición de insumo
 │   │   ├── DevolucionesPage.jsx    # Gestión de devoluciones
@@ -104,7 +104,7 @@ En el hosting del frontend, configura `VITE_API_URL` apuntando a la API pública
 | Ruta                     | Página               | Descripción                                                                                                                                                       |
 | ------------------------ | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/dashboard`             | DashboardPage        | Panel principal con alertas                                                                                                                                       |
-| `/inventario`            | InventarioPage       | Listado de insumos (paginado, filtros, detalle por clic con Nro. documento Factura/guía; botón **Descargar Excel** que exporta el inventario respetando los filtros) |
+| `/inventario`            | InventarioPage       | Listado de insumos (paginado, filtros, buscador por nombre/nro. documento factura-guía, detalle por clic con Nro. documento; botón **Descargar Excel** que exporta el inventario respetando los filtros) |
 | `/inventario/nuevo`      | InventarioCreatePage | Crear insumo (ingreso continuo: al registrar mantiene el formulario y el documento de origen para cargar varios insumos seguidos; el switch permite desactivarlo) |
 | `/inventario/editar/:id` | InventarioEditPage   | Editar insumo                                                                                                                                                     |
 | `/devoluciones`          | DevolucionesPage     | Gestión de devoluciones                                                                                                                                           |
@@ -189,7 +189,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 
 | Función                            | Endpoint                         | Descripción                                                   |
 | ---------------------------------- | -------------------------------- | ------------------------------------------------------------- |
-| `getInsumos(filtros, page, limit)` | GET `/insumos`                   | Listado paginado con filtros                                  |
+| `getInsumos(filtros, page, limit)` | GET `/insumos`                   | Listado paginado con filtros (search: nombre o nro. documento) |
 | `getInsumosExcel(filtros)`         | GET `/insumos/export`            | Descarga el inventario en Excel respetando los filtros aplicados |
 | `getCategorias()`                  | GET `/categorias`                | Categorías disponibles                                        |
 | `getProveedores()`                 | GET `/proveedores`               | Proveedores disponibles                                       |
