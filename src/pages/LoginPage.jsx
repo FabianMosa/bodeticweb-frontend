@@ -204,7 +204,7 @@ const LoginPage = () => {
                 © {new Date().getFullYear()}. Bodega. Dev{" "}
                 {/* Enlace destacado del autor para dar mayor visibilidad en el pie. */}
                 <a
-                  href="https://www.linkedin.com/in/bernardo-morales-848517310/"
+                  href="https://portfolio.aux8n.online/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-sm font-semibold text-gold-500 underline decoration-gold-500/60 underline-offset-4 transition-colors duration-200 hover:text-gold-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
