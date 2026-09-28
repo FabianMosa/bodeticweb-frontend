@@ -33,6 +33,7 @@ const HistorialPage = () => {
     id_usuario: "",
     tipo_movimiento: "",
     codigo_documento: "",
+    search: "",
   });
   const [filtrosAplicados, setFiltrosAplicados] = useState(filtros);
 
@@ -68,8 +69,8 @@ const HistorialPage = () => {
 
   // 2. Cargar historial (Reactivo a filtros y paginación)
   useEffect(() => {
-    // Aplicamos debounce para la búsqueda por documento y evitar consultas por cada tecla.
-    const debounceMs = filtros.codigo_documento ? 300 : 0;
+    // Aplicamos debounce para la búsqueda por documento o palabra/insumo y evitar consultas por cada tecla.
+    const debounceMs = filtros.codigo_documento || filtros.search ? 300 : 0;
     const debounceId = window.setTimeout(
       () => setFiltrosAplicados(filtros),
       debounceMs,
@@ -117,6 +118,7 @@ const HistorialPage = () => {
       id_usuario: "",
       tipo_movimiento: "",
       codigo_documento: "",
+      search: "",
     });
     setCurrentPage(1);
   };
@@ -409,6 +411,27 @@ const HistorialPage = () => {
                           onChange={handleFilterChange}
                           className="shadow-none"
                           placeholder="Factura o guía"
+                        />
+                      </InputGroup>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6} lg={4}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted fw-bold mb-1">
+                        Palabra o insumo
+                      </Form.Label>
+                      <InputGroup>
+                        <InputGroup.Text className="bg-white">
+                          <i className="bi bi-search"></i>
+                        </InputGroup.Text>
+                        <Form.Control
+                          type="text"
+                          name="search"
+                          value={filtros.search}
+                          onChange={handleFilterChange}
+                          className="shadow-none"
+                          placeholder="Nombre, SKU o detalle..."
                         />
                       </InputGroup>
                     </Form.Group>

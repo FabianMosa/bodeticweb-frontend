@@ -108,7 +108,7 @@ En el hosting del frontend, configura `VITE_API_URL` apuntando a la API pública
 | `/inventario/nuevo`      | InventarioCreatePage | Crear insumo (ingreso continuo: al registrar mantiene el formulario y el documento de origen para cargar varios insumos seguidos; el switch permite desactivarlo) |
 | `/inventario/editar/:id` | InventarioEditPage   | Editar insumo                                                                                                                                                     |
 | `/devoluciones`          | DevolucionesPage     | Gestión de devoluciones                                                                                                                                           |
-| `/historial`             | HistorialPage        | Historial de movimientos (filtros, incluido `Nro. documento` con búsqueda parcial; columna `Nro. documento`; fechas con placeholder `MM-DD-YYYY` en UI)           |
+| `/historial`             | HistorialPage        | Historial de movimientos (filtros, incluido `Nro. documento` con búsqueda parcial y buscador de palabra o insumo; columna `Nro. documento`; fechas con placeholder `MM-DD-YYYY` en UI)           |
 | `/usuarios`              | UsuarioListPage      | Listado de usuarios                                                                                                                                               |
 | `/usuarios/nuevo`        | UsuarioCreatePage    | Crear usuario                                                                                                                                                     |
 | `/usuarios/editar/:id`   | UsuarioEditPage      | Editar usuario                                                                                                                                                    |
@@ -208,7 +208,7 @@ Instancia de Axios con `baseURL` desde `VITE_API_URL`. Interceptor automático q
 | `registrarSalida(data)`              | POST `/movimientos/salida`                 | Registrar salida                                                                                     |
 | `registrarDevolucion(data)`          | POST `/movimientos/devolucion`             | Registrar devolución                                                                                 |
 | `getPrestamosActivos()`              | GET `/movimientos/prestamos`               | Préstamos pendientes (detalle: insumo, técnico, stock, fecha y descripción del último préstamo)      |
-| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye filtro `codigo_documento`; en salidas se hereda el documento de entrada) |
+| `getHistorial(filtros, page, limit)` | GET `/movimientos/historial`               | Historial filtrado (incluye filtros `codigo_documento` y `search` de palabra o insumo; en salidas se hereda el documento de entrada) |
 | `getHistorialExcel(filtros)`         | GET `/movimientos/historial?formato=excel` | Descarga Excel                                                                                       |
 
 ### usuario.service.js
