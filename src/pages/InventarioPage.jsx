@@ -20,7 +20,6 @@ import {
   Search,
   MapPin,
   Edit,
-  Trash2,
   RotateCcw,
   LogOut,
   ArrowLeft,
@@ -73,10 +72,27 @@ const InventarioPage = () => {
   const [filtroNombre, setFiltroNombre] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // --- Paginación ---
+  // --- Paginación Responsiva ---
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const ITEMS_PER_PAGE = 20;
+  const getInitialLimit = () =>
+    typeof window !== "undefined" && window.innerWidth < 768 ? 8 : 16;
+  const [itemsPerPage, setItemsPerPage] = useState(getInitialLimit);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const nuevo = window.innerWidth < 768 ? 8 : 16;
+      setItemsPerPage((prev) => {
+        if (prev !== nuevo) {
+          setCurrentPage(1);
+          return nuevo;
+        }
+        return prev;
+      });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // --- Modales ---
   const [salidaModalOpen, setSalidaModalOpen] = useState(false);
@@ -115,7 +131,7 @@ const InventarioPage = () => {
         const response = await insumoService.getInsumos(
           filtros,
           currentPage,
-          ITEMS_PER_PAGE
+          itemsPerPage
         );
         setInsumos(response.data);
         setTotalPages(response.pagination.totalPages);
@@ -133,6 +149,7 @@ const InventarioPage = () => {
     filtroCategoria,
     filtroNombre,
     currentPage,
+    itemsPerPage,
     categorias.length,
     showNotification,
   ]);
@@ -831,20 +848,16 @@ const InventarioPage = () => {
                 Editar
               </Button>
             )}
-            {usuarioRol === 1 && detalleInsumo && !detalleLoading && (
+            {usuarioRol === 1 && detalleInsumo && !detalleLoading && !detalleInsumo.activo && (
               <Button
-                variant={detalleInsumo.activo ? "outline-danger" : "outline-success"}
+                variant="outline-success"
                 className="rounded-pill d-flex align-items-center gap-2"
                 onClick={() => {
                   handleToggleActivo(detalleInsumo);
                   handleCerrarDetalle();
                 }}
               >
-                {detalleInsumo.activo ? (
-                  <><Trash2 size={16} /> Eliminar</>
-                ) : (
-                  <><RotateCcw size={16} /> Restaurar</>
-                )}
+                <RotateCcw size={16} /> Restaurar
               </Button>
             )}
             {usuarioRol === 1 && detalleInsumo && !detalleLoading && !detalleInsumo.activo && (
@@ -871,7 +884,7 @@ const InventarioPage = () => {
                   setSalidaModalOpen(true);
                 }}
               >
-                <LogOut size={16} /> Salida
+                <LogOut size={16} /> Registrar Salida
               </Button>
             )}
           </div>

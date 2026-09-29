@@ -83,6 +83,33 @@ const InventarioEditPage = () => {
     }
   };
 
+  const [deleting, setDeleting] = useState(false);
+
+  const handleEliminar = async () => {
+    if (!formData) return;
+    if (
+      !window.confirm(
+        `¿Estás seguro de que deseas eliminar (deshabilitar) el insumo "${formData.nombre}"?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      await insumoService.toggleActivo(id, false);
+      showNotification(
+        "Insumo eliminado (movido a papelera) con éxito",
+        "success"
+      );
+      navigate("/inventario");
+    } catch (err) {
+      showNotification(err.message || "Error al eliminar el insumo", "error");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading)
     return (
       <Container
@@ -239,14 +266,14 @@ const InventarioEditPage = () => {
                     />
                   </Form.Group>
 
-                  {/* Botón de Acción */}
-                  <div className="d-grid">
+                  {/* Botones de Acción */}
+                  <div className="d-flex flex-column flex-sm-row gap-3 pt-2">
                     <Button
-                      variant="warning" // Color amarillo para indicar "Edición"
+                      variant="warning"
                       type="submit"
-                      disabled={submitting}
+                      disabled={submitting || deleting}
                       size="lg"
-                      className="text-dark fw-bold shadow-sm"
+                      className="text-dark fw-bold shadow-sm flex-grow-1"
                     >
                       {submitting ? (
                         <>
@@ -261,6 +288,22 @@ const InventarioEditPage = () => {
                       ) : (
                         <>
                           <i className="bi bi-save me-2"></i>Actualizar Insumo
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      type="button"
+                      disabled={submitting || deleting}
+                      size="lg"
+                      className="fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+                      onClick={handleEliminar}
+                    >
+                      {deleting ? (
+                        <Spinner as="span" animation="border" size="sm" />
+                      ) : (
+                        <>
+                          <i className="bi bi-trash me-1"></i>Eliminar Insumo
                         </>
                       )}
                     </Button>
