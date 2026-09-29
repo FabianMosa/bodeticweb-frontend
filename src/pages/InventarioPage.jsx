@@ -469,7 +469,10 @@ const InventarioPage = () => {
                 </Form.Label>
                 <Form.Select
                   value={filtroCategoria}
-                  onChange={(e) => setFiltroCategoria(e.target.value)}
+                  onChange={(e) => {
+                    setFiltroCategoria(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   disabled={categorias.length === 0}
                   className="shadow-none"
                 >
