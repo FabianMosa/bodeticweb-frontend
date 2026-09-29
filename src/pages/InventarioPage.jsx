@@ -28,6 +28,7 @@ import {
   Crosshair,
   EyeOff,
   Package,
+  PackageSearch,
   FileSpreadsheet,
 } from "lucide-react";
 
@@ -142,6 +143,17 @@ const InventarioPage = () => {
     setFiltroNombre(searchTerm);
     setCurrentPage(1);
   };
+
+  const handleLimpiarFiltros = () => {
+    setFiltroActivo(true);
+    setFiltroCategoria("");
+    setFiltroNombre("");
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
+
+  const hayFiltrosActivos =
+    !filtroActivo || Boolean(filtroCategoria) || Boolean(filtroNombre) || Boolean(searchTerm);
 
   /**
    * Descarga el inventario actual en Excel respetando los filtros vigentes
@@ -499,84 +511,195 @@ const InventarioPage = () => {
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
             </div>
+          ) : insumos.length === 0 ? (
+            /* Estado Vacío Mejorado */
+            <div className="text-center py-5 px-3">
+              <div className="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-muted p-4 mb-3 border">
+                <PackageSearch size={44} className="opacity-75" />
+              </div>
+              <h5 className="fw-bold text-dark mb-1">
+                {hayFiltrosActivos
+                  ? "No se encontraron insumos con estos filtros"
+                  : "No hay insumos registrados"}
+              </h5>
+              <p
+                className="text-muted small mb-0 mx-auto"
+                style={{ maxWidth: "420px" }}
+              >
+                {hayFiltrosActivos
+                  ? "Prueba modificando el texto del buscador, cambiando la categoría o revisando la papelera."
+                  : "Aún no se han registrado insumos en la base de datos."}
+              </p>
+              {hayFiltrosActivos && (
+                <div className="mt-3">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-2"
+                    onClick={handleLimpiarFiltros}
+                  >
+                    <RotateCcw size={14} /> Limpiar filtros
+                  </Button>
+                </div>
+              )}
+            </div>
           ) : (
-            <Table hover responsive="md" className="align-middle mb-0 custom-table">
-              <thead className="bg-light text-secondary text-uppercase small fw-bold">
-                <tr>
-                  <th className="py-3 ps-4">Insumo</th>
-                  <th className="py-3 text-center">Stock</th>
-                  <th className="py-3">Categoría</th>
-                </tr>
-              </thead>
-              <tbody>
-                {insumos.length > 0 ? (
-                  insumos.map((insumo) => (
-                    <tr
+            <>
+              {/* Vista Desktop: Tabla (md en adelante) */}
+              <div className="d-none d-md-block">
+                <Table
+                  hover
+                  responsive="md"
+                  className="align-middle mb-0 custom-table"
+                >
+                  <thead className="bg-light text-secondary text-uppercase small fw-bold">
+                    <tr>
+                      <th className="py-3 ps-4">Insumo</th>
+                      <th className="py-3 text-center">Stock</th>
+                      <th className="py-3">Categoría</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {insumos.map((insumo) => (
+                      <tr
+                        key={insumo.PK_id_insumo}
+                        className={`border-bottom cursor-pointer ${
+                          !insumo.activo ? "bg-light opacity-50" : ""
+                        }`}
+                        onClick={() => handleOpenDetalle(insumo)}
+                        title="Ver detalle del insumo"
+                      >
+                        <td className="ps-4">
+                          <div className="fw-bold text-dark">{insumo.nombre}</div>
+                          <div className="small text-muted font-monospace">
+                            SKU: {insumo.sku}
+                          </div>
+                          {insumo.codigo_documento ? (
+                            <div className="small text-muted">
+                              Doc.: {insumo.codigo_documento}
+                            </div>
+                          ) : null}
+                        </td>
+                        <td className="text-center">
+                          <h5
+                            className={`m-0 fw-bold ${
+                              insumo.stock_actual <= insumo.stock_minimo &&
+                              insumo.activo
+                                ? "text-danger"
+                                : "text-dark"
+                            }`}
+                          >
+                            {insumo.stock_actual}
+                          </h5>
+                        </td>
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                            {!!insumo.activo && (
+                              <Button
+                                variant="link"
+                                className="btn-icon-sm p-0 text-primary rounded-circle bg-primary-subtle"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenLocationModal(insumo);
+                                }}
+                                title="Ver/Editar ubicación física"
+                              >
+                                <MapPin size={14} />
+                              </Button>
+                            )}
+                            <Badge
+                              bg="light"
+                              text="dark"
+                              className="border fw-normal px-2 py-1"
+                            >
+                              {insumo.nombre_categoria}
+                            </Badge>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+
+              {/* Vista Mobile: Tarjetas compactas e interactivas */}
+              <div className="d-md-none p-3 d-flex flex-column gap-3">
+                {insumos.map((insumo) => {
+                  const bajoStock =
+                    insumo.stock_actual <= insumo.stock_minimo && insumo.activo;
+                  return (
+                    <div
                       key={insumo.PK_id_insumo}
-                      className={`border-bottom cursor-pointer ${
-                        !insumo.activo ? "bg-light opacity-50" : ""
+                      className={`card-insumo-mobile p-3 rounded-4 border bg-white shadow-sm cursor-pointer position-relative ${
+                        !insumo.activo ? "opacity-50 bg-light" : ""
                       }`}
                       onClick={() => handleOpenDetalle(insumo)}
-                      title="Ver detalle del insumo"
                     >
-                      <td className="ps-4">
-                        <div className="fw-bold text-dark">{insumo.nombre}</div>
-                        <div className="small text-muted font-monospace">
-                          SKU: {insumo.sku}
-                        </div>
-                        {insumo.codigo_documento ? (
-                          <div className="small text-muted">
-                            Doc.: {insumo.codigo_documento}
+                      <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <div className="flex-grow-1">
+                          <h6 className="fw-bold text-dark mb-1 lh-sm">
+                            {insumo.nombre}
+                          </h6>
+                          <div className="small text-muted font-monospace">
+                            SKU: {insumo.sku}
                           </div>
-                        ) : null}
-                      </td>
-                      <td className="text-center">
-                        <h5
-                          className={`m-0 fw-bold ${
-                            insumo.stock_actual <= insumo.stock_minimo &&
-                            insumo.activo
-                              ? "text-danger"
-                              : "text-dark"
-                          }`}
-                        >
-                          {insumo.stock_actual}
-                        </h5>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          {!!insumo.activo && (
-                            <Button
-                              variant="link"
-                              className="btn-icon-sm p-0 text-primary rounded-circle bg-primary-subtle"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenLocationModal(insumo);
-                              }}
-                              title="Ver/Editar ubicación física"
-                            >
-                              <MapPin size={14} />
-                            </Button>
+                          {insumo.codigo_documento && (
+                            <div className="small text-muted">
+                              Doc.: {insumo.codigo_documento}
+                            </div>
                           )}
-                          <Badge
-                            bg="light"
-                            text="dark"
-                            className="border fw-normal px-2 py-1"
-                          >
-                            {insumo.nombre_categoria}
-                          </Badge>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={3} className="text-center py-5 text-muted">
-                      No se encontraron insumos.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
+                        <div className="text-end flex-shrink-0">
+                          <span
+                            className={`badge rounded-pill fs-6 px-3 py-1 ${
+                              bajoStock
+                                ? "bg-danger text-white shadow-sm"
+                                : "bg-primary-subtle text-primary border border-primary-subtle"
+                            }`}
+                          >
+                            {insumo.stock_actual}
+                          </span>
+                          <div
+                            className={`small text-uppercase fw-semibold mt-1 ${
+                              bajoStock ? "text-danger" : "text-muted"
+                            }`}
+                            style={{ fontSize: "0.68rem" }}
+                          >
+                            {bajoStock ? "Stock bajo" : "Stock"}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                        <Badge
+                          bg="light"
+                          text="dark"
+                          className="border fw-normal px-2 py-1"
+                        >
+                          {insumo.nombre_categoria}
+                        </Badge>
+
+                        {!!insumo.activo && (
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="rounded-pill d-flex align-items-center gap-1 py-1 px-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenLocationModal(insumo);
+                            }}
+                            title="Ver/Editar ubicación física"
+                          >
+                            <MapPin size={13} />
+                            <span className="small">Ubicación</span>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
           {/* Paginación */}
           {totalPages > 1 && (

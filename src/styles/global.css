@@ -263,6 +263,20 @@ body {
 .custom-table tbody tr td:first-child { border-top-left-radius: var(--radius-md); border-bottom-left-radius: var(--radius-md); }
 .custom-table tbody tr td:last-child { border-top-right-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Tarjetas mobile para inventario */
+.card-insumo-mobile {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card-insumo-mobile:active {
+  transform: scale(0.985);
+  box-shadow: var(--shadow-sm) !important;
+}
+
 /* ========== Avatar y botones de acción ========== */
 .avatar-circle {
   width: 44px;
