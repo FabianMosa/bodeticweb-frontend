@@ -119,7 +119,7 @@ Cualquier ruta no definida muestra **"404 - Página No Encontrada"**.
 
 ### ProtectedRoute
 
-HOC que verifica la existencia de datos de usuario en `localStorage`. Redirige a `/` si no hay sesión activa. Usa `Outlet` de React Router para renderizar rutas hijas.
+HOC que verifica la existencia de datos de usuario en `localStorage`. Redirige a `/` si no hay sesión activa. En `App.jsx`, este componente debe funcionar como **Layout** y envolver (wrap) a todas las rutas protegidas para usar internamente `<Outlet />` de React Router v6 y blindarlas al 100%.
 
 ### NotificacionModal
 

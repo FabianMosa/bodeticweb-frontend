@@ -505,8 +505,7 @@ const InventarioPage = () => {
                 <tr>
                   <th className="py-3 ps-4">Insumo</th>
                   <th className="py-3 text-center">Stock</th>
-                  <th className="py-3 align-center">Categoría</th>
-                  <th className="py-3 pe-4 text-end">Acciones</th>
+                  <th className="py-3">Categoría</th>
                 </tr>
               </thead>
               <tbody>
@@ -567,74 +566,11 @@ const InventarioPage = () => {
                           </Badge>
                         </div>
                       </td>
-
-                      <td
-                        className="pe-4 text-end"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="d-flex justify-content-end align-items-center gap-1 flex-wrap">
-                          {usuarioRol === 1 && (
-                            <>
-                              <Button
-                                variant="light"
-                                size="sm"
-                                className="btn-icon border text-warning"
-                                as={Link}
-                                to={`/inventario/editar/${insumo.PK_id_insumo}`}
-                              >
-                                <Edit size={16} />
-                              </Button>
-                              <Button
-                                variant="light"
-                                size="sm"
-                                className="btn-icon border"
-                                onClick={() => handleToggleActivo(insumo)}
-                              >
-                                {insumo.activo ? (
-                                  <Trash2 size={16} className="text-danger" />
-                                ) : (
-                                  <RotateCcw
-                                    size={16}
-                                    className="text-success"
-                                  />
-                                )}
-                              </Button>
-                              {/* Solo en papelera: quitar de la UI sin borrar en BD */}
-                              {!insumo.activo && (
-                                <Button
-                                  variant="light"
-                                  size="sm"
-                                  className="btn-icon border text-secondary"
-                                  title="Retirar de la aplicación (conserva historial en BD)"
-                                  onClick={() => handleRetirarDeApp(insumo)}
-                                >
-                                  <EyeOff size={16} />
-                                </Button>
-                              )}
-                            </>
-                          )}
-                          {!!insumo.activo && (
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className="d-flex align-items-center ms-2 px-3 gap-1"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedInsumo(insumo);
-                                setSalidaModalOpen(true);
-                              }}
-                              disabled={insumo.stock_actual === 0}
-                            >
-                              <LogOut size={16} /> Salida
-                            </Button>
-                          )}
-                        </div>
-                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="text-center py-5 text-muted">
+                    <td colSpan={3} className="text-center py-5 text-muted">
                       No se encontraron insumos.
                     </td>
                   </tr>
@@ -830,13 +766,56 @@ const InventarioPage = () => {
             {usuarioRol === 1 && detalleInsumo && !detalleLoading && (
               <Button
                 variant="outline-warning"
-                className="rounded-pill"
+                className="rounded-pill d-flex align-items-center gap-2"
                 as={Link}
                 to={`/inventario/editar/${detalleInsumo.PK_id_insumo}`}
                 onClick={handleCerrarDetalle}
               >
-                <Edit size={16} className="me-1" />
+                <Edit size={16} />
                 Editar
+              </Button>
+            )}
+            {usuarioRol === 1 && detalleInsumo && !detalleLoading && (
+              <Button
+                variant={detalleInsumo.activo ? "outline-danger" : "outline-success"}
+                className="rounded-pill d-flex align-items-center gap-2"
+                onClick={() => {
+                  handleToggleActivo(detalleInsumo);
+                  handleCerrarDetalle();
+                }}
+              >
+                {detalleInsumo.activo ? (
+                  <><Trash2 size={16} /> Eliminar</>
+                ) : (
+                  <><RotateCcw size={16} /> Restaurar</>
+                )}
+              </Button>
+            )}
+            {usuarioRol === 1 && detalleInsumo && !detalleLoading && !detalleInsumo.activo && (
+              <Button
+                variant="outline-secondary"
+                className="rounded-pill d-flex align-items-center gap-2"
+                title="Retirar de la aplicación (conserva historial en BD)"
+                onClick={() => {
+                  handleRetirarDeApp(detalleInsumo);
+                  handleCerrarDetalle();
+                }}
+              >
+                <EyeOff size={16} /> Retirar de app
+              </Button>
+            )}
+            {!detalleLoading && detalleInsumo?.activo && (
+              <Button
+                variant="primary"
+                className="rounded-pill d-flex align-items-center gap-2"
+                disabled={detalleInsumo?.stock_actual === 0}
+                onClick={() => {
+                  setSelectedInsumo(detalleInsumo);
+                  handleCerrarDetalle();
+                  setSalidaModalOpen(true);
+                }}
+              >
+                <LogOut size={16} /> Salida
               </Button>
             )}
           </div>
