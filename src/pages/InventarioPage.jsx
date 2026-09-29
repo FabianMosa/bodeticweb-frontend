@@ -663,7 +663,29 @@ const InventarioPage = () => {
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                 />
-                <Pagination.Item active>{currentPage}</Pagination.Item>
+                {Array.from({ length: totalPages }, (_, idx) => idx + 1)
+                  .filter(
+                    (p) =>
+                      p === 1 ||
+                      p === totalPages ||
+                      Math.abs(p - currentPage) <= 1
+                  )
+                  .map((p, idx, arr) => {
+                    const prev = arr[idx - 1];
+                    return (
+                      <React.Fragment key={p}>
+                        {prev && p - prev > 1 && (
+                          <Pagination.Ellipsis disabled />
+                        )}
+                        <Pagination.Item
+                          active={p === currentPage}
+                          onClick={() => setCurrentPage(p)}
+                        >
+                          {p}
+                        </Pagination.Item>
+                      </React.Fragment>
+                    );
+                  })}
                 <Pagination.Next
                   onClick={() =>
                     setCurrentPage((p) => Math.min(totalPages, p + 1))
