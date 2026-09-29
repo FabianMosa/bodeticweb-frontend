@@ -504,15 +504,17 @@ const InventarioPage = () => {
         </Card.Body>
       </Card>
 
-      {/* Tabla */}
-      <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
-        <Card.Body className="p-0">
-          {loading ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="primary" />
-            </div>
-          ) : insumos.length === 0 ? (
-            /* Estado Vacío Mejorado */
+      {/* Contenedor de Insumos: Grid de Recuadros */}
+      {loading ? (
+        <Card className="shadow-sm border-0 rounded-4 mb-4">
+          <Card.Body className="text-center py-5">
+            <Spinner animation="border" variant="primary" />
+          </Card.Body>
+        </Card>
+      ) : insumos.length === 0 ? (
+        <Card className="shadow-sm border-0 rounded-4 mb-4">
+          <Card.Body className="p-0">
+            {/* Estado Vacío Mejorado */}
             <div className="text-center py-5 px-3">
               <div className="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-muted p-4 mb-3 border">
                 <PackageSearch size={44} className="opacity-75" />
@@ -543,168 +545,99 @@ const InventarioPage = () => {
                 </div>
               )}
             </div>
-          ) : (
-            <>
-              {/* Vista Desktop: Tabla (md en adelante) */}
-              <div className="d-none d-md-block">
-                <Table
-                  hover
-                  responsive="md"
-                  className="align-middle mb-0 custom-table"
-                >
-                  <thead className="bg-light text-secondary text-uppercase small fw-bold">
-                    <tr>
-                      <th className="py-3 ps-4">Insumo</th>
-                      <th className="py-3 text-center">Stock</th>
-                      <th className="py-3">Categoría</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {insumos.map((insumo) => (
-                      <tr
-                        key={insumo.PK_id_insumo}
-                        className={`border-bottom cursor-pointer ${
-                          !insumo.activo ? "bg-light opacity-50" : ""
-                        }`}
-                        onClick={() => handleOpenDetalle(insumo)}
-                        title="Ver detalle del insumo"
-                      >
-                        <td className="ps-4">
-                          <div className="fw-bold text-dark">{insumo.nombre}</div>
-                          <div className="small text-muted font-monospace">
-                            SKU: {insumo.sku}
-                          </div>
-                          {insumo.codigo_documento ? (
-                            <div className="small text-muted">
-                              Doc.: {insumo.codigo_documento}
-                            </div>
-                          ) : null}
-                        </td>
-                        <td className="text-center">
-                          <h5
-                            className={`m-0 fw-bold ${
-                              insumo.stock_actual <= insumo.stock_minimo &&
-                              insumo.activo
-                                ? "text-danger"
-                                : "text-dark"
-                            }`}
+          </Card.Body>
+        </Card>
+      ) : (
+        <>
+          <Row className="g-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 mb-4">
+            {insumos.map((insumo) => {
+              const bajoStock =
+                insumo.stock_actual <= insumo.stock_minimo && insumo.activo;
+              return (
+                <Col key={insumo.PK_id_insumo}>
+                  <Card
+                    className={`h-100 rounded-4 border bg-white shadow-sm insumo-grid-card cursor-pointer ${
+                      !insumo.activo ? "opacity-50 bg-light" : ""
+                    }`}
+                    onClick={() => handleOpenDetalle(insumo)}
+                    title="Clic para ver detalle y acciones"
+                  >
+                    <Card.Body className="p-3 d-flex flex-column justify-content-between">
+                      <div>
+                        {/* Cabecera del recuadro: Nombre y Stock */}
+                        <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
+                          <h6
+                            className="fw-bold text-dark mb-0 text-truncate-2"
+                            title={insumo.nombre}
                           >
-                            {insumo.stock_actual}
-                          </h5>
-                        </td>
-                        <td>
-                          <div className="d-flex align-items-center gap-2">
-                            {!!insumo.activo && (
-                              <Button
-                                variant="link"
-                                className="btn-icon-sm p-0 text-primary rounded-circle bg-primary-subtle"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleOpenLocationModal(insumo);
-                                }}
-                                title="Ver/Editar ubicación física"
-                              >
-                                <MapPin size={14} />
-                              </Button>
-                            )}
-                            <Badge
-                              bg="light"
-                              text="dark"
-                              className="border fw-normal px-2 py-1"
-                            >
-                              {insumo.nombre_categoria}
-                            </Badge>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-
-              {/* Vista Mobile: Tarjetas compactas e interactivas */}
-              <div className="d-md-none p-3 d-flex flex-column gap-3">
-                {insumos.map((insumo) => {
-                  const bajoStock =
-                    insumo.stock_actual <= insumo.stock_minimo && insumo.activo;
-                  return (
-                    <div
-                      key={insumo.PK_id_insumo}
-                      className={`card-insumo-mobile p-3 rounded-4 border bg-white shadow-sm cursor-pointer position-relative ${
-                        !insumo.activo ? "opacity-50 bg-light" : ""
-                      }`}
-                      onClick={() => handleOpenDetalle(insumo)}
-                    >
-                      <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
-                        <div className="flex-grow-1">
-                          <h6 className="fw-bold text-dark mb-1 lh-sm">
                             {insumo.nombre}
                           </h6>
-                          <div className="small text-muted font-monospace">
-                            SKU: {insumo.sku}
+                          <div className="text-end flex-shrink-0">
+                            <span
+                              className={`badge rounded-pill fs-5 px-3 py-1 fw-bold ${
+                                bajoStock
+                                  ? "bg-danger text-white shadow-sm"
+                                  : "bg-primary text-white shadow-sm"
+                              }`}
+                            >
+                              {insumo.stock_actual}
+                            </span>
                           </div>
-                          {insumo.codigo_documento && (
-                            <div className="small text-muted">
-                              Doc.: {insumo.codigo_documento}
-                            </div>
-                          )}
                         </div>
-                        <div className="text-end flex-shrink-0">
-                          <span
-                            className={`badge rounded-pill fs-6 px-3 py-1 ${
-                              bajoStock
-                                ? "bg-danger text-white shadow-sm"
-                                : "bg-primary-subtle text-primary border border-primary-subtle"
-                            }`}
-                          >
-                            {insumo.stock_actual}
-                          </span>
+
+                        {/* SKU y Código Documento */}
+                        <div className="small text-muted font-monospace mb-1">
+                          SKU: {insumo.sku}
+                        </div>
+                        {insumo.codigo_documento && (
                           <div
-                            className={`small text-uppercase fw-semibold mt-1 ${
-                              bajoStock ? "text-danger" : "text-muted"
-                            }`}
-                            style={{ fontSize: "0.68rem" }}
+                            className="small text-muted text-truncate"
+                            title={insumo.codigo_documento}
                           >
-                            {bajoStock ? "Stock bajo" : "Stock"}
+                            Doc: {insumo.codigo_documento}
                           </div>
-                        </div>
+                        )}
                       </div>
 
-                      <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
-                        <Badge
-                          bg="light"
-                          text="dark"
-                          className="border fw-normal px-2 py-1"
-                        >
-                          {insumo.nombre_categoria}
-                        </Badge>
+                      {/* Footer del recuadro: Alerta de stock bajo y Botón Ubicación */}
+                      <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-3">
+                        {bajoStock ? (
+                          <span
+                            className="small fw-bold text-danger d-inline-flex align-items-center gap-1"
+                            style={{ fontSize: "0.75rem" }}
+                          >
+                            ⚠️ Stock bajo
+                          </span>
+                        ) : (
+                          <span />
+                        )}
 
                         {!!insumo.activo && (
                           <Button
-                            variant="outline-primary"
+                            variant="light"
                             size="sm"
-                            className="rounded-pill d-flex align-items-center gap-1 py-1 px-2"
+                            className="btn-icon-sm p-0 text-primary rounded-circle bg-primary-subtle"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleOpenLocationModal(insumo);
                             }}
                             title="Ver/Editar ubicación física"
                           >
-                            <MapPin size={13} />
-                            <span className="small">Ubicación</span>
+                            <MapPin size={14} />
                           </Button>
                         )}
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
+
           {/* Paginación */}
           {totalPages > 1 && (
-            <div className="d-flex justify-content-center py-3 border-top">
-              <Pagination className="mb-0">
+            <div className="d-flex justify-content-center py-3 mb-4">
+              <Pagination className="mb-0 shadow-sm bg-white rounded-3 p-1">
                 <Pagination.First
                   onClick={() => setCurrentPage(1)}
                   disabled={currentPage === 1}
@@ -727,8 +660,8 @@ const InventarioPage = () => {
               </Pagination>
             </div>
           )}
-        </Card.Body>
-      </Card>
+        </>
+      )}
 
       {/* Modales Auxiliares */}
       {salidaModalOpen && (
