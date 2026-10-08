@@ -5,6 +5,7 @@ Aplicación web **SPA** desarrollada con **React 19** y **Vite 7** para la gesti
 ## Acceso rápido
 
 - Backend complementario (API): [`../bodeticweb-backend/README.md`](../bodeticweb-backend/README.md)
+- 🤖 **Reglas para Inteligencia Artificial:** [`agent.md`](agent.md) (Instrucciones obligatorias para agentes/copilots).
 - Requisitos mínimos: Node.js LTS + npm
 - URL local por defecto: `http://localhost:5173`
 
